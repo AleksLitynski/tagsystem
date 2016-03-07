@@ -1,0 +1,6 @@
+[submodule "lib/lmdb"]
+	path = lib/lmdb
+	url = https://github.com/LMDB/lmdb.git
+[submodule "lib/openssl"]
+	path = lib/openssl
+	url = https://github.com/openssl/openssl.git

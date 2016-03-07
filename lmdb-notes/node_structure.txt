@@ -1,0 +1,17 @@
+
+
+
+tree strucute:
+
+binary search trees implicitly containing the binary form of a 
+
+
+[ free nodes ]      const SCALE_POINT
+[length of data]    h 
+[branch coverage]
+[ data map ]
+[ data-path ]
+[ branch list ]
+
+
+

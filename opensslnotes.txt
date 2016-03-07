@@ -1,0 +1,9 @@
+
+https://wiki.openssl.org/index.php/Compilation_and_Installation
+intall perl
+cd openssl
+perl Configure LIST
+    ANDROID is in the list of configurations
+
+perl Configure android --unified
+make
