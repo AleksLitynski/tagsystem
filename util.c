@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "lib/openssl/include/sha.h"
 
 
 char * ts_util_concat(char * a, char * b) {
@@ -16,9 +17,13 @@ char * ts_util_concat(char * a, char * b) {
     return c;
 }
 
-void ts_util_safe_mkdir(char * name) {
+void ts_util_safe_mk(char * name) {
     struct stat st = {0};
     if(stat(name, &st) == -1) {
         mkdir(name, 0700);
     }
+}
+
+void ts_util_gen_doc_id(ts_doc * doc, ts_doc_id * id) {
+    SHA1(doc->data, doc->length, id); 
 }

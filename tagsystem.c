@@ -38,31 +38,42 @@ void ts_close_full(ts_env * env) {
 }
 
 
-ts_doc_id ts_doc_create(ts_env * env, ts_doc * content) {
+void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id) {
+    MDB_txn * txn;
+    MDB_dbi dbi;
+    MDB_val key;
 
+    ts_util_gen_doc_id(content, id);
+    key.mv_size = sizeof(ts_doc_id);
+    key.mv_data = id;
+
+    mdb_txn_begin(env->env, NULL, 0, &txn);
+    mdb_dbi_open(txn, env->doc, MDB_CREATE, &dbi);
+
+    mdb_put(txn, dbi, &key, &content, 0);
+    mdb_txn_commit(txn);
+}	
+
+void ts_doc_get(ts_env * env, ts_doc_id * id, MDB_val * doc) {
+    MDB_txn * txn;
+    MDB_dbi dbi;
+    MDB_val key;
+
+    key.mv_size = sizeof(ts_doc_id);
+    key.mv_data = id;
+
+    mdb_txn_begin(env->env, NULL, 0, &txn);
+    mdb_dbi_open(txn, env->doc, MDB_CREATE, &dbi);
+    
+    mdb_get(txn, dbi, key, doc);
+
+    mdb_txn_commit(txn);
+    
 }
 
-		E(mdb_txn_begin(env, NULL, 0, &txn));
-		E(mdb_dbi_open(txn, NULL, 0, &dbi));
-    
-
-    MDB_dbi dbi;
-    MDB_val key, data;
-    MDB_txn *txn;
-    MDB_stat mst;
-    MDB_cursor *cursor, *cur2;
-	MDB_cursor_op op;   MDB_cursor_op op;
-
-    key.mv_size = sizeof(int);
-    key.mv_data = sval;
-
-    data.mv_size = sizeof(sval);
-    data.mv_data = sval;
-    if (RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NOOVERWRITE))) {
-    E(mdb_txn_commit(txn));
-    E(mdb_env_stat(env, &mst));
-
-    E(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn));
-    E(mdb_cursor_open(txn, dbi, &cursor));
-    while ((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
-	
+void ts_doc_tag(ts_env * env, ts_doc_id * doc, char * tag) {
+    // go-to iIndex db
+    // get the tag item. Make it if it doesn't exist
+    // ... insert the doc
+    // go-to index, get doc, add tag
+}
