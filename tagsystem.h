@@ -14,13 +14,13 @@ typedef struct {
     char * index; 
     char * iIndex; 
 } ts_env;
-typedef struct {
-    uint8_t pathSize: 8; // 160 bits max
-    uint8_t jumpGaps: 8; // 160 bytes max
+typedef struct ts_tagtree {
+    uint8_t pathSize; // 160 bits max
+    uint8_t jumpGaps; // 160 bytes max
 
     uint8_t * path; 
     uint8_t * mask; 
-    ts_tagtree_node * jumps[]; 
+    struct ts_tagtree * jumps[]; 
     // gaps starts at 10, jumps has 0 items
     // on insert, count out to the last spot. 
     //      - If the last item is 0, add the item to the end
@@ -28,7 +28,7 @@ typedef struct {
     //      - Otherwise re-allocate
     // on delete: set item to 0, incriment gaps
     //      - if gaps is >= 20, de-allocate
-} ts_tagtree_node;
+} ts_tagtree;
 
 
 // api
