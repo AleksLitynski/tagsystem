@@ -14,13 +14,13 @@ typedef struct {
     char * index; 
     char * iIndex; 
 } ts_env;
-typedef struct ts_tagtree {
-    uint8_t pathSize; // 160 bits max
-    uint8_t jumpGaps; // 160 bytes max
-
-    uint8_t * path; 
-    uint8_t * mask; 
-    struct ts_tagtree * jumps[]; 
+typedef struct {
+    char * name;
+} ts_tag;
+typedef struct {
+    int rootId;
+    int nextId;
+    
     // gaps starts at 10, jumps has 0 items
     // on insert, count out to the last spot. 
     //      - If the last item is 0, add the item to the end
@@ -28,15 +28,18 @@ typedef struct ts_tagtree {
     //      - Otherwise re-allocate
     // on delete: set item to 0, incriment gaps
     //      - if gaps is >= 20, de-allocate
-} ts_tagtree;
-
+} ts_tag_metadata;
 
 // api
-void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id) {
+void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id);
 void ts_doc_get(ts_env * env, ts_doc_id * doc, MDB_val * doc);
-void ts_doc_del(ts_env * env, ts_doc_id * doc);  
-void ts_doc_tag(ts_env * env, ts_doc_id * doc, char * tag); 
+void ts_doc_del(ts_env * env, ts_doc_id * doc);
+void ts_doc_tag(ts_env * env, ts_doc_id * doc, char * tag);
 void ts_doc_untag(ts_env * env, ts_doc_id * doc, char * tag);
+
+void ts_tag_create(ts-env * env, char * tagName, ts_tag * tag);
+void ts_tag_close(ts_env * env, ts_tag * tag);
+void ts_tag_insert(ts_env * env, ts_tag * tag, ts_doc_id * doc);
 
 // set maxDocs = 0 for all docs
 void ts_search_begin(ts_env * env, ts_tags * tags, ts_doc_id first, ts_search * search);

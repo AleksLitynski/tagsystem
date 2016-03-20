@@ -38,3 +38,10 @@ void ts_util_gen_doc_id(ts_doc * doc, ts_doc_id * id) {
         }
     }
 }
+
+uint8_t ts_util_test_bit(uint8_t * firstByte, unsigned int index) {
+    unsigned int indexByte = targetIndex / 8;
+    unsigned int indexBit = targetIndex % 8;
+    return firstByte[indexByte] & (1 << indexBit);
+    
+}
