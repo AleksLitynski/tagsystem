@@ -25,11 +25,11 @@ void ts_util_safe_mk(char * name) {
 }
 
 void ts_util_gen_doc_id(ts_doc * doc, ts_doc_id * id) {
-    char out[20];
+    char out[TS_KEY_SIZE_BYTES];
     SHA1(doc->data, doc->length, out); 
 
     // in case the platform isn't char = 8 bits
-    for(int i = 0; i < 20; i++) {
+    for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
         char mask = 1;
         // if openssl filled chars from right, decriment instead
         for(int j = 0; j < 8; j++) {

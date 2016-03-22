@@ -4,7 +4,15 @@
 #include <stdint.h>
 include "lib/lmdb/libraries/liblmdb/lmdb.h"
 
-typedef uint8_t[20] ts_doc_id;
+// key size macros
+#define TS_KEY_SIZE_BITS 160
+#define TS_KEY_SIZE_BYTES 20
+#define TS_KEY_SIZE_BITS_DOUBLE 320
+#define TS_KEY_SIZE_BYTES_DOUBLE 40
+#define TS_MAX_NODE_SIZE_BITS (TS_KEY_SIZE_BITS_DOUBLE + (sizeof(unsigned int) * TS_KEY_SIZE_BITS))
+#define TS_MAX_NODE_SIZE_BYTES (TS_KEY_SIZE_BYTES_DOUBLE + (sizeof(unsigned int) * TS_KEY_SIZE_BYTES))
+
+typedef uint8_t[TS_KEY_SIZE_BYTES] ts_doc_id;
 typedef struct { 
     int size; char * data[]; 
 } ts_tags;
@@ -29,6 +37,12 @@ typedef struct {
     // on delete: set item to 0, incriment gaps
     //      - if gaps is >= 20, de-allocate
 } ts_tag_metadata;
+typedef struct {
+    unsigned int key; // 0 means allocate a new one for me
+    uint8_t * doc_id_fragment;
+    uint8_t * mask;
+    unsigned int * jumps;
+} ts_tag_node;
 
 // api
 void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id);
