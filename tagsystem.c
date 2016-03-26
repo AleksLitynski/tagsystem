@@ -349,7 +349,6 @@ void ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, 
     }
 }
 
-
 // val->mv_data must have TS_MAX_NODE_SIZE_BYTES free space 
 void _ts_tag_node_to_mdb_val(
         ts_tag_node * node, 
@@ -394,3 +393,189 @@ void _ts_mdb_val_to_tag_node(MDB_val * val, int id_size_bits, ts_tag_node * node
     node->jumps = (unsigned int)(&data[idSizeBytes * 2]);
 }
 
+void ts_search_create(ts_env * env, MDB_val * tags, ts_doc_id * first, ts_search * search) {
+    search->index = 0;
+    search->tagCount = tags->mv_size;
+    search->next = malloc(TS_KEY_SIZE_BYTES);
+    for(int i = 0; i < tags->mv_size; i++) {
+        ts_walk_create(env, search->nodes[i], tags->mv_data[i]);
+    }
+}
+
+void ts_search_close(ts_env * env, ts_search * search) {
+    free(search->next);
+    for(int i = 0; i < search->tagCount; i++) {
+        ts_walk_close(env, search->nodes[i]);
+    }
+}
+
+int  ts_search_next(ts_env * env, ts_search * search) {
+    // walk the tree to the next value 
+    
+    ts_search_reset(search);
+    ts_doc_id next;
+
+    while(search->index < TS_KEY_SIZE_BITS) {
+        
+        if(ts_search_push(search, 0)) {
+            next[search->index/8] &= ~(1<<(search->index%8));
+        }
+
+        if(ts_search_push(search, 1)) {
+            next[search->index/8] |= 1<<(search->index%8);
+        }
+
+        if(!ts_search_pop(search)) {
+            return 0;
+        }
+    }
+
+    for(int i = 0; i < TS_KEY_SIZE_BITS; i++) {
+        search->next[i/8] = next[i/8];
+    }
+
+    return 1;
+}
+
+int ts_search_push(ts_search * search, int branch) {
+    if(branch < ts_util_test_bit(search->next, search->index)) return 0;
+
+    // push each node
+    int i = 0;
+    for(i < search->tagCount; i++) {
+        if(~ts_walk_push(search->nodes[i], branch)) {
+            break; 
+        }
+    }
+
+    if(i < search->tagCount) {
+        // unwind 
+        for(i > 0; i--) {
+            ts_walk_pop(search->nodes[i]);
+        }
+    } else {
+        return 1;
+    }
+}
+
+int ts_search_pop(ts_search * search) {
+    search->index--;
+    for(int i = 0; i < search->tagCount; i++) {
+        ts_walk_pop(search->nodes[i]);
+    }
+}
+
+int ts_search_reset(ts_search * search) {
+    search->index = 0; 
+     for(int i = 0; i < search->tagCount; i++) {
+        ts_wak_reset(search->nodes[i]);
+    }
+}
+
+void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
+    walk->tag = tagname;
+    walk->index = 0;    
+    walk->offset = 0;
+    walk->jumps = 0;
+    walk->historyIndex = -1;
+    walk->history = malloc(TS_KEY_SIZE_BITS * sizeof(_ts_walk_history));
+    walk->current = {
+        .key = 0,
+        .doc_id_fragment = malloc(TS_KEY_SIZE_BYTES),
+        .mask = malloc(TS_KEY_SIZE_BYTES),
+        .jumps = malloc(sizeof(unsigned int) * TS_KEY_SIZE_BITS)
+    };
+}
+
+void ts_walk_close(ts_env * env, ts_walk * walk) {
+    free(walk->history);
+    free(walk->current->doc_id_fragment);
+    free(walk->current->mask);
+    free(walk->current->jumps);
+}
+
+int ts_walk_pop(ts_env * env, ts_tag_walk * walk) {
+    walk->index--;
+    walk->offset = history[historyIndex]->offset;
+    walk->jumps = history[historyIndex]->jumps;
+    _ts_walk_copy_to_node(env, walk, history[historyIndex]->id);
+    historyIndex--;
+}
+
+int ts_walk_push(ts_env * env, ts_tag_walk * walk, int path) {
+    int hasLeft, hasRight;
+
+    int hasJump = ts_util_test_bit(walk->current->mask, walk->index - walk->offset + 1);
+    if(ts_util_test_bit(walk->current->doc_id_fragment, walk->index - walk->offset + 1)) {
+        walk->index++;
+        if(hasJump) walk->jumps++;
+        return 1;
+        
+    } else if(hasJump) {
+        walk->historyIndex++;
+        history[walk->historyIndex] = {
+            .id = walk->current->key,
+            .offset = walk->offset,
+            .jumps = walk->jumps,
+        };
+ 
+        walk->jumps = 0;
+        walk->offset += walk->index;
+        walk->index++;
+       _ts_walk_copy_to_node(env, walk, walk->current->jumps[walk->jumps]);
+    }
+
+    return 0;
+    // is the next item in current?
+    //      advance the index, inc jump (if needed)
+    // is the next item in the jump?
+    //      push current to history 
+    //      put the jump into current
+    //
+    // else, return false, don't advance or anything
+
+}
+
+int ts_walk_reset(ts_env * env, ts_walk * walk) {
+    walk->index = 0;
+    walk->offset = 0;
+    walk->jumps = 0;
+    walk->historyIndex = -1;
+
+    _ts_walk_copy_to_node(env, walk, 0);
+}
+
+int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int key) {
+
+    // open txn
+    MDB_txn * txn;
+    MDB_dbi * dbi;
+    MDB_val * key, value;
+
+    char * tagName = ts_util_concat(env->iIndex, walk->tag);
+    key->mv_size = sizeof(unsigned int);
+    key->mv_data = key; 
+
+    mdb_txn_begin(env->env, NULL, 0, &txn);
+    mdb_dbi_open(txn, tagName, MDB_INTEGERKEY, &dbi);
+    int res = mdb_get(txn, dbi, key, value);
+
+    walk->current->key = key->mv_data;
+
+    int jumps = 0;
+    for(int i = 0; i < TS_KEY_SIZE_BITS - walk->offset; i++) {
+        if(ts_util_test_bit(value->mv_data, i)) {
+            walk->current->doc_id_fragment[i/8] |= 1<<(i%8);
+        }
+        if(ts_util_test_bit(&value->mv_data[TS_KEY_SIZE_BITS - walk->offset], i)) {
+            walk->current->mask[i/8] |= 1<<(i%8);
+            walk->current->jumps[jumps] = &value[
+                ((TS_KEY_SIZE_BITS - walk->offset) * 2) + 
+                (sizeof(unsigned int) * jumps)];
+
+            jumps++;
+        }
+    }
+
+    mdb_txn_commit(txn);
+}

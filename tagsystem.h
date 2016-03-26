@@ -12,30 +12,20 @@ include "lib/lmdb/libraries/liblmdb/lmdb.h"
 #define TS_MAX_NODE_SIZE_BITS (TS_KEY_SIZE_BITS_DOUBLE + (sizeof(unsigned int) * TS_KEY_SIZE_BITS))
 #define TS_MAX_NODE_SIZE_BYTES (TS_KEY_SIZE_BYTES_DOUBLE + (sizeof(unsigned int) * TS_KEY_SIZE_BYTES))
 
+// api
 typedef uint8_t[TS_KEY_SIZE_BYTES] ts_doc_id;
-typedef struct { 
-    int size; char * data[]; 
-} ts_tags;
-typedef struct { 
-    MDB_env * env; 
-    char * docs; // could replace with a dbi somehow?
-    char * index; 
-    char * iIndex; 
-} ts_env;
+void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id);
+void ts_doc_get(ts_env * env, ts_doc_id * doc, MDB_val * doc);
+void ts_doc_del(ts_env * env, ts_doc_id * doc);
+void ts_doc_tag(ts_env * env, ts_doc_id * doc, char * tag);
+void ts_doc_untag(ts_env * env, ts_doc_id * doc, char * tag);
+
 typedef struct {
     char * name;
 } ts_tag;
 typedef struct {
     int rootId;
     int nextId;
-    
-    // gaps starts at 10, jumps has 0 items
-    // on insert, count out to the last spot. 
-    //      - If the last item is 0, add the item to the end
-    //      - Otherwise compact and add
-    //      - Otherwise re-allocate
-    // on delete: set item to 0, incriment gaps
-    //      - if gaps is >= 20, de-allocate
 } ts_tag_metadata;
 typedef struct {
     unsigned int key; // 0 means allocate a new one for me
@@ -43,36 +33,53 @@ typedef struct {
     uint8_t * mask;
     unsigned int * jumps;
 } ts_tag_node;
-
-// api
-void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id);
-void ts_doc_get(ts_env * env, ts_doc_id * doc, MDB_val * doc);
-void ts_doc_del(ts_env * env, ts_doc_id * doc);
-void ts_doc_tag(ts_env * env, ts_doc_id * doc, char * tag);
-void ts_doc_untag(ts_env * env, ts_doc_id * doc, char * tag);
-
 void ts_tag_create(ts-env * env, char * tagName, ts_tag * tag);
 void ts_tag_close(ts_env * env, ts_tag * tag);
 void ts_tag_insert(ts_env * env, ts_tag * tag, ts_doc_id * doc);
+void ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_tag_node * node);
 
-// set maxDocs = 0 for all docs
-void ts_search_begin(ts_env * env, ts_tags * tags, ts_doc_id first, ts_search * search);
-int  ts_search_next(ts_search * search, ts_tags * tags, MDB_val * next); 
-void ts_search_end(ts_search * search);
+typedef struct { 
+    MDB_env * env; 
+    char * docs; // could replace with a dbi somehow?
+    char * index; 
+    char * iIndex; 
+} ts_env;
+ts_env ts_env_open(MDB_env * menv, char * prefix[]);
+ts_env ts_env_open_full(char filename[], char *prefix[]);
+void   ts_env_close(ts_env * env);
+void   ts_env_close_full(ts_env * env);
 
-ts_env    ts_env_open(MDB_env * menv, char * prefix[]);
-ts_env    ts_env_open_full(char filename[], char *prefix[]);
-void      ts_env_close(ts_env * env);
-void      ts_env_close_full(ts_env * env);
+typedef struct {
+    char * tag,
+    int index,
+    ts_tag_node * current,
+    int offset,
+    int jumps,
+    int historyIndex,
+    _ts_walk_history * history
+} ts_walk;
+typedef struct {
+    unsigned int id,
+    int offset,
+    int jumps
+} _ts_walk_history;
+int  ts_walk_reset(ts_env * env, ts_walk * walk); 
+int  ts_walk_push(ts_env * env, ts_tag_walk * walk, int path);
+int  ts_walk_pop(ts_env * env, ts_tag_walk * walk);
+void ts_walk_close(ts_env * env, ts_walk * walk);
+void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname);
 
+typedef struct {
+    int index,
+    int tagCount,
+    ts_walk * nodes,
+    ts_doc_id * next
+} ts_search;
+int  ts_search_reset(ts_search * search);
+int  ts_search_pop(ts_search * search);
+int  ts_search_push(ts_search * search, int branch);
+int  ts_search_next(ts_env * env, ts_search * search);
+void ts_search_close(ts_env * env, ts_search * search);
+void ts_search_create(ts_env * env, MDB_val * tags, ts_doc_id * first, ts_search * search);
 
-// utilities
-
-// create node
-// grow node
-// shrink node
-// get valid path from index
-//
-// init workspace
-//      
 #endif
