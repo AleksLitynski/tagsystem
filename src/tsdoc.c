@@ -78,7 +78,7 @@ void ts_doc_untag(ts_env * env, ts_doc_id * doc, char * tag) {
     MDB_txn * txn;
     MDB_dbi * dbi;
     MDB_val * key, meta, dbOut;
-    ts_tag_node current;
+    ts_node current;
     MDB_val data[2];
     data[0].mv_data = malloc(TS_MAX_NODE_SIZE_BYTES);
     data[1].mv_data = malloc(TS_MAX_NODE_SIZE_BYTES);

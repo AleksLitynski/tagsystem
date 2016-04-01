@@ -27,7 +27,7 @@ void ts_walk_close(ts_env * env, ts_walk * walk) {
     free(walk->current->jumps);
 }
 
-int ts_walk_pop(ts_env * env, ts_tag_walk * walk) {
+int ts_walk_pop(ts_env * env, ts_walk * walk) {
     walk->index--;
     walk->offset = history[historyIndex]->offset;
     walk->jumps = history[historyIndex]->jumps;
@@ -35,7 +35,7 @@ int ts_walk_pop(ts_env * env, ts_tag_walk * walk) {
     historyIndex--;
 }
 
-int ts_walk_push(ts_env * env, ts_tag_walk * walk, int path) {
+int ts_walk_push(ts_env * env, ts_walk * walk, int path) {
 
     int hasJump = ts_util_test_bit(walk->current->mask, walk->index - walk->offset + 1);
     if(ts_util_test_bit(walk->current->doc_id_fragment, walk->index - walk->offset + 1)) {

@@ -3,7 +3,7 @@
 
 // includes
 #include "tsenv.h"
-#include "tstag.h"
+#include "tsnode.h"
 
 // macros
 
@@ -11,7 +11,7 @@
 typedef struct {
     char * tag,
     int index,
-    ts_tag_node * current,
+    ts_node * current,
     int offset,
     int jumps,
     int historyIndex,
@@ -26,8 +26,8 @@ typedef struct {
 
 // functions
 int  ts_walk_reset(ts_env * env, ts_walk * walk); 
-int  ts_walk_push(ts_env * env, ts_tag_walk * walk, int path);
-int  ts_walk_pop(ts_env * env, ts_tag_walk * walk);
+int  ts_walk_push(ts_env * env, ts_walk * walk, int path);
+int  ts_walk_pop(ts_env * env, ts_walk * walk);
 void ts_walk_close(ts_env * env, ts_walk * walk);
 void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname);
 

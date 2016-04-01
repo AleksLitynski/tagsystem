@@ -12,7 +12,7 @@ ts_env ts_env_create(MDB_env * menv, char * prefix) {
         .index  = ts_util_concat(prefix, "_index"),
         .iIndex = ts_util_concat(prefix, "_iIndex")
     }
-    return env
+    return env;
 }
 
 ts_env ts_env_create_full(char * filename, char * prefix) {
