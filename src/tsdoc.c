@@ -5,7 +5,7 @@
 #include "tstag.h"
 
 
-void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id) {
+void ts_doc_create(ts_env * env, ts_doc_id * id) {
     MDB_txn * txn;
     MDB_dbi dbi;
     MDB_val key;
@@ -20,23 +20,6 @@ void ts_doc_create(ts_env * env, MDB_val * content, ts_doc_id * id) {
     mdb_put(txn, dbi, &key, &content, 0);
     mdb_txn_commit(txn);
 }	
-
-void ts_doc_get(ts_env * env, ts_doc_id * id, MDB_val * doc) {
-    MDB_txn * txn;
-    MDB_dbi dbi;
-    MDB_val key;
-
-    key.mv_size = sizeof(ts_doc_id);
-    key.mv_data = id;
-
-    mdb_txn_begin(env->env, NULL, 0, &txn);
-    mdb_dbi_open(txn, env->doc, MDB_CREATE, &dbi);
-    
-    mdb_get(txn, dbi, key, doc);
-
-    mdb_txn_commit(txn);
-    
-}
 
 void ts_doc_tag(ts_env * env, ts_doc_id * doc, char * tagName) {
     // get the tag-tree

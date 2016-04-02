@@ -9,15 +9,18 @@
 // types
 typedef struct { 
     MDB_env * env; 
-    char * docs; // could replace with a dbi somehow?
-    char * index; 
-    char * iIndex; 
+    char * dir; // could replace with a dbi somehow?
+    // dir/
+    //  + index [mdb]
+    //      + index
+    //      + tKEY_NAME
+    //  + docs/
+    //      + ab [first two char of doc id
+    //          + c-aa [last 38 char of doc id]
 } ts_env;
 
 // functions
-ts_env ts_env_create(MDB_env * menv, char * prefix[]);
-ts_env ts_env_create_full(char filename[], char *prefix[]);
-void   ts_env_close(ts_env * env);
-void   ts_env_close_full(ts_env * env);
+void ts_env_create(char * path, ts_env * env);
+void ts_env_close(ts_env * env);
 
 #endif
