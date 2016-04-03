@@ -77,6 +77,7 @@ int ts_walk_reset(ts_env * env, ts_walk * walk) {
     _ts_walk_copy_to_node(env, walk, 0);
 }
 
+// take the node of the iIndex and copy it the the walks' current node
 int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int key) {
 
     // open txn
@@ -84,13 +85,13 @@ int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int key) {
     MDB_dbi * dbi;
     MDB_val * key, value;
 
-    char * tagName = ts_util_concat(env->iIndex, walk->tag);
+    char * tagName = ts_util_concat("t", walk->tag);
     key->mv_size = sizeof(unsigned int);
     key->mv_data = key; 
 
     mdb_txn_begin(env->env, NULL, 0, &txn);
     mdb_dbi_open(txn, tagName, MDB_INTEGERKEY, &dbi);
-    int res = mdb_get(txn, dbi, key, value);
+    mdb_get(txn, dbi, key, value);
 
     walk->current->key = key->mv_data;
 
@@ -110,4 +111,5 @@ int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int key) {
     }
 
     mdb_txn_commit(txn);
+    free(tagName);
 }

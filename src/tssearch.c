@@ -22,20 +22,20 @@ void ts_search_close(ts_env * env, ts_search * search) {
 int  ts_search_next(ts_env * env, ts_search * search) {
     // walk the tree to the next value 
     
-    ts_search_reset(search);
+    _ts_search_reset(search);
     ts_doc_id next;
 
     while(search->index < TS_KEY_SIZE_BITS) {
         
-        if(ts_search_push(search, 0)) {
+        if(_ts_search_push(search, 0)) {
             next[search->index/8] &= ~(1<<(search->index%8));
         }
 
-        if(ts_search_push(search, 1)) {
+        if(_ts_search_push(search, 1)) {
             next[search->index/8] |= 1<<(search->index%8);
         }
 
-        if(!ts_search_pop(search)) {
+        if(!_ts_search_pop(search)) {
             return 0;
         }
     }
@@ -47,7 +47,7 @@ int  ts_search_next(ts_env * env, ts_search * search) {
     return 1;
 }
 
-int ts_search_push(ts_search * search, int branch) {
+int _ts_search_push(ts_search * search, int branch) {
     if(branch < ts_util_test_bit(search->next, search->index)) return 0;
 
     // push each node
@@ -68,14 +68,14 @@ int ts_search_push(ts_search * search, int branch) {
     }
 }
 
-int ts_search_pop(ts_search * search) {
+int _ts_search_pop(ts_search * search) {
     search->index--;
     for(int i = 0; i < search->tagCount; i++) {
         ts_walk_pop(search->nodes[i]);
     }
 }
 
-int ts_search_reset(ts_search * search) {
+int _ts_search_reset(ts_search * search) {
     search->index = 0; 
      for(int i = 0; i < search->tagCount; i++) {
         ts_wak_reset(search->nodes[i]);

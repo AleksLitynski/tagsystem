@@ -8,6 +8,7 @@ void ts_env_create(char * path, ts_env * env) {
     mdb_env_creatte(&menv);
     mdb_env_set_maxreaders(menv, 1);
     mdb_env_set_mapsize(menv, 10485760);
+
     ts_util_mkdir_safe(path);
 
     char * indexDB = t_util_concat(path, "/index");
