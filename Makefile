@@ -1,31 +1,31 @@
 
-SSLDIR  = lib/openssl
+SSLDIR = lib/openssl
 MDBDIR = lib/lmdb/libraries/liblmdb
 
-XCFLAGS=-DANDROID
-export XCFLAGS
 
 rebuild: clean build
 all: init rebuild
 init:
 
-build: lmdb openssl
-	mkdir bin/
+build: lmdb openssl tagsystem
+
+tagsystem:
+	mkdir -p bin/
 	gcc -std=c11 -o bin/tagsystem \
 	    -I$(SSLDIR)/include/ \
-	    tagsystem.h tagsystem.c \
+	    $(wildcard *.h) $(wildcard *.c) \
 	    $(MDBDIR)/liblmdb.a \
 	    $(SSLDIR)/libcrypto.a
 
 lmdb: 
-	$(MAKE) -C $(MDBDIR)
+	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID
 openssl:
 	cd $(SSLDIR) && perl Configure android
-	cd $(SSLDIR) && $(MAKE) -C $(SSLDIR)
+	cd $(SSLDIR) && $(MAKE) -i SHELL=/system/bin/sh
 clean:
 	rm -rf bin/
-	$(MAKE) -C $(MDBDIR) clean
-	cd $(SSLDIR) && $(MAKE) -C $(SSLDIR) clean
+	cd $(MDBDIR) && $(MAKE) clean
+	cd $(SSLDIR) && $(MAKE) clean SHELL=/system/bin/sh
 test: 
 	./bin/tagsystem
 
