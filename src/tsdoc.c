@@ -2,13 +2,14 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
 #include "tsutil.h"
 #include "tstag.h"
 
 
 void ts_doc_create(ts_env * env, ts_doc_id * id) {
-    ts_util_gen_doc_id(id);
+    ts_util_gen_doc_id(env, id);
 
     // create 2 char folder
     // create/overwrite 38 char file
@@ -26,7 +27,7 @@ void ts_doc_create(ts_env * env, ts_doc_id * id) {
 void ts_doc_del(ts_env * env, ts_doc_id * doc) {
     MDB_txn * txn;
     MDB_dbi * dbi;
-    MDB_val * key, val;
+    MDB_val * key, * val;
     MDB_cursor * cursor;
 
     key->mv_size = TS_KEY_SIZE_BYTES;
@@ -34,23 +35,24 @@ void ts_doc_del(ts_env * env, ts_doc_id * doc) {
 
     // iterate index
     mdb_txn_begin(env->env, NULL, 0, &txn);
-    mdb_dbi_open(txn, "index", MDB_CREATE, &dbi);
-    mdb_cursor_open(txn, dbi, &cursor);
-    while (mdb_cursor_get(cursor, &key, &val, MDB_NEXT) == 0) {
+    mdb_dbi_open(txn, "index", MDB_CREATE, dbi);
+    mdb_cursor_open(txn, *dbi, &cursor);
+    while (mdb_cursor_get(cursor, key, val, MDB_NEXT) == 0) {
         // remove each tag
-        ts_tag * tag = ts_tag_create(val->mv_data);
+        ts_tag * tag;
+        ts_tag_create(env, val->mv_data, tag);
         ts_tag_remove(env, tag, doc);
-        ts_tag_close(tag);
+        ts_tag_close(env, tag);
     }
 
     // remove index
-    mdb_delete(txn, dbi, key, val);
+    mdb_del(txn, *dbi, key, val);
     mdb_cursor_close(cursor);
     mdb_txn_commit(txn);
 
     // delete file (and folder, if empty)
-    char * docDir = ts_util_doc_dir(env, id);
-    char * docName = ts_util_doc(env, id);
+    char * docDir = ts_util_doc_dir(env, doc);
+    char * docName = ts_util_doc(env, doc);
     unlink(docName);
     rmdir(docDir); // only deletes if the directory is empty. Perfect!
     free(docDir);
@@ -60,6 +62,8 @@ void ts_doc_del(ts_env * env, ts_doc_id * doc) {
 
 
 
+void _ts_util_gen_doc_id_gen_id(ts_env * env, ts_doc_id * id);
+uint8_t _ts_util_gen_doc_id_test_id(ts_env * env, ts_doc_id * id);
 void ts_util_gen_doc_id(ts_env * env, ts_doc_id * id) {
     while(_ts_util_gen_doc_id_test_id(env, id)) {
         _ts_util_gen_doc_id_gen_id(env, id);
@@ -69,8 +73,12 @@ void ts_util_gen_doc_id(ts_env * env, ts_doc_id * id) {
 
 void _ts_util_gen_doc_id_gen_id(ts_env * env, ts_doc_id * id) {
     char out[TS_KEY_SIZE_BYTES];
-    char * id_src = ts_util_concat(time(NULL), rand());
-    SHA1(id_src, strlen(id_src), out); 
+    // the current unix time followed by a random number
+    // if time/rand is larget/smaller than 32 bits, it'll just get cut off/padded,
+    // which should be ok
+    uint64_t rand_id   = ((uint64_t)time(NULL) * 4) + (uint64_t)rand();
+    char * rand_id_str = (char *)&rand_id;
+    SHA1(rand_id_str, sizeof(uint64_t), out); 
 
     // in case the platform isn't char = 8 bits
     for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {

@@ -18,7 +18,7 @@ void ts_doc_delete(ts_env * env, ts_doc_id * id);
 void ts_doc_tag(ts_env * env, ts_doc_id * id, char * tag);
 void ts_doc_untag(ts_env * env, ts_doc_id * id, char * tag);
 
-void ts_util_gen_doc_id(ts_doc_id * id);
+void ts_util_gen_doc_id(ts_env * env, ts_doc_id * id);
 char * ts_util_doc(ts_env * env, ts_doc_id * id);
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id);
 

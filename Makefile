@@ -12,6 +12,7 @@ build: lmdb openssl tagsystem
 tagsystem:
 	mkdir -p bin/
 	gcc -std=c11 \
+	    -Werror \
 	    -Wfatal-errors \
 	    -C -o bin/tagsystem.o \
 	    -I$(SSLDIR)/include/ \
