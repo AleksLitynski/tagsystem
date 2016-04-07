@@ -11,11 +11,14 @@ build: lmdb openssl tagsystem
 
 tagsystem:
 	mkdir -p bin/
-	gcc -std=c11 -o bin/tagsystem \
+	gcc -std=c11 \
+	    -Wfatal-errors \
+	    -C -o bin/tagsystem.o \
 	    -I$(SSLDIR)/include/ \
-	    $(wildcard *.h) $(wildcard *.c) \
+	    src/tagsystem.c \
 	    $(MDBDIR)/liblmdb.a \
 	    $(SSLDIR)/libcrypto.a
+	ar rcs bin/libtagsystem.a bin/tagsystem.o
 
 lmdb: 
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID

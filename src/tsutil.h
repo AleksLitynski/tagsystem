@@ -17,10 +17,7 @@
 // functions
 char * ts_util_concat(char * a, char * b);
 void ts_util_safe_mk(char * name);
-void ts_util_gen_doc_id(ts_doc_id * id);
 uint8_t ts_util_test_bit(uint8_t * firstByte, unsigned int index);
-char * ts_util_doc(ts_env * env, ts_doc_id * id);
-char * ts_util_doc_dir(ts_env * env, ts_doc_id * id);
 
 #endif
 

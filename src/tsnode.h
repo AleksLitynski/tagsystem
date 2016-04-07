@@ -2,6 +2,8 @@
 #define _TS_NODE_H_
 
 // includes
+#include <stdint.h>
+#include "tsutil.h"
 
 // macros
 
@@ -13,7 +15,7 @@ typedef struct {
     uint8_t * mask;
     unsigned int * jumps;
 } ts_node;
-typedef uint8_t[TS_MAX_NODE_SIZE_BYTES] ts_node_cmp;
+typedef uint8_t ts_node_cmp[TS_MAX_NODE_SIZE_BYTES];
 
 // functions
 /*

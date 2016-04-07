@@ -3,7 +3,7 @@
 
 // includes
 #include <stdint.h>
-#include "lib/lmdb/libraries/liblmdb/lmdb.h"
+#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 #include "tsenv.h"
 #include "tsnode.h"
 
