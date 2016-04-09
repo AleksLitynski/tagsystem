@@ -7,22 +7,22 @@
 
 // macros
 
+
 // types
 typedef struct {
-    char * tag,
-    int index,
-    ts_node * current,
-    int offset,
-    int jumps,
-    int historyIndex,
-    ts_walk_history * history
-} ts_walk;
-
-typedef struct {
-    unsigned int id,
-    int offset,
-    int jumps
+    unsigned int id;
+    int offset;
+    int jumps;
 } ts_walk_history;
+typedef struct {
+    char * tag;
+    int index;
+    ts_node * current;
+    int offset;
+    int jumps;
+    int historyIndex;
+    ts_walk_history * history;
+} ts_walk;
 
 // functions
 int  ts_walk_reset(ts_env * env, ts_walk * walk); 

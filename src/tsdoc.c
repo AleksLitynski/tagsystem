@@ -82,10 +82,11 @@ void _ts_util_gen_doc_id_gen_id(ts_env * env, ts_doc_id * id) {
 
     // in case the platform isn't char = 8 bits
     for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
-        char mask = 1;
+        uint8_t mask = 1;
         // if openssl filled chars from right, decriment instead
         for(int j = 0; j < 8; j++) {
-            id[i] |= out[i] & mask; // take the first 8 bits of each char
+            uint8_t item = (uint8_t)out[i];
+            (*id)[i] |= item & mask; // take the first 8 bits of each char
             mask <<= 1;
         }
     }
@@ -96,7 +97,7 @@ uint8_t _ts_util_gen_doc_id_test_id(ts_env * env, ts_doc_id * id) {
     // path + folder + file
     char * fileName = ts_util_doc(env, id);
     FILE * file = fopen(fileName, "r");
-    uint8_t out = file != null; 
+    uint8_t out = file != NULL; 
     fclose(file);
     free(fileName);
     return out; // 1 if it exists
@@ -104,19 +105,21 @@ uint8_t _ts_util_gen_doc_id_test_id(ts_env * env, ts_doc_id * id) {
 
 
 char * ts_util_doc(ts_env * env, ts_doc_id * id) {
-    char * out = calloc(strlen(env->dir) + 1 + 2 + 1 + (TS_KEY_SIZE_BYTES-2) 1);
+    //                  folder             /   ab  /   c-40                 / naught
+    char * out = calloc(strlen(env->dir) + 1 + 2 + 1 + (TS_KEY_SIZE_BYTES-2) + 1, sizeof(char));
     char fileDir[3] = {0};
-    fileDir[0] = id[0];
-    fileDir[1] = id[1];
+    fileDir[0] = *id[0];
+    fileDir[1] = *id[1];
     sprintf(out, "%s/%s/%s", env->dir, fileDir, &id[2]);
     return out;
 
 }
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id) {
-    char * out = calloc(strlen(env->dir) + 1 + 2 + 1);
+    //                  folder             /  ab   /
+    char * out = calloc(strlen(env->dir) + 1 + 2 + 1, sizeof(char));
     char fileDir[3] = {0};
-    fileDir[0] = id[0];
-    fileDir[1] = id[1];
+    fileDir[0] = *id[0];
+    fileDir[1] = *id[1];
     sprintf(out, "%s/%s", env->dir, fileDir);
     return out;
 }

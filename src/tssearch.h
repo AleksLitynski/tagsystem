@@ -7,10 +7,10 @@
 #include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 
 typedef struct {
-    int index,
-    int tagCount,
-    ts_walk * nodes,
-    ts_doc_id * next
+    int index;
+    int tagCount;
+    ts_walk * nodes;
+    ts_doc_id * next;
 } ts_search;
 
 int  ts_search_next(ts_env * env, ts_search * search);

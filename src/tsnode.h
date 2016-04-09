@@ -11,7 +11,7 @@
 typedef struct {
     int size;
     unsigned int key; // 0 means allocate a new one for me
-    uint8_t * doc_id_fragment;
+    uint8_t * doc_id;
     uint8_t * mask;
     unsigned int * jumps;
 } ts_node;
