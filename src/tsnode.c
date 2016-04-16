@@ -4,26 +4,27 @@
 // val->mv_data must have TS_MAX_NODE_SIZE_BYTES free space 
 void ts_node_to_mdb_val(
         ts_node * node, 
-        int id_size_bits, int starting_ofset_bits, 
+        int id_size_bits, int starting_offset_bits, 
         unsigned int new_jump, int new_jump_index,
         MDB_val * val) {
     
     int idSizeBytes = (id_size_bits+8-1)/8;
     int jumpCount = 0;
     for(int i = 0; i < idSizeBytes; i++) { 
-        val->mv_data[i] = 0; 
+
+        *((uint8_t *) (val->mv_data + i)) = 0; 
     }
     for(int i = 0; i < id_size_bits; i++){
         int j = i + starting_offset_bits;
-        val->mv_data[i/8] |= node->doc_id[j/8]&(1<<j%8);
+        ((uint8_t *)val->mv_data)[i/8] |= node->doc_id[j/8]&(1<<j%8);
 
         uint8_t mask = node->mask[j/8]&(1<<j%8);
         if(new_jump && new_jump_index == i) mask = (1<<j%8);
-        val->mv_data[id_size_bits + (i/8)] |= mask;
+        ((uint8_t *)val->mv_data)[id_size_bits + (i/8)] |= mask;
 
         if(mask) {
-            unsigned int * jump = (unsigned int)(&val->mv_data[idSizeBytes * 2]);
-            jump += jumpCount * sizeof(unsigned int);
+            unsigned int * jump = &((unsigned int *)val->mv_data)[idSizeBytes * 2];
+            *jump += jumpCount * sizeof(unsigned int);
             if(new_jump && new_jump_index == i) {
                 *jump = new_jump;
             } else {
@@ -42,7 +43,7 @@ void ts_node_from_mdb_val(MDB_val * val, int id_size_bits, ts_node * node) {
     uint8_t * data = val->mv_data; 
     node->doc_id = data; 
     node->mask = &data[idSizeBytes];
-    node->jumps = (unsigned int)(&data[idSizeBytes * 2]);
+    node->jumps = &((unsigned int *)data)[idSizeBytes * 2];
 }
 
 

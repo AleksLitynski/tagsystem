@@ -7,19 +7,26 @@ rebuild: clean build
 all: init rebuild
 init:
 
-build: lmdb openssl tagsystem
+build: lmdb openssl ts
 
-tagsystem:
+ts:
 	mkdir -p bin/
 	gcc -std=c11 \
 	    -Werror \
 	    -Wfatal-errors \
-	    -C -o bin/tagsystem.o \
+	    -C -o bin/libts.o \
 	    -I$(SSLDIR)/include/ \
-	    src/tagsystem.c \
 	    $(MDBDIR)/liblmdb.a \
-	    $(SSLDIR)/libcrypto.a
-	ar rcs bin/libtagsystem.a bin/tagsystem.o
+	    $(SSLDIR)/libcrypto.a \
+	    src/ts.c \
+	    src/tsdoc.c \
+	    src/tsenv.c \
+	    src/tsnode.c \
+	    src/tssearch.c \
+	    src/tstag.c \
+	    src/tsutil.c \
+	    src/tswalk.c 
+	ar rcs bin/libts.a bin/libts.o
 
 lmdb: 
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID

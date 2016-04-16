@@ -6,6 +6,7 @@
 #include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 #include "tsenv.h"
 #include "tsnode.h"
+#include "tsdoc.h"
 
 // macros
 
