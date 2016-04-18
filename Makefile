@@ -3,17 +3,13 @@ SSLDIR = lib/openssl
 MDBDIR = lib/lmdb/libraries/liblmdb
 
 
-rebuild: clean build
-all: init rebuild
-init:
-
-
-ts: 
+ts: openssl lmdb
 	mkdir -p bin/
-	gcc \
-	    -std=c11 -Werror -Wfatal-errors -shared -fPIC \
-	    -o bin/libts.so \
+	gcc -std=c11 -Werror -Wfatal-errors -shared -fPIC \
 	    -I$(SSLDIR)/include/ \
+	    -I$(MDBDIR)/ \
+	    -Isrc/ \
+	    -o bin/libts.so \
 	    src/ts.c \
 	    src/tsdoc.c \
 	    src/tsenv.c \
@@ -32,15 +28,13 @@ clean:
 	rm -rf bin/
 	cd $(MDBDIR) && $(MAKE) clean
 	cd $(SSLDIR) && $(MAKE) clean SHELL=/system/bin/sh
-test: ts
+
+buildtest: 
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors \
-	    -shared \
-	    -Lbin/ \
-	    -L$(MDBDIR) \
-	    -L$(SSLDIR) \
+	    -Isrc/ \
 	    -o bin/test \
-	    test/test.c \
-	    -lts \
-	    -llmdb \
-	    -lcrypto
+	    test/test.c
+
+runtest: buildtest
+	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(MDBDIR):$(SSLDIR):bin/ && bin/test

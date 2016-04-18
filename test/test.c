@@ -1,7 +1,10 @@
-#include "../src/ts.h"
+#include <stdio.h>
+#include "ts.h"
 
 int main(int argc, char * argv[]) {
-    return 1;
+    printf("hey");
+    return 0;
+}
 
 /*
     MDB_env *menv;
@@ -40,6 +43,4 @@ int main(int argc, char * argv[]) {
     mdb_env_close(env);
 
     */
-    return 0;
 
-}

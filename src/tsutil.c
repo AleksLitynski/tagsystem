@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "../lib/openssl/include/openssl/sha.h"
+#include "openssl/sha.h"
 
 
 char * ts_util_concat(char * a, char * b) {

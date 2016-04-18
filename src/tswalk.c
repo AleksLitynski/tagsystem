@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include "tsutil.h"
-#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
+#include "lmdb.h"
 
 
 void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {

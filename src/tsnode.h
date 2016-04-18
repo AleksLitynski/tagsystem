@@ -4,7 +4,7 @@
 // includes
 #include <stdint.h>
 #include "tsutil.h"
-#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
+#include "lmdb.h"
 
 // macros
 
