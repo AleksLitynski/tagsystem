@@ -67,6 +67,7 @@ int _ts_search_push(ts_env * env, ts_search * search, int branch) {
         for(;i > 0; i--) {
             ts_walk_pop(env, &search->nodes[i]);
         }
+        return 0;
     } else {
         return 1;
     }
@@ -77,6 +78,7 @@ int _ts_search_pop(ts_env * env, ts_search * search) {
     for(int i = 0; i < search->tagCount; i++) {
         ts_walk_pop(env, &search->nodes[i]);
     }
+    return 0;
 }
 
 int _ts_search_reset(ts_env * env, ts_search * search) {
@@ -84,6 +86,7 @@ int _ts_search_reset(ts_env * env, ts_search * search) {
      for(int i = 0; i < search->tagCount; i++) {
         ts_walk_reset(env, &search->nodes[i]);
     }
+     return 0;
 }
 
 

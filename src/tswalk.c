@@ -33,6 +33,8 @@ int ts_walk_pop(ts_env * env, ts_walk * walk) {
     walk->jumps = walk->history[walk->historyIndex].jumps;
     _ts_walk_copy_to_node(env, walk, walk->history[walk->historyIndex].id);
     walk->historyIndex--;
+
+    return 0;
 }
 
 int ts_walk_push(ts_env * env, ts_walk * walk, int path) {
@@ -73,6 +75,8 @@ int ts_walk_reset(ts_env * env, ts_walk * walk) {
     walk->historyIndex = -1;
 
     _ts_walk_copy_to_node(env, walk, 0);
+
+    return 0;
 }
 
 // take the node of the iIndex and copy it the the walks' current node
@@ -110,4 +114,6 @@ int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int host_key) {
 
     mdb_txn_commit(txn);
     free(tagName);
+
+    return 0;
 }

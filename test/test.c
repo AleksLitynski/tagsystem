@@ -1,8 +1,9 @@
-#include "lib/lmdb/libraries/liblmdb/lmdb.h"
-#include <tagsystem.h>
+#include "../src/ts.h"
 
 int main(int argc, char * argv[]) {
+    return 1;
 
+/*
     MDB_env *menv;
     mdb_env_create(&menv);
     mdb_env_set_maxreaders(menv, 1);
@@ -38,5 +39,7 @@ int main(int argc, char * argv[]) {
     
     mdb_env_close(env);
 
+    */
     return 0;
+
 }

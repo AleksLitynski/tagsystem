@@ -73,12 +73,12 @@ void ts_util_gen_doc_id(ts_env * env, ts_doc_id * id) {
 }
 
 void _ts_util_gen_doc_id_gen_id(ts_env * env, ts_doc_id * id) {
-    char out[TS_KEY_SIZE_BYTES];
+    unsigned char out[TS_KEY_SIZE_BYTES];
     // the current unix time followed by a random number
     // if time/rand is larget/smaller than 32 bits, it'll just get cut off/padded,
     // which should be ok
     uint64_t rand_id   = ((uint64_t)time(NULL) * 4) + (uint64_t)rand();
-    char * rand_id_str = (char *)&rand_id;
+    const unsigned char * rand_id_str = (const unsigned char *)&rand_id;
     SHA1(rand_id_str, sizeof(uint64_t), out); 
 
     // in case the platform isn't char = 8 bits
@@ -111,7 +111,7 @@ char * ts_util_doc(ts_env * env, ts_doc_id * id) {
     char fileDir[3] = {0};
     fileDir[0] = *id[0];
     fileDir[1] = *id[1];
-    sprintf(out, "%s/%s/%s", env->dir, fileDir, &id[2]);
+    sprintf(out, "%s/%s/%s", env->dir, fileDir, (char *)&id[2]);
     return out;
 
 }
