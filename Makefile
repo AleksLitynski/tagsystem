@@ -9,6 +9,8 @@ ts: openssl lmdb
 	    -I$(SSLDIR)/include/ \
 	    -I$(MDBDIR)/ \
 	    -Isrc/ \
+	    -L$(SSLDIR)/ \
+	    -L$(MDBDIR)/ \
 	    -o bin/libts.so \
 	    src/ts.c \
 	    src/tsdoc.c \
@@ -17,7 +19,9 @@ ts: openssl lmdb
 	    src/tssearch.c \
 	    src/tstag.c \
 	    src/tsutil.c \
-	    src/tswalk.c
+	    src/tswalk.c \
+	    -llmdb \
+	    -lcrypto
 
 lmdb: 
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID
@@ -33,8 +37,20 @@ buildtest:
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors \
 	    -Isrc/ \
+	    -I$(MDBDIR)/ \
+	    -I$(SSLDIR)/include/ \
+	    -Lbin/ \
+	    -L$(MDBDIR)/ \
+	    -L$(SSLDIR)/ \
 	    -o bin/test \
-	    test/test.c
+	    test/test.c \
+	    -llmdb \
+	    -lcrypto \
+	    -lts
 
 runtest: buildtest
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(MDBDIR):$(SSLDIR):bin/ && bin/test
+
+iter:
+	gcc -std=c11 -Werror -Wfatal-errors utils/iter.c -o bin/iter
+	bin/iter

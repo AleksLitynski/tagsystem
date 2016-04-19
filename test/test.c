@@ -1,7 +1,19 @@
 #include <stdio.h>
 #include "ts.h"
+#include "lmdb.h"
+#include "openssl/sha.h"
 
 int main(int argc, char * argv[]) {
+    MDB_env * env;
+    mdb_env_create(&env);
+    mdb_env_close(env);
+
+    const unsigned char * src = "abcd";
+    unsigned char * dest;
+    SHA1(src, 4, dest);
+    printf("%s", dest);
+
+
     printf("hey");
     return 0;
 }
