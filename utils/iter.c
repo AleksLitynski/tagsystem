@@ -19,22 +19,18 @@ int test_iter_init(int low, int high,
     test_iter_set * set, test_iter_item * item) {
     set->current = low;
     set->to = high;
-    *item = (test_iter_item) 0;
+    *item = 0;
     return 0;
 }
 
 int test_iter_next(test_iter_set * set, test_iter_item * item) {
 
-    printf("test_iter_next\n");
-    printf("%i\n", set->current);
-    if(set->current > set->to) {
-            printf("first\n");
+    if(set->current <= set->to) {
         *item = set->current;
         set->current++;
-        return 0;
+        return 1;
     }
-            printf("second\n");
-    return 1;
+    return 0;
 }
 
 int test_iter_close(test_iter_set * set, test_iter_item *item) { 
@@ -48,8 +44,8 @@ void mk(test_iter_set ** j) {
 int main(int argc, char * argv[]) {
 
     iter(test_iter, args(1, 10), i, {
-        printf("%i", i);
-        printf("other shit");
+        printf("it is now: %i oclock\n", i);
+        if(i >= 5) break;
     })
 
     return 0;
