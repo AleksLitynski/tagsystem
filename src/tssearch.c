@@ -4,12 +4,12 @@
 
 
 // void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
-void ts_search_create(ts_env * env, MDB_val * tags, ts_doc_id * first, ts_search * search) {
+void ts_search_create(ts_env * env, ts_tags * tags, ts_doc_id * first, ts_search * search) {
     search->index = 0;
-    search->tagCount = tags->mv_size;
+    search->tagCount = tags->count;
     search->next = malloc(TS_KEY_SIZE_BYTES);
-    for(int i = 0; i < tags->mv_size; i++) {
-        ts_walk_create(env, &search->nodes[i], &((char *)tags->mv_data)[i]);
+    for(int i = 0; i < tags->count; i++) {
+        ts_walk_create(env, &search->nodes[i], &((char *)tags->tags)[i]);
     }
 }
 

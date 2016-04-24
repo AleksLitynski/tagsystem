@@ -40,10 +40,9 @@ void ts_doc_del(ts_env * env, ts_doc_id * doc) {
     mdb_cursor_open(txn, *dbi, &cursor);
     while (mdb_cursor_get(cursor, key, val, MDB_NEXT) == 0) {
         // remove each tag
-        ts_tag * tag;
-        ts_tag_create(env, val->mv_data, tag);
-        ts_tag_remove(env, tag, doc);
-        ts_tag_close(env, tag);
+        char * tag;
+        ts_tag_create(env, val->mv_data);
+        ts_tag_remove(env, val->mv_data, doc);
     }
 
     // remove index

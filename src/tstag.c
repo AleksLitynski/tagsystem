@@ -3,19 +3,17 @@
 #include <stdlib.h>
 
 
-void ts_tag_create(ts_env * env, char * tagName, ts_tag * tag) {
+void ts_tag_create(ts_env * env, char * tag) {
     MDB_txn * txn;
     MDB_dbi * dbi;
     MDB_val * meta_key, * meta_data, * root_keytag;
     ts_tag_metadata * meta;
 
-    tag->name = ts_util_concat("t", tag->name);
-
     // create the meta (0) item, if it doesn't exist
     meta_key->mv_size = sizeof(unsigned int); 
     meta_key->mv_data = 0;
     mdb_txn_begin(env->env, NULL, 0, &txn);
-    mdb_dbi_open(txn, tag->name, MDB_CREATE | MDB_INTEGERKEY, dbi);
+    mdb_dbi_open(txn, tag, MDB_CREATE | MDB_INTEGERKEY, dbi);
     int res = mdb_get(txn, *dbi, meta_key, meta_data);
     meta = (ts_tag_metadata*) meta_data->mv_data;
     if(res == MDB_NOTFOUND) {
@@ -27,12 +25,8 @@ void ts_tag_create(ts_env * env, char * tagName, ts_tag * tag) {
     mdb_txn_commit(txn);
 }
 
-void ts_tag_close(ts_env * env, ts_tag * tag) {
-    free(tag->name);
-}
-
-void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_node * node);
-void ts_tag_insert(ts_env * env, ts_tag * tag, ts_doc_id * doc) {
+void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, char * tag, ts_node * node);
+void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     uint8_t mask[TS_KEY_SIZE_BYTES] = {0};
     ts_node node;
     MDB_txn * txn;
@@ -62,14 +56,14 @@ typedef uint8_t ts_node_cmp[TS_MAX_NODE_SIZE_BYTES];
 
 }
 
-void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_node * node) {
+void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, char * tag, ts_node * node) {
     // variables
     MDB_dbi * dbi;
     MDB_val * key, * meta_data, * dbOut;
     ts_node * current;
 
     // setup transaction
-    mdb_dbi_open(txn, tag->name, MDB_INTEGERKEY, dbi);
+    mdb_dbi_open(txn, tag, MDB_INTEGERKEY, dbi);
     key->mv_size = sizeof(unsigned int); 
 
     // get metadata
@@ -159,7 +153,7 @@ void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag,
     }
 }
 
-void ts_tag_remove(ts_env * env, ts_tag * tag, ts_doc_id * doc) {
+void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
     // grab the tag tree
     // travsere to the node that ends with this document
     // migrate all the branches to the parent, except this node
@@ -177,7 +171,7 @@ void ts_tag_remove(ts_env * env, ts_tag * tag, ts_doc_id * doc) {
 
     // setup transaction
     mdb_txn_begin(env->env, NULL, 0, &txn);
-    mdb_dbi_open(txn, tag->name, MDB_INTEGERKEY, dbi);
+    mdb_dbi_open(txn, tag, MDB_INTEGERKEY, dbi);
     key->mv_size = sizeof(unsigned int); 
 
     // get metadata

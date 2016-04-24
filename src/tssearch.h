@@ -17,7 +17,7 @@ int  ts_search_next(ts_env * env, ts_search * search);
 void ts_search_close(ts_env * env, ts_search * search);
 void ts_search_create(
     ts_env * env, 
-    MDB_val * tags, 
+    ts_tags * tags, 
     ts_doc_id * first, 
     ts_search * search);
 

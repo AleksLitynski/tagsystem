@@ -4,3 +4,6 @@
 [submodule "lib/openssl"]
 	path = lib/openssl
 	url = https://github.com/openssl/openssl.git
+[submodule "lib/klib"]
+	path = lib/klib
+	url = https://github.com/attractivechaos/klib.git
