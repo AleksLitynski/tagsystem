@@ -18,9 +18,7 @@ typedef struct {
     ts_tags * tags;
 } ts_ls_ctx;  
 typedef char * ts_ls_item;
-
-
-void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item);
+void ts_ls_init(char * set, ts_ls_ctx * ctx, ts_ls_item * item);
 void ts_ls_close(ts_ls_ctx * ctx, ts_ls_item * item);
 int  ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item);
 

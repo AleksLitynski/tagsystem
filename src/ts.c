@@ -14,6 +14,9 @@ KBTREE_INIT(str, elem_t, elem_cmp)
 
 void ts_cws(char * path) {
     setenv("TSPATH", path, 1); //1 = replace if exists
+    ts_env * env;
+    ts_env_create(path, env);
+    ts_env_close(env);
 }
 
 char * ts_pws() {
@@ -130,7 +133,10 @@ char * ts_mk() {
 
 
 
-void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
+void ts_ls_init(char * set, ts_ls_ctx * ctx, ts_ls_item * item) {
+
+    ts_cs(set);
+
     ts_env_create(getenv("TSPATH"), ctx->env);
     ts_tags * tags; 
 

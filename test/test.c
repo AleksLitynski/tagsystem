@@ -4,55 +4,74 @@
 #include "openssl/sha.h"
 
 int main(int argc, char * argv[]) {
+    
+    mdb_test();
+    std_test();
+    ssl_test();
+
+    ts_create_test();
+    
+    return 0;
+}
+
+int mdb_test() {
     MDB_env * env;
     mdb_env_create(&env);
     mdb_env_close(env);
+    return 1;
+}
 
+int std_test() {
+    printf("hey");
+    return 1;
+}
+
+int ssl_test() {
     const unsigned char * src = "abcd";
     unsigned char * dest;
     SHA1(src, 4, dest);
     printf("%s", dest);
-
-
-    printf("hey");
-    return 0;
+    return 1;
 }
 
-/*
-    MDB_env *menv;
-    mdb_env_create(&menv);
-    mdb_env_set_maxreaders(menv, 1);
-    mdb_env_set_mapsize(menv, 10485760);
-    mdb_env_open(menv, "test_db.mdb", mdb_fixedmap, 0664);
-    mdb_open_file(env, "test_db.mdb");
+int ts_create_test() {
+    iter(ts_ls, args(), doc, {
+
+    })
+
+    ts_cws("./testdata");
+
+    ts_cs(ts_mk());
+    ts_tag("doc_a");
+    ts_tag("doc");
+    ts_cs(ts_mk());
+    ts_tag("doc_b");
+    ts_tag("doc");
+
+    printf(ts_pws());
+
+
+    printf("stuff with 'doc' tag");
+    iter(ts_ls, args("--doc"), doc, {
+        printf(doc);
+    })
+
+    printf("stuff with 'doc_a' tag");
+    iter(ts_ls, args("--doc_a"), doc, {
+        printf(doc);
+    })
+
+    printf("stuff with the 'doc_b' and 'doc' tag");
+    iter(ts_ls, args("-doc_a+doc+doc_b"), doc, {
+        printf(doc);
+    })
+
+    // I forgot about removing docs/tags!
+
+
+ 
+
+
+}
+
     
-    ts_env *tenv;
-    ts_init(env, tenv, "test1");
-
-    ts_doc_id doc1 = ts_add_doc(tenv, "hello, I am a document");
-    ts_doc_id doc2 = ts_add_doc(tenv, "I am a different document");
-
-    ts_add_tag(tenv, doc1, "a");
-    ts_add_tag(tenv, doc1, "b");
-    ts_add_tag(tenv, doc1, "c");
-
-    ts_add_tag(tenv, doc2, "b");
-    ts_add_tag(tenv, doc2, "c");
-    ts_add_tag(tenv, doc2, "d");
-
-    ts_tags res1 = ts_itterate(tenv, 0, (char[]){"a", "b", "c"});
-    ts_tags res2 = ts_itterate(tenv, 0, (char[]){"b", "c"});
-    ts_tags res3 = ts_itterate(tenv, 0, (char[]){"b", "c", "d"});
-    
-    ts_rem_tag(tenv, doc1, "a");
-    ts_rem_tag(tenv, doc1, "c");
-    ts_tags res4 = ts_iterate(tenv, 0, (char[]){"a", "b", "c"});
-    ts_tags res5 = ts_iterate(tenv, 0, (char[]){"b"});
-
-    ts_rem_doc(tenv, doc2);
-    ts_tags res6 = ts_iterate(tenv, 0, (char[]){"c"});
-    
-    mdb_env_close(env);
-
-    */
-
