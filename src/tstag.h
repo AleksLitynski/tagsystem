@@ -15,6 +15,7 @@ typedef struct {
     unsigned int rootId; 
     unsigned int nextId;
 } ts_tag_metadata;
+
 typedef struct {
     char * tags;
     int count;

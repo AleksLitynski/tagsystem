@@ -1,17 +1,25 @@
 #ifndef _TS_H_
 #define _TS_H_
 
+#include "tsenv.h"
+#include "tssearch.h"
+#include "tsdoc.h"
+#include "tstag.h"
+
 // TSPATH=/default/db/location
 // TSPWS=present+working+set
 
 // iter(ts_ls, args(), doc, { })
 typedef struct {
-    ts_env * env,
-    ts_search * search,
-    ts_tags * tags,
-    ts_doc_id * current
+    ts_env * env;
+    ts_search * search;
+    ts_doc_id * first;
+    char * set;
+    ts_tags * tags;
 } ts_ls_ctx;  
 typedef char * ts_ls_item;
+
+
 void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item);
 void ts_ls_close(ts_ls_ctx * ctx, ts_ls_item * item);
 int  ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item);

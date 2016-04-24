@@ -1,13 +1,18 @@
 
 SSLDIR = lib/openssl
 MDBDIR = lib/lmdb/libraries/liblmdb
+KLBDIR = lib/klib
 
 
-ts: openssl lmdb
+# errors are ignore because klib is a stinker
+ts: 
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors -shared -fPIC \
+	    -Wno-error=discarded-qualifiers \
+	    -Wno-discarded-qualifiers \
 	    -I$(SSLDIR)/include/ \
 	    -I$(MDBDIR)/ \
+	    -I$(KLBDIR)/ \
 	    -Isrc/ \
 	    -L$(SSLDIR)/ \
 	    -L$(MDBDIR)/ \
@@ -22,6 +27,8 @@ ts: openssl lmdb
 	    src/tswalk.c \
 	    -llmdb \
 	    -lcrypto
+
+all: ts lmdb openssl
 
 lmdb: 
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID

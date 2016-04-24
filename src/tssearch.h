@@ -4,6 +4,7 @@
 #include "tswalk.h"
 #include "tsdoc.h"
 #include "tsenv.h"
+#include "tstag.h"
 #include "lmdb.h"
 
 typedef struct {
