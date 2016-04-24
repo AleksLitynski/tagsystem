@@ -35,41 +35,38 @@ int ssl_test() {
 }
 
 int ts_create_test() {
-    iter(ts_ls, args(), doc, {
-
-    })
 
     ts_cws("./testdata");
 
-    ts_cs(ts_mk());
-    ts_tag("doc_a");
-    ts_tag("doc");
-    ts_cs(ts_mk());
-    ts_tag("doc_b");
-    ts_tag("doc");
+    free(ts_mk("doc+a"));
+    ts_cs("--");
+    free(ts_mk("doc+b"));
+    ts_tag("doc_b", "--doc+b");
 
     printf(ts_pws());
-
 
     printf("stuff with 'doc' tag");
     iter(ts_ls, args("--doc"), doc, {
         printf(doc);
     })
 
-    printf("stuff with 'doc_a' tag");
-    iter(ts_ls, args("--doc_a"), doc, {
+    printf("stuff with 'doc' and 'a' tag");
+    iter(ts_ls, args("--doc+a"), doc, {
         printf(doc);
     })
 
-    printf("stuff with the 'doc_b' and 'doc' tag");
-    iter(ts_ls, args("-doc_a+doc+doc_b"), doc, {
+    printf("stuff with the 'b' and not 'a' tag");
+    iter(ts_ls, args("-a+b"), doc, {
         printf(doc);
     })
 
     // I forgot about removing docs/tags!
 
 
- 
+    ts_rm("--doc+b");
+    ts_untag("doc", "a"); // remove doc tag from stuff with a tag
+
+    ts_rm("--a"); // remove everything with a
 
 
 }

@@ -19,7 +19,7 @@ void ts_cws(char * path) {
     ts_env_close(env);
 }
 
-char * ts_pws() {
+const char * ts_pws() {
     return getenv("TSPWS");
 }
 
@@ -117,20 +117,51 @@ void ts_cs(char * set) {
 
 
 
-char * ts_mk() {
+char * ts_mk(char * set) {
+
     ts_env * env;
     ts_doc_id * id;
     ts_env_create(getenv("TSPATH"), env);
     ts_doc_create(env, id);
-    char idstr[41];
+    char * idstr = malloc(sizeof(char) * 41);
     for(int i = 0; i < 40; i++) {
         idstr[i] = ts_util_test_bit((uint8_t *)id, i);
     }
     idstr[40] = '\0';
+
+    // tag the doc with it's id
     ts_doc_tag(env, id, idstr);
+
+
+    // tag the doc will all tags in the pws
+    ts_cs(set);
+    char * tspws = strdup(getenv("TSPWS"));
+    char * head = tspws;
+    for(int i = 0; i < strlen(tspws); i++) {
+        if(tspws[i] == '+') {
+            tspws[i] = '\0';
+            ts_doc_tag(env, id, head);
+            head = &(tspws[i+1]);
+        }
+    }
+
+    free(tspws);
     ts_env_close(env);
+    return idstr;
 }
 
+void ts_rm(char * set) {
+    ts_cs(set);
+    
+    ts_ls_ctx * ctx;
+    ts_ls_item * item;
+    ts_ls_init("", ctx, item);
+    while(ts_search_next(ctx->env, ctx->search)) {
+        // delete all docs in the given set
+        ts_doc_delete(ctx->env, ctx->search->next);
+    }
+    ts_ls_close(ctx, item);
+}
 
 
 void ts_ls_init(char * set, ts_ls_ctx * ctx, ts_ls_item * item) {
@@ -197,12 +228,27 @@ int ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item) {
     }
 }
 
-void ts_tag(char * tag) {
+void ts_tag(char * tag, char * set) {
+    ts_cs(set);
+
     ts_ls_ctx * ctx;
     ts_ls_item * item;
-    ts_ls_init(ctx, item);
+    ts_ls_init("", ctx, item);
     while(ts_search_next(ctx->env, ctx->search)) {
         ts_doc_tag(ctx->env, ctx->search->next, tag);
+    }
+    ts_ls_close(ctx, item);
+}
+
+void ts_untag(char * tag, char * set) {
+    ts_cs(set);
+
+    ts_ls_ctx * ctx;
+    ts_ls_item * item;
+    ts_ls_init("", ctx, item);
+    while(ts_search_next(ctx->env, ctx->search)) {
+        ts_doc_tag(ctx->env, ctx->search->next, tag);
+        ts_doc_untag(ctx->env, ctx->search->next, tag);
     }
     ts_ls_close(ctx, item);
 }
