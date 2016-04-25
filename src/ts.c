@@ -14,10 +14,12 @@ KBTREE_INIT(str, elem_t, elem_cmp)
 
 
 void ts_cws(char * path) {
-    setenv("TSPATH", path, 1); //1 = replace if exists
+    char * fullPath = realpath(path, NULL);
+    setenv("TSPATH", fullPath, 1); //1 = replace if exists
     ts_env * env;
-    ts_env_create(path, env);
+    ts_env_create(fullPath, env);
     ts_env_close(env);
+    free(fullPath);
 }
 
 const char * ts_pws() {
