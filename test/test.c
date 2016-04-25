@@ -1,38 +1,6 @@
 #include <stdio.h>
 #include "ts.h"
-#include "lmdb.h"
-#include "openssl/sha.h"
-
-int main(int argc, char * argv[]) {
-    
-    mdb_test();
-    std_test();
-    ssl_test();
-
-    ts_create_test();
-    
-    return 0;
-}
-
-int mdb_test() {
-    MDB_env * env;
-    mdb_env_create(&env);
-    mdb_env_close(env);
-    return 1;
-}
-
-int std_test() {
-    printf("hey");
-    return 1;
-}
-
-int ssl_test() {
-    const unsigned char * src = "abcd";
-    unsigned char * dest;
-    SHA1(src, 4, dest);
-    printf("%s", dest);
-    return 1;
-}
+#include "tsiter.h"
 
 int ts_create_test() {
 
@@ -41,30 +9,30 @@ int ts_create_test() {
     ts_cs("doc+a");
     ts_mk0();
     ts_cs("--doc+b");
-    ts_mk();
+    ts_mk0();
     ts_cs("--doc+b");
     ts_tag("doc_b");
 
-    printf(ts_pws());
+    printf(ts_pws()); printf("\n");
 
-    printf("stuff with 'doc' tag");
+    printf("stuff with 'doc' tag\n");
     ts_cs("--doc");
     iter0(ts_ls, doc, {
-        printf(doc);
+        printf("%s\n", doc);
     })
 
-    printf("stuff with 'doc' and 'a' tag");
+    printf("stuff with 'doc' and 'a' tag\n");
     ts_cs("--doc+a");
     iter0(ts_ls, doc, {
-        printf(doc);
+        printf("%s\n", doc);
     })
 
-    printf("stuff with the 'b' and not 'a' tag");
+    printf("stuff with the 'b' and not 'a' tag\n");
     ts_cs("-a+b");
     iter0(ts_ls, doc, {
-        printf(doc);
+        printf("%s\n", doc);
         char * path = ts_resolve(doc);
-        printf("file path: %s", path);
+        printf("file path: %s\n", path);
         free(path);
     })
 
@@ -81,3 +49,11 @@ int ts_create_test() {
 }
 
     
+int main(int argc, char * argv[]) {
+    
+    // ts_create_test();
+    
+    return 0;
+}
+
+

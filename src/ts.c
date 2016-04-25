@@ -2,7 +2,7 @@
 #include "kbtree.h"
 #include <stdio.h>
 #include <ctype.h>
-#include "iter.h"
+#include "tsiter.h"
 
 #define TS_OP_ADD 0
 #define TS_OP_REM 1
@@ -127,7 +127,7 @@ void ts_mk(ts_doc_id * id) {
     ts_env_create(getenv("TSPATH"), env);
     ts_doc_create(env, id);
     // tag the doc with it's id
-    ts_doc_tag(env, id, (char *)id);
+    ts_tag_insert(env, (char *)id, id);
 
     // tag the doc will all tags in the pws
     char * tspws = strdup(getenv("TSPWS"));
@@ -135,7 +135,7 @@ void ts_mk(ts_doc_id * id) {
     for(int i = 0; i < strlen(tspws); i++) {
         if(tspws[i] == '+') {
             tspws[i] = '\0';
-            ts_doc_tag(env, id, head);
+            ts_tag_insert(env, (char *)id, id);
             head = &(tspws[i+1]);
         }
     }
@@ -146,7 +146,7 @@ void ts_mk(ts_doc_id * id) {
 
 void ts_rm() {
     iter0(ts_ls, id, {
-        ts_doc_delete(id_ctx.env, id);
+        ts_doc_del(id_ctx.env, id);
     })
 }
 
@@ -209,13 +209,13 @@ int ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item) {
 
 void ts_tag(char * tag) {
     iter0(ts_ls, id, {
-        ts_doc_tag(id_ctx.env, id, tag);
+        ts_tag_insert(id_ctx.env, tag, id);
     })
 }
 
 void ts_untag(char * tag) {
     iter0(ts_ls, id, {
-        ts_doc_untag(id_ctx.env, id, tag);
+        ts_tag_remove(id_ctx.env, tag, id);
     })
 } 
 
