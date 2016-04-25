@@ -38,36 +38,45 @@ int ts_create_test() {
 
     ts_cws("./testdata");
 
-    free(ts_mk("doc+a"));
-    ts_cs("--");
-    free(ts_mk("doc+b"));
-    ts_tag("doc_b", "--doc+b");
+    ts_cs("doc+a");
+    ts_mk0();
+    ts_cs("--doc+b");
+    ts_mk();
+    ts_cs("--doc+b");
+    ts_tag("doc_b");
 
     printf(ts_pws());
 
     printf("stuff with 'doc' tag");
-    iter(ts_ls, args("--doc"), doc, {
+    ts_cs("--doc");
+    iter0(ts_ls, doc, {
         printf(doc);
     })
 
     printf("stuff with 'doc' and 'a' tag");
-    iter(ts_ls, args("--doc+a"), doc, {
+    ts_cs("--doc+a");
+    iter0(ts_ls, doc, {
         printf(doc);
     })
 
     printf("stuff with the 'b' and not 'a' tag");
-    iter(ts_ls, args("-a+b"), doc, {
+    ts_cs("-a+b");
+    iter0(ts_ls, doc, {
         printf(doc);
+        char * path = ts_resolve(doc);
+        printf("file path: %s", path);
+        free(path);
     })
 
-    // I forgot about removing docs/tags!
 
+    ts_cs("--doc+b");
+    ts_rm();
 
-    ts_rm("--doc+b");
-    ts_untag("doc", "a"); // remove doc tag from stuff with a tag
+    ts_cs("--a");
+    ts_untag("doc"); // remove doc tag from stuff with 'a' tag
 
-    ts_rm("--a"); // remove everything with a
-
+    ts_cs("--a");
+    ts_rm(); // remove everything with a
 
 }
 

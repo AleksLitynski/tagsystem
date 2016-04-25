@@ -8,7 +8,17 @@
     TYPE ## _close(&ITEM ## _ctx, &ITEM); \
     }
 
+#define iter0(TYPE, ITEM, BODY) { \
+    TYPE ## _ctx ITEM ## _ctx; \
+    TYPE ## _item ITEM; \
+    TYPE ## _init(&ITEM ## _ctx, &ITEM); \
+    while(TYPE ## _next(&ITEM ## _ctx, &ITEM)) BODY; \
+    TYPE ## _close(&ITEM ## _ctx, &ITEM); \
+    }
 
+
+
+/*
 typedef struct {
     int to;
     int current;
@@ -51,3 +61,4 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
+*/

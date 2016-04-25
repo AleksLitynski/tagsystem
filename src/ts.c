@@ -2,6 +2,7 @@
 #include "kbtree.h"
 #include <stdio.h>
 #include <ctype.h>
+#include "iter.h"
 
 #define TS_OP_ADD 0
 #define TS_OP_REM 1
@@ -30,7 +31,7 @@ const char * ts_pws() {
 void ts_cs(char * set) {
     kbtree_t(str) * sTree = kb_init(str, KB_DEFAULT_SIZE);
 
-        // add new data to tree 
+    // add new data to tree 
     elem_t next = {.key = malloc(strlen(set)) }; // the max size possible
     int nLen = 0;
     int op = TS_OP_ADD;
@@ -71,6 +72,8 @@ void ts_cs(char * set) {
     }
     free(next.key);
 
+    // if -- wasn't in the set, 
+    //  re-add the existing set
     char * pset = ts_pws();
     if(addExisting) {
         // inflate TSPWS into tree
@@ -117,24 +120,16 @@ void ts_cs(char * set) {
 
 
 
-char * ts_mk(char * set) {
+void ts_mk0(){ ts_doc_id * id; ts_mk(id); } 
+void ts_mk(ts_doc_id * id) {
 
     ts_env * env;
-    ts_doc_id * id;
     ts_env_create(getenv("TSPATH"), env);
     ts_doc_create(env, id);
-    char * idstr = malloc(sizeof(char) * 41);
-    for(int i = 0; i < 40; i++) {
-        idstr[i] = ts_util_test_bit((uint8_t *)id, i);
-    }
-    idstr[40] = '\0';
-
     // tag the doc with it's id
-    ts_doc_tag(env, id, idstr);
-
+    ts_doc_tag(env, id, (char *)id);
 
     // tag the doc will all tags in the pws
-    ts_cs(set);
     char * tspws = strdup(getenv("TSPWS"));
     char * head = tspws;
     for(int i = 0; i < strlen(tspws); i++) {
@@ -147,30 +142,21 @@ char * ts_mk(char * set) {
 
     free(tspws);
     ts_env_close(env);
-    return idstr;
 }
 
-void ts_rm(char * set) {
-    ts_cs(set);
-    
-    ts_ls_ctx * ctx;
-    ts_ls_item * item;
-    ts_ls_init("", ctx, item);
-    while(ts_search_next(ctx->env, ctx->search)) {
-        // delete all docs in the given set
-        ts_doc_delete(ctx->env, ctx->search->next);
-    }
-    ts_ls_close(ctx, item);
+void ts_rm() {
+    iter0(ts_ls, id, {
+        ts_doc_delete(id_ctx.env, id);
+    })
 }
 
 
-void ts_ls_init(char * set, ts_ls_ctx * ctx, ts_ls_item * item) {
-
-    ts_cs(set);
+void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
 
     ts_env_create(getenv("TSPATH"), ctx->env);
     ts_tags * tags; 
 
+    // count the tags in the pws
     ctx->set = strdup(getenv("TSPWS"));
     ctx->tags->count = 1;
     int len = strlen(ctx->set);
@@ -181,8 +167,10 @@ void ts_ls_init(char * set, ts_ls_ctx * ctx, ts_ls_item * item) {
         }
     }
 
+    // make space for the tags in the ctx
     ctx->tags->tags = malloc(sizeof(char) * ctx->tags->count);
     ctx->tags->tags = ctx->set;
+    // add the tags to the ctx
     int inum = 1;
     for(int i = 0; i < len; i++) {
         if(i < len-1) { //if we're not on the last one
@@ -191,64 +179,63 @@ void ts_ls_init(char * set, ts_ls_ctx * ctx, ts_ls_item * item) {
         }
     }
      
+    // zero out the counter
     ctx->first = calloc(TS_KEY_SIZE_BYTES, sizeof(uint8_t));
     ts_search_create(ctx->env, ctx->tags, ctx->first, ctx->search);
 
-    //                  /path/to/file       / ab / c-zz
-    *item = malloc(strlen(getenv("TSPATH") + 1 + 40 + 1));
+    // zero out the 'return' value
+    for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
+        item[i] = 0;
+    }
 }
+
 void ts_ls_close(ts_ls_ctx * ctx, ts_ls_item * item) {
     ts_search_close(ctx->env, ctx->search);
     ts_env_close(ctx->env);
     free(ctx->first);
     free(ctx->tags->tags);
     free(ctx->set);
-    free(item);
 }
 int ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item) {
+    // next search result, return res
     int res = ts_search_next(ctx->env, ctx->search);
     if(res) {
-
-        char dir[3];
-        dir[0] = ts_util_test_bit((uint8_t *)ctx->search->next, 0);
-        dir[1] = ts_util_test_bit((uint8_t *)ctx->search->next, 1);
-        dir[2] = '\0';
-
-        char file[39];
-        for(int i = 2; i < 40; i++) {
-            file[i] = ts_util_test_bit((uint8_t *)ctx->search->next, i);
-        }
-        file[38] = '\0';
-
-        sprintf(*item, "%s/%s/%s", getenv("TSPATH"), dir, file);
-
+        *item = ctx->search->next;
         return 1;
     } else {
         return 0;
     }
 }
 
-void ts_tag(char * tag, char * set) {
-    ts_cs(set);
-
-    ts_ls_ctx * ctx;
-    ts_ls_item * item;
-    ts_ls_init("", ctx, item);
-    while(ts_search_next(ctx->env, ctx->search)) {
-        ts_doc_tag(ctx->env, ctx->search->next, tag);
-    }
-    ts_ls_close(ctx, item);
+void ts_tag(char * tag) {
+    iter0(ts_ls, id, {
+        ts_doc_tag(id_ctx.env, id, tag);
+    })
 }
 
-void ts_untag(char * tag, char * set) {
-    ts_cs(set);
+void ts_untag(char * tag) {
+    iter0(ts_ls, id, {
+        ts_doc_untag(id_ctx.env, id, tag);
+    })
+} 
 
-    ts_ls_ctx * ctx;
-    ts_ls_item * item;
-    ts_ls_init("", ctx, item);
-    while(ts_search_next(ctx->env, ctx->search)) {
-        ts_doc_tag(ctx->env, ctx->search->next, tag);
-        ts_doc_untag(ctx->env, ctx->search->next, tag);
+char * ts_resolve(ts_doc_id * id) {
+    char * dir = getenv("TSPATH");
+    char * item = malloc(strlen(dir) +1 +40 +1);
+ 
+    char folder[3];
+    folder[0] = (char)*id[0]; 
+    folder[1] = (char)*id[1];
+    folder[2] = '\0';
+
+    char file[39];
+    int fpos = 0;
+    for(int i = 2; i < TS_KEY_SIZE_BYTES;  i++) {
+        file[fpos] = (char)*id[i];
+        fpos++;
     }
-    ts_ls_close(ctx, item);
-}
+    file[38] = '\0';
+
+   sprintf(item, "%s/%s/%s", dir, folder, file);
+   return item;
+} 
