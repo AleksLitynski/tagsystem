@@ -4,9 +4,11 @@
 
 int ts_create_test() {
 
-    ts_cws("./testdata");
+    ts_cws("./datafortest");
 
     ts_cs("doc+a");
+    printf("%s\n", ts_pws());
+    /*
     ts_mk0();
     ts_cs("--doc+b");
     ts_mk0();
@@ -46,12 +48,13 @@ int ts_create_test() {
     ts_cs("--a");
     ts_rm(); // remove everything with a
 
+    */
 }
 
     
 int main(int argc, char * argv[]) {
     
-    // ts_create_test();
+    ts_create_test();
     
     return 0;
 }

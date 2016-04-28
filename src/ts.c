@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "tsiter.h"
+#include "errno.h"
 
 #define TS_OP_ADD 0
 #define TS_OP_REM 1
@@ -14,16 +15,21 @@ KBTREE_INIT(str, elem_t, elem_cmp)
 
 
 void ts_cws(char * path) {
-    char * fullPath = realpath(path, NULL);
-    setenv("TSPATH", fullPath, 1); //1 = replace if exists
+    // char * fullPath = realpath(path, NULL);
     ts_env * env;
-    ts_env_create(fullPath, env);
+    ts_env_create(path, env);
     ts_env_close(env);
-    free(fullPath);
+
+    // free(fullPath);
 }
 
 const char * ts_pws() {
-    return getenv("TSPWS");
+    char * out = getenv("TSPWS");
+    if(out) {
+        return out;
+    } else {
+        return "";
+    }
 }
 
 
@@ -38,6 +44,7 @@ void ts_cs(char * set) {
     int nLen = 0;
     int op = TS_OP_ADD;
     int addExisting = 1;
+
 
     for(int i = 0; i < strlen(set); i++) {
         // if whitespace, try to add next
@@ -77,6 +84,7 @@ void ts_cs(char * set) {
     // if -- wasn't in the set, 
     //  re-add the existing set
     char * pset = ts_pws();
+
     if(addExisting) {
         // inflate TSPWS into tree
         elem_t pnext = {.key = malloc(strlen(pset))};

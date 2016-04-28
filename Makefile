@@ -3,6 +3,7 @@ SSLDIR = lib/openssl
 MDBDIR = lib/lmdb/libraries/liblmdb
 KLBDIR = lib/klib
 
+main: cleanbin ts runtest
 
 # errors are ignore because klib is a stinker
 ts: 
@@ -35,10 +36,12 @@ lmdb:
 openssl:
 	cd $(SSLDIR) && perl Configure android
 	cd $(SSLDIR) && $(MAKE) -i SHELL=/system/bin/sh
-clean:
-	rm -rf bin/
+clean: cleanbin
 	cd $(MDBDIR) && $(MAKE) clean
 	cd $(SSLDIR) && $(MAKE) clean SHELL=/system/bin/sh
+
+cleanbin: 
+	rm -rf bin/
 
 buildtest: 
 	mkdir -p bin/
@@ -56,7 +59,7 @@ buildtest:
 	    -lts
 
 runtest: buildtest
-	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(MDBDIR):$(SSLDIR):bin/ && bin/test
+	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR):../$(SSLDIR):./ && ./test
 
 iter:
 	gcc -std=c11 -Werror -Wfatal-errors utils/iter.c -o bin/iter
