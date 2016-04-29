@@ -1,5 +1,5 @@
 #include "ts.h"
-#include "kbtree.h"
+#include "khash.h"
 #include <stdio.h>
 #include <ctype.h>
 #include "tsiter.h"
@@ -7,11 +7,7 @@
 
 #define TS_OP_ADD 0
 #define TS_OP_REM 1
-typedef struct {
-    char * key;
-} elem_t;
-#define elem_cmp(a, b) (strcmp((a).key, (b).key))
-KBTREE_INIT(str, elem_t, elem_cmp)
+KHASH_SET_INIT_STR(str)
 
 
 void ts_cws(char * path) {
@@ -33,53 +29,64 @@ const char * ts_pws() {
 }
 
 
+void _ts_cs_insert(int op, khash_t(str) * h, char * item, int * itemLen) {
+    if(*itemLen > 0) {
+        item[*itemLen] = '\0';
+        if(op == TS_OP_ADD) {
+            int absent;
+            khint_t k = kh_put(str, h, item, &absent);
+            if (absent) {
+                kh_key(h, k) = strdup(item);
+            }
+        } else if(op == TS_OP_REM) {
+            khint_t k = kh_get(str, h, item);
+            free(kh_key(h, k)); // free the data
+            kh_del(str, h, k); // remove from table
+        }
+    }
+
+    *itemLen = 0;
+}
+
 // -- to clear
 // +  to add    (default)
 // -  to remove
 void ts_cs(char * set) {
-    kbtree_t(str) * sTree = kb_init(str, KB_DEFAULT_SIZE);
+    khash_t(str) * h = kh_init(str);
 
-    // add new data to tree 
-    elem_t next = {.key = malloc(strlen(set)) }; // the max size possible
-    int nLen = 0;
+    int setLen = strlen(set);
+    char * item = malloc(setLen);
+    int itemLen = 0;
     int op = TS_OP_ADD;
     int addExisting = 1;
 
 
-    for(int i = 0; i < strlen(set); i++) {
+    for(int i = 0; i < setLen; i++) {
         // if whitespace, try to add next
         // if set to -, nlen == 0, char == -, addExisting = false
         // if operator, set the operator
         // otherwise, append to next
-
+        
         if(isspace(set[i])) {
-            if(nLen > 0) {
-                next.key[nLen] = '\0';
-                if(op == TS_OP_ADD) {
-                    elem_t * entry = kb_getp(str, sTree, &next);
-                    if(!entry) kb_putp(str, sTree, &next);
-                } else if(op == TS_OP_REM) {
-                    kb_del(str, sTree, next);
-                }
-            }
-            nLen = 0;
-        } else if(op == TS_OP_REM && nLen == 0 && set[i] == '-') {
+            _ts_cs_insert(op, h, item, &itemLen);
+        } else if(op == TS_OP_REM && itemLen == 0 && set[i] == '-') {
+            _ts_cs_insert(op, h, item, &itemLen);
             addExisting = 0;
             op = TS_OP_ADD;
-            nLen = 0;
-        } else if(op == '+') {
+        } else if(set[i] == '+') {
+            _ts_cs_insert(op, h, item, &itemLen);
             op = TS_OP_ADD;
-            nLen = 0;
-        } else if(op == '-') {
+        } else if(set[i] == '-') {
+            _ts_cs_insert(op, h, item, &itemLen);
             op = TS_OP_REM;
-            nLen = 0;
         } else {
-            next.key[nLen] = set[i];
-            nLen++;
+            item[itemLen] = set[i];
+            itemLen++;
         }
 
     }
-    free(next.key);
+    _ts_cs_insert(op, h, item, &itemLen);
+    free(item);
 
     // if -- wasn't in the set, 
     //  re-add the existing set
@@ -87,45 +94,42 @@ void ts_cs(char * set) {
 
     if(addExisting) {
         // inflate TSPWS into tree
-        elem_t pnext = {.key = malloc(strlen(pset))};
-        int plen = 0;
+        char * pItem = malloc(strlen(pset));
+        int pItemLen = 0;
         for(int i = 0; i < strlen(pset); i++) { if(!isspace(set[i])) {
             if(set[i] == '+') {
-                pnext.key[plen] = '\0';
-                elem_t * entry = kb_getp(str, sTree, &pnext);
-                if(!entry) kb_putp(str, sTree, &pnext);
-                plen = 0;
+                _ts_cs_insert(TS_OP_ADD, h, pItem, &pItemLen);
             } else {
-                pnext.key[plen] = set[i];
-                plen++;
+                pItem[pItemLen] = pset[i];
+                pItemLen++;
             }
         }}
-        free(pnext.key);
+        _ts_cs_insert(TS_OP_ADD, h, pItem, &pItemLen);
+        free(pItem);
     }
 
-    // flatten the tree into a string
     char * oset = malloc(strlen(set) + strlen(pset) + 2); // first + and last \0
     int olen = 0;
-    kbitr_t itr;
-    kb_itr_first(str, sTree, &itr);
-    for(; kb_itr_valid(&itr); kb_itr_next(str, sTree, &itr)) {
-        elem_t itm = kb_itr_key(elem_t, &itr);
-        
-        // don't preface the first char with a +
-        if(olen != 0) {
-            oset[olen] = '+';
-            olen++;
+    for (khint_t k = 0; k < kh_end(h); ++k) {
+        if (kh_exist(h, k)) {
+            char * item = kh_key(h, k);
+     
+            if(olen != 0) {
+                oset[olen] = '+';
+                olen++;
+            }
+
+            strcpy(&(oset[olen]), item);
+            olen+= strlen(item);
+            free(item);
         }
-
-        strcpy(&(oset[olen]), itm.key);
-        olen+= strlen(itm.key);
-
     }
-    kb_destroy(str, sTree);
-    oset[olen] = '\0';
+    kh_destroy(str, h);
 
+    oset[olen] = '\0';
     setenv("TSPWS", oset, 1);
     free(oset);
+
 }
 
 

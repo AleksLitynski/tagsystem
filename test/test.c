@@ -7,6 +7,7 @@ int ts_create_test() {
     ts_cws("./datafortest");
 
     ts_cs("doc+a");
+    ts_cs("--car+bat-a");
     printf("%s\n", ts_pws());
     /*
     ts_mk0();
