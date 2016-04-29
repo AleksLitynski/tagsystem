@@ -48,67 +48,55 @@ void _ts_cs_insert(int op, khash_t(str) * h, char * item, int * itemLen) {
     *itemLen = 0;
 }
 
+void _ts_cs_clear(khash_t(str) * h) {
+for (khint_t k = 0; k < kh_end(h); ++k) {
+        if (kh_exist(h, k)) {
+            char * item = kh_key(h, k);
+            free(item);
+            kh_del(str, h, k); 
+        }
+    }
+}
+
 // -- to clear
 // +  to add    (default)
 // -  to remove
 void ts_cs(char * set) {
     khash_t(str) * h = kh_init(str);
+    char * pset = ts_pws();
+    int mlen = strlen(pset) + 1 + strlen(set) + 1;
+    char * mset = malloc(mlen);
+    strcpy(mset, pset);
+    mset[strlen(pset)] = '+';
+    strcpy(&mset[strlen(pset)+1], set);
+    mset[mlen] = '\0';
 
-    int setLen = strlen(set);
+    int setLen = strlen(mset);
     char * item = malloc(setLen);
     int itemLen = 0;
     int op = TS_OP_ADD;
-    int addExisting = 1;
-
-
     for(int i = 0; i < setLen; i++) {
-        // if whitespace, try to add next
-        // if set to -, nlen == 0, char == -, addExisting = false
-        // if operator, set the operator
-        // otherwise, append to next
-        
-        if(isspace(set[i])) {
+        if(isspace(mset[i])) {
             _ts_cs_insert(op, h, item, &itemLen);
-        } else if(op == TS_OP_REM && itemLen == 0 && set[i] == '-') {
-            _ts_cs_insert(op, h, item, &itemLen);
-            addExisting = 0;
+        } else if(op == TS_OP_REM && itemLen == 0 && mset[i] == '-') {
+            _ts_cs_clear(h);
             op = TS_OP_ADD;
-        } else if(set[i] == '+') {
+        } else if(mset[i] == '+') {
             _ts_cs_insert(op, h, item, &itemLen);
             op = TS_OP_ADD;
-        } else if(set[i] == '-') {
+        } else if(mset[i] == '-') {
             _ts_cs_insert(op, h, item, &itemLen);
             op = TS_OP_REM;
         } else {
-            item[itemLen] = set[i];
+            item[itemLen] = mset[i];
             itemLen++;
         }
-
     }
     _ts_cs_insert(op, h, item, &itemLen);
     free(item);
+    free(mset);
 
-    // if -- wasn't in the set, 
-    //  re-add the existing set
-    char * pset = ts_pws();
-
-    if(addExisting) {
-        // inflate TSPWS into tree
-        char * pItem = malloc(strlen(pset));
-        int pItemLen = 0;
-        for(int i = 0; i < strlen(pset); i++) { if(!isspace(set[i])) {
-            if(set[i] == '+') {
-                _ts_cs_insert(TS_OP_ADD, h, pItem, &pItemLen);
-            } else {
-                pItem[pItemLen] = pset[i];
-                pItemLen++;
-            }
-        }}
-        _ts_cs_insert(TS_OP_ADD, h, pItem, &pItemLen);
-        free(pItem);
-    }
-
-    char * oset = malloc(strlen(set) + strlen(pset) + 2); // first + and last \0
+    char * oset = malloc(mlen); // first + and last \0
     int olen = 0;
     for (khint_t k = 0; k < kh_end(h); ++k) {
         if (kh_exist(h, k)) {
@@ -124,12 +112,11 @@ void ts_cs(char * set) {
             free(item);
         }
     }
-    kh_destroy(str, h);
-
     oset[olen] = '\0';
     setenv("TSPWS", oset, 1);
     free(oset);
 
+    kh_destroy(str, h);
 }
 
 
