@@ -16,7 +16,7 @@ typedef uint8_t ts_doc_id[TS_KEY_SIZE_BYTES];
 void ts_doc_create(ts_env * env, ts_doc_id * id);
 void ts_doc_del(ts_env * env, ts_doc_id * id);
 
-void ts_util_gen_doc_id(ts_env * env, ts_doc_id * id);
+void ts_doc_gen_id(ts_env * env, ts_doc_id * id);
 char * ts_util_doc(ts_env * env, ts_doc_id * id);
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id);
 

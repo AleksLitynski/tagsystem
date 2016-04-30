@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "tsiter.h"
 #include "errno.h"
+#include "lmdb.h"
 
 #define TS_OP_ADD 0
 #define TS_OP_REM 1
@@ -11,12 +12,13 @@ KHASH_SET_INIT_STR(str)
 
 
 void ts_cws(char * path) {
-    // char * fullPath = realpath(path, NULL);
-    ts_env * env;
-    ts_env_create(path, env);
-    ts_env_close(env);
+    ts_env env;
+    ts_env_create(path, &env);
+    ts_env_close(&env);
 
-    // free(fullPath);
+    char * fullPath = realpath(path, NULL);
+    setenv("TSPATH", fullPath, 1);
+    free(fullPath);
 }
 
 const char * ts_pws() {
@@ -121,28 +123,30 @@ void ts_cs(char * set) {
 
 
 
-void ts_mk0(){ ts_doc_id * id; ts_mk(id); } 
+void ts_mk0(){ ts_doc_id id; ts_mk(&id); } 
 void ts_mk(ts_doc_id * id) {
 
-    ts_env * env;
-    ts_env_create(getenv("TSPATH"), env);
-    ts_doc_create(env, id);
+    ts_env env;
+    ts_env_create(getenv("TSPATH"), &env);
+    ts_doc_create(&env, id);
     // tag the doc with it's id
-    ts_tag_insert(env, (char *)id, id);
+    // ts_tag_insert(&env, (char *)id, id);
 
+    /*
     // tag the doc will all tags in the pws
     char * tspws = strdup(getenv("TSPWS"));
     char * head = tspws;
     for(int i = 0; i < strlen(tspws); i++) {
         if(tspws[i] == '+') {
             tspws[i] = '\0';
-            ts_tag_insert(env, (char *)id, id);
+            ts_tag_insert(&env, (char *)id, id);
             head = &(tspws[i+1]);
         }
     }
-
     free(tspws);
-    ts_env_close(env);
+    */
+
+    ts_env_close(&env);
 }
 
 void ts_rm() {

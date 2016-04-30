@@ -9,8 +9,9 @@ int ts_create_test() {
     ts_cs("doc-a");
     ts_cs("car+bat--+a");
     printf("%s\n", ts_pws());
-    /*
+
     ts_mk0();
+    /*
     ts_cs("--doc+b");
     ts_mk0();
     ts_cs("--doc+b");

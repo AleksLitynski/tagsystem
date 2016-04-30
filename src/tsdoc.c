@@ -7,15 +7,33 @@
 #include "openssl/sha.h"
 #include "tsutil.h"
 #include "tstag.h"
+#include "math.h"
 
+
+void tm(char * label) {
+    char * c = malloc(100000);
+    printf("malloc %s\n", label);
+    free(c);
+}
 
 void ts_doc_create(ts_env * env, ts_doc_id * id) {
-    ts_util_gen_doc_id(env, id);
+
+    ts_doc_gen_id(env, id);
+
+    /*
+    printf("id: ");
+    for(int i = 0; i < 20; i++) {
+        printf("%x ", *id[i]);
+    }
+    printf("\n");
+    */
 
     // create 2 char folder
     // create/overwrite 38 char file
     char * docDir  = ts_util_doc_dir(env, id);
+    // printf("%s\n", docDir);
     char * docName = ts_util_doc(env, id);
+    // printf("%s\n", docName);
 
     ts_util_safe_mk(docDir);
     FILE * file = fopen(docName, "ab+");
@@ -61,65 +79,64 @@ void ts_doc_del(ts_env * env, ts_doc_id * doc) {
 }
 
 
-
-void _ts_util_gen_doc_id_gen_id(ts_env * env, ts_doc_id * id);
-uint8_t _ts_util_gen_doc_id_test_id(ts_env * env, ts_doc_id * id);
-void ts_util_gen_doc_id(ts_env * env, ts_doc_id * id) {
-    while(_ts_util_gen_doc_id_test_id(env, id)) {
-        _ts_util_gen_doc_id_gen_id(env, id);
-    }
-
-}
-
-void _ts_util_gen_doc_id_gen_id(ts_env * env, ts_doc_id * id) {
+void _ts_doc_gen_weak_id(ts_env * env, ts_doc_id * id) {
     unsigned char out[TS_KEY_SIZE_BYTES];
     // the current unix time followed by a random number
     // if time/rand is larget/smaller than 32 bits, it'll just get cut off/padded,
     // which should be ok
-    uint64_t rand_id   = ((uint64_t)time(NULL) * 4) + (uint64_t)rand();
+    uint64_t rand_id = ((uint64_t)time(NULL) * 4) + (uint64_t)rand();
     const unsigned char * rand_id_str = (const unsigned char *)&rand_id;
     SHA1(rand_id_str, sizeof(uint64_t), out); 
 
-    // in case the platform isn't char = 8 bits
     for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
         uint8_t mask = 1;
-        // if openssl filled chars from right, decriment instead
-        for(int j = 0; j < 8; j++) {
-            uint8_t item = (uint8_t)out[i];
-            (*id)[i] |= item & mask; // take the first 8 bits of each char
-            mask <<= 1;
-        }
+        *id[i] = (uint8_t)out[i];
     }
 
 }
 
-uint8_t _ts_util_gen_doc_id_test_id(ts_env * env, ts_doc_id * id) {
+uint8_t _ts_doc_test_id(ts_env * env, ts_doc_id * id) {
     // path + folder + file
     char * fileName = ts_util_doc(env, id);
     FILE * file = fopen(fileName, "r");
     uint8_t out = file != NULL; 
-    fclose(file);
+    if(out) fclose(file);
     free(fileName);
     return out; // 1 if it exists
 }
 
+void ts_doc_gen_id(ts_env * env, ts_doc_id * id) {
+    _ts_doc_gen_weak_id(env, id);
+
+    while(_ts_doc_test_id(env, id)) {
+        _ts_doc_gen_weak_id(env, id);
+    }
+
+}
+
+
+
+unsigned numDigits(const unsigned n, int base) {
+    if (n < base) return 1;
+    return 1 + numDigits(n / base, base);
+}
 
 char * ts_util_doc(ts_env * env, ts_doc_id * id) {
-    //                  folder             /   ab  /   c-40                 / naught
-    char * out = calloc(strlen(env->dir) + 1 + 2 + 1 + (TS_KEY_SIZE_BYTES-2) + 1, sizeof(char));
-    char fileDir[3] = {0};
-    fileDir[0] = *id[0];
-    fileDir[1] = *id[1];
-    sprintf(out, "%s/%s/%s", env->dir, fileDir, (char *)&id[2]);
+    char * docDir = ts_util_doc_dir(env, id);
+    char * out = calloc(strlen(docDir) + 18, sizeof(char));
+    sprintf(out, "%s", docDir);
+
+    int outIdx = strlen(docDir);
+    for(int i = 0; i < 18; i++) {
+        sprintf(out + outIdx, "%x", *id[2 + i]);
+        outIdx += numDigits(*id[2+i], 16); 
+    }
+    free(docDir);
     return out;
 
 }
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id) {
-    //                  folder             /  ab   /
-    char * out = calloc(strlen(env->dir) + 1 + 2 + 1, sizeof(char));
-    char fileDir[3] = {0};
-    fileDir[0] = *id[0];
-    fileDir[1] = *id[1];
-    sprintf(out, "%s/%s", env->dir, fileDir);
+    char * out;
+    asprintf(&out, "%s/%x%x/", env->dir, *id[0], *id[1]);
     return out;
 }
