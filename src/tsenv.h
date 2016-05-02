@@ -10,6 +10,8 @@
 typedef struct { 
     MDB_env * env; 
     char * dir; // could replace with a dbi somehow?
+    char * index;
+    char * docs;
     // dir/
     //  + index [mdb]
     //      + index

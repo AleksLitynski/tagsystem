@@ -20,20 +20,8 @@ void ts_doc_create(ts_env * env, ts_doc_id * id) {
 
     ts_doc_gen_id(env, id);
 
-    /*
-    printf("id: ");
-    for(int i = 0; i < 20; i++) {
-        printf("%x ", *id[i]);
-    }
-    printf("\n");
-    */
-
-    // create 2 char folder
-    // create/overwrite 38 char file
     char * docDir  = ts_util_doc_dir(env, id);
-    // printf("%s\n", docDir);
     char * docName = ts_util_doc(env, id);
-    // printf("%s\n", docName);
 
     ts_util_safe_mk(docDir);
     FILE * file = fopen(docName, "ab+");
@@ -137,6 +125,18 @@ char * ts_util_doc(ts_env * env, ts_doc_id * id) {
 }
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id) {
     char * out;
-    asprintf(&out, "%s/%x%x/", env->dir, *id[0], *id[1]);
+    asprintf(&out, "%s/docs/%x%x/", env->dir, *id[0], *id[1]);
     return out;
+}
+
+
+char * ts_util_str_id(ts_doc_id * id) {
+    char * out = calloc(80, sizeof(char));
+    int outIdx = 0;
+    for(int i = 0; i < 20; i++) {
+        sprintf(out + outIdx, "%x", *id[i]);
+        outIdx += numDigits(*id[i], 16);
+    }
+    return out;
+
 }

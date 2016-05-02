@@ -2,28 +2,22 @@
 #include "lmdb.h"
 
 int main(int argc, char * argv[]) {
-
     // create environment
     MDB_env * env;
     mdb_env_create(&env);
-    mdb_env_set_maxreaders(env, 1);
-    mdb_env_set_mapsize(env, 10485760);
-    printf("env created\n");
-
-    // open environment
-    mdb_env_open(env, "lmdbtestdir", 0, 0664);
+    mdb_env_open(env, "./lmdbtestdir", 0, 0664);
     printf("env opened\n");
-
-    // open transaction/create database
     MDB_txn * txn;
     MDB_dbi dbi;
     mdb_txn_begin(env, NULL, 0, &txn);
-    mdb_dbi_open(txn, NULL, MDB_CREATE, &dbi);
+    mdb_open(txn, NULL, MDB_INTEGERKEY, &dbi);
     printf("trans/db created\n");
 
-    MDB_val key = {.mv_size = sizeof(unsigned int), .mv_data = (unsigned int)0}; 
-    char * data_val = "abcd";
-    MDB_val data = {.mv_size = sizeof(data_val), .mv_data = &data_val};
+
+    int snum = 123;
+    char * sval = "abc";
+    MDB_val key  = {.mv_size = sizeof(int), .mv_data = &snum}; 
+    MDB_val data = {.mv_size = strlen(sval), .mv_data = sval};
     mdb_put(txn, dbi, &key, &data, 0);
     printf("data inserted\n");
 

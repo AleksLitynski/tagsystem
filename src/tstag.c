@@ -1,28 +1,50 @@
 #include "tstag.h"
 
 #include <stdlib.h>
+#include "stdio.h"
 
+void tm2(char*p){
+    char*x=malloc(1000000);
+    printf("malloced: %s\n", p);
+    free(x);
+}
+
+void _ts_tag_gen_meta(ts_env * env, char * tag) {
+    MDB_txn * txn;
+    MDB_dbi dbi;
+    mdb_txn_begin(env->env, NULL, 0, &txn);
+    mdb_dbi_open(txn, tag, MDB_INTEGERKEY, &dbi);
+
+    unsigned int zero = 0;
+    MDB_val key = {.mv_size = sizeof(unsigned int), .mv_data = &zero}; 
+    ts_tag_metadata meta = {
+        .rootId = 1,
+        .nextId = 2
+    }; 
+    MDB_val data = {
+        .mv_size = sizeof(meta),
+        .mv_data = &meta
+    };
+    // printf("a+b\n");
+    int res = mdb_put(txn, dbi, &key, &data, 0);
+    mdb_txn_commit(txn);
+}
 
 void ts_tag_create(ts_env * env, char * tag) {
     MDB_txn * txn;
-    MDB_dbi * dbi;
-    MDB_val * meta_key, * meta_data, * root_keytag;
-    ts_tag_metadata * meta;
-
-    // create the meta (0) item, if it doesn't exist
-    meta_key->mv_size = sizeof(unsigned int); 
-    meta_key->mv_data = 0;
+    MDB_dbi dbi;
     mdb_txn_begin(env->env, NULL, 0, &txn);
-    mdb_dbi_open(txn, tag, MDB_CREATE | MDB_INTEGERKEY, dbi);
-    int res = mdb_get(txn, *dbi, meta_key, meta_data);
-    meta = (ts_tag_metadata*) meta_data->mv_data;
-    if(res == MDB_NOTFOUND) {
-        meta->rootId = 1;
-        meta->nextId = 2;
-        mdb_put(txn, *dbi, meta_key, meta_data, 0);
-    }
+    mdb_dbi_open(txn, tag, MDB_CREATE | MDB_INTEGERKEY, &dbi);
 
+    unsigned int zero = 0;
+    MDB_val key = {.mv_size = sizeof(unsigned int), .mv_data = &zero};
+    MDB_val data;
+    int res = mdb_get(txn, dbi, &key, &data);
     mdb_txn_commit(txn);
+    
+    if(res == MDB_NOTFOUND) _ts_tag_gen_meta(env, tag);
+    
+    printf("ts_tag_create done\n");
 }
 
 void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, char * tag, ts_node * node);

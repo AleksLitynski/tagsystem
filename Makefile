@@ -58,7 +58,7 @@ buildtest:
 	    -lcrypto \
 	    -lts
 
-runtest: buildtest
+runtest: buildtest lmdb
 	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR):../$(SSLDIR):./ && ./test
 
 iter:

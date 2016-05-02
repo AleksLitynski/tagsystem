@@ -130,7 +130,10 @@ void ts_mk(ts_doc_id * id) {
     ts_env_create(getenv("TSPATH"), &env);
     ts_doc_create(&env, id);
     // tag the doc with it's id
-    // ts_tag_insert(&env, (char *)id, id);
+    char * id_str = ts_util_str_id(id);
+    ts_tag_create(&env, id_str);
+    ts_tag_insert(&env, id_str, id);
+    free(id_str);
 
     /*
     // tag the doc will all tags in the pws

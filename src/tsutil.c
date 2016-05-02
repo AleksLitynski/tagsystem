@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "openssl/sha.h"
+#include <stdio.h>
 
 
 char * ts_util_concat(char * a, char * b) {
