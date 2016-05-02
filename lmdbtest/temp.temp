@@ -1,0 +1,22 @@
+
+int rc;
+MDB_env *env;
+MDB_dbi dbi;
+MDB_val key, data;
+MDB_txn *txn;
+MDB_cursor *cursor;
+char sval[32];
+
+rc = mdb_env_create(&env);
+rc = mdb_env_open(env, "./testdb", 0, 0664);
+rc = mdb_txn_begin(env, NULL, 0, &txn);
+rc = mdb_open(txn, NULL, 0, &dbi);
+
+key.mv_size = sizeof(int);
+key.mv_data = sval;
+data.mv_size = sizeof(sval);
+data.mv_data = sval;
+
+sprintf(sval, "%03x %d foo bar", 32, 3141592);
+rc = mdb_put(txn, dbi, &key, &data, 0);
+rc = mdb_txn_commit(txn);

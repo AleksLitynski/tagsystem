@@ -3,6 +3,8 @@ MDBDIR = ../lib/lmdb/libraries/liblmdb
 
 
 doit:
+	rm -rf lmdbtestdir
+	mkdir lmdbtestdir
 	gcc -std=c11 -Werror -Wfatal-errors \
 	    -Wno-error=discarded-qualifiers \
 	    -Wno-discarded-qualifiers \
