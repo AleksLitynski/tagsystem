@@ -47,130 +47,128 @@ void ts_tag_create(ts_env * env, char * tag) {
     printf("ts_tag_create done\n");
 }
 
-void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, char * tag, ts_node * node);
+void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node );
 void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
+
+    char * doc_str = ts_util_str_id(doc);
+    printf("tagging: %s <-- %s\n", tag, doc_str);
+    free(doc_str);
+    // create the inverted index DB for this
+    //  tag if it doesn't exist
+    ts_tag_create(env, tag);
+
     uint8_t mask[TS_KEY_SIZE_BYTES] = {0};
     ts_node node;
     MDB_txn * txn;
-    MDB_val data[2];
-    data[0].mv_data = malloc(TS_MAX_NODE_SIZE_BYTES);
-    data[1].mv_data = malloc(TS_MAX_NODE_SIZE_BYTES);
     mdb_txn_begin(env->env, NULL, 0, &txn);
     node.key = 0;
     node.doc_id = (uint8_t *) doc;
     node.mask = mask;
-    _ts_tag_move(txn, data, env, tag, &node);
+    _ts_tag_move(env, txn, tag, &node);
     mdb_txn_commit(txn);
-    free(data[0].mv_data);
-    free(data[1].mv_data);
-
-/*
-typedef struct {
-    int size;
-    unsigned int key; // 0 means allocate a new one for me
-    uint8_t * doc_id;
-    uint8_t * mask;
-    unsigned int * jumps;
-} ts_node;
-typedef uint8_t ts_node_cmp[TS_MAX_NODE_SIZE_BYTES];
-*/
-
 
 }
 
-void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, char * tag, ts_node * node) {
-    // variables
-    MDB_dbi * dbi;
-    MDB_val * key, * meta_data, * dbOut;
-    ts_node * current;
+void _ts_tag_move(
+        ts_env * env, MDB_txn * txn, char * tag, // execution context
+        ts_node * node 
+        ){
 
-    // setup transaction
+    printf("_ts_tag_move entered\n");
+    // variables
+    MDB_val * dbOut;
+
+    // setup dbi
+    MDB_dbi * dbi;
     mdb_dbi_open(txn, tag, MDB_INTEGERKEY, dbi);
-    key->mv_size = sizeof(unsigned int); 
 
     // get metadata
-    key->mv_data = 0;
-    mdb_get(txn, *dbi, key, meta_data);
-    ts_tag_metadata * meta = (ts_tag_metadata*) meta_data->mv_data;
+    unsigned int meta_idx = 0;
+    MDB_val key = { .mv_size = sizeof(unsigned int), .mv_data = &meta_idx};
+    MDB_val meta_data;
+    mdb_get(txn, *dbi, &key, &meta_data);
+    ts_tag_metadata * meta = (ts_tag_metadata *) meta_data.mv_data;
 
     // get root node
-    key->mv_data = &meta->rootId;
-    int res = mdb_get(txn, *dbi, key, dbOut);
+    key.mv_data = &meta->rootId;
+    int res = mdb_get(txn, *dbi, &key, dbOut);
     
+    // if no root, insert the whole thing at the root and exit
     if(res == MDB_NOTFOUND) {
-        node->key = *(int *) key->mv_data;
+        
+        node->key = *(int *) &meta->rootId;
 
-        ts_node_to_mdb_val(
-            node, 
-            TS_KEY_SIZE_BITS, 0, 
-            0, 0, 
-            &new_data[0]);
-
-        mdb_put(txn, *dbi, key, &new_data[0], 0);
-        free(new_data[0].mv_data);
+        MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_MAX_NODE_SIZE_BYTES)};
+        ts_node_to_mdb_val(node, TS_KEY_SIZE_BITS, 0, 0, 0, &new_data);
+        mdb_put(txn, *dbi, &key, &new_data, 0);
+        free(new_data.mv_data);
         return;             
  
-    } else {
+    }
 
-        // there is a root. Walk the tree and insert ourself once the walk runs out
-        current->key = (unsigned int) key->mv_data;
-        ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS, current);
+    // there is a root. Walk the tree and insert ourself once the walk runs out
+    ts_node current;
+    current.key = (unsigned int) key.mv_data;
+    ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS, &current);
 
-        // the depth of the current node
-        int nodeInset = 0; 
-        int maskCount = 0;
+    // the depth of the current node
+    int nodeInset = 0; 
+    int maskCount = 0;
 
-        for(int bitIndex = 0; bitIndex < TS_KEY_SIZE_BITS; bitIndex++) {
-            int localIndex = bitIndex - nodeInset;
-            uint8_t bitHasMask = ts_util_test_bit(current->mask, localIndex);
-             
-            if(ts_util_test_bit(node->doc_id, bitIndex) == ts_util_test_bit(current->doc_id, localIndex)) {
-                if(bitHasMask) maskCount++;
-                //  this branch has it, continue
-                continue; 
-            } else if(bitHasMask) {
-                // the other branch has it, jump, then continue
-                key->mv_data = &current->jumps[maskCount];
-                mdb_get(txn, * dbi, key, dbOut);  // overwrite current node
-                current->key = (unsigned int) key->mv_data;
-                ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS - bitIndex, current);
+    for(int bitIndex = 0; bitIndex < TS_KEY_SIZE_BITS; bitIndex++) {
+        int localIndex = bitIndex - nodeInset;
+        uint8_t bitHasMask = ts_util_test_bit(current.mask, localIndex);
+         
+        if(ts_util_test_bit(node->doc_id, bitIndex) == ts_util_test_bit(current.doc_id, localIndex)) {
+            if(bitHasMask) maskCount++;
+            //  this branch has it, continue
+            continue; 
+        } else if(bitHasMask) {
+            // the other branch has it, jump, then continue
+            key.mv_data = &current.jumps[maskCount];
+            mdb_get(txn, * dbi, &key, dbOut);  // overwrite current node
+            current.key = (unsigned int) key.mv_data;
+            ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS - bitIndex, &current);
 
-                nodeInset = bitIndex;           // increase the inset
-                maskCount = 0;                  // reset the mask count
-                continue;
-            } else {
-                //  neither branch exists. Insert the data
+            nodeInset = bitIndex;           // increase the inset
+            maskCount = 0;                  // reset the mask count
+            continue;
+        } else {
+            //  neither branch exists. Insert the data
 
-                // add the new node
-                // copy the mask/jumps the user provided
-                ts_node_to_mdb_val(
-                    node, 
-                    TS_KEY_SIZE_BITS - bitIndex, bitIndex, 
-                    0, 0, 
-                    &new_data[0]);
-                if(node->key == 0) {
-                    // if the user provided a key, use it
-                    node->key = meta->nextId;
-                    meta->nextId++;
-                }
-                key->mv_data = &node->key;
-                mdb_put(txn, *dbi, key, &new_data[0], 0);
-
-                // update parent mask
-                int parentTotalSize = current->size + sizeof(unsigned int);
-                int parentDataSize = TS_KEY_SIZE_BITS - nodeInset;
-
-                // void ts_node_from_mdb_val(MDB_val * val, int id_size_bits, ts_node * node) {
-                ts_node_to_mdb_val(
-                    current, 
-                    TS_KEY_SIZE_BITS - nodeInset, nodeInset, 
-                    node->key, bitIndex - nodeInset, 
-                    &new_data[1]);
-
-                key->mv_data = &current->key;
-                mdb_put(txn, *dbi, key, &new_data[1], 0);
-                return;             
+            // add the new node
+            // copy the mask/jumps the user provided
+            MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_MAX_NODE_SIZE_BYTES)};
+            ts_node_to_mdb_val(
+                node, 
+                TS_KEY_SIZE_BITS - bitIndex, bitIndex, 
+                0, 0, 
+                &new_data);
+            if(node->key == 0) {
+                // if the user provided a key, use it 
+                //  (if 0, they did not provide a key, so take from meta)
+                node->key = meta->nextId;
+                // and increment the meta 'next key'
+                meta->nextId++;
+                key.mv_data = &meta_idx;
+                mdb_put(txn, *dbi, &key, &meta_data, 0);
             }
+            key.mv_data = &node->key;
+            mdb_put(txn, *dbi, &key, &new_data, 0);
+            free(new_data.mv_data);
+
+            // update parent mask
+            MDB_val parent_data = {.mv_size = 0, .mv_data = malloc(TS_MAX_NODE_SIZE_BYTES)};
+            ts_node_to_mdb_val(
+                &current, 
+                TS_KEY_SIZE_BITS - nodeInset, nodeInset, 
+                node->key, bitIndex - nodeInset, 
+                &parent_data);
+
+            key.mv_data = &current.key;
+            mdb_put(txn, *dbi, &key, &parent_data, 0);
+            free(parent_data.mv_data);
+            return;             
         }
     }
 }
@@ -186,10 +184,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
     MDB_dbi * dbi;
     MDB_val * key, * meta_data, * dbOut;
     ts_node * current;
-    MDB_val data[2];
     ts_tag_metadata * meta;
-    data[0].mv_data = malloc(TS_MAX_NODE_SIZE_BYTES);
-    data[1].mv_data = malloc(TS_MAX_NODE_SIZE_BYTES);
 
     // setup transaction
     mdb_txn_begin(env->env, NULL, 0, &txn);
@@ -272,7 +267,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
 
                     ts_node * dislocated_child;
                     ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS, dislocated_child);
-                    _ts_tag_move(txn, data, env, tag, dislocated_child);
+                    _ts_tag_move(env, txn, tag, dislocated_child);
 
 //void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_node * node);
                     jumpNum++;
@@ -286,7 +281,5 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
         }
 
         mdb_txn_commit(txn);
-        free(data[0].mv_data);
-        free(data[1].mv_data);
     }
 }

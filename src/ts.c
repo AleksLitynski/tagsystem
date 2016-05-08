@@ -2,6 +2,7 @@
 #include "khash.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "tsiter.h"
 #include "errno.h"
 #include "lmdb.h"
@@ -122,6 +123,13 @@ void ts_cs(char * set) {
 }
 
 
+bool _ts_is_empty(char * str) {
+    while(*str != '\n') {
+        if(!isspace(*str)) return false;
+    }
+    return true;
+}
+
 
 void ts_mk0(){ ts_doc_id id; ts_mk(&id); } 
 void ts_mk(ts_doc_id * id) {
@@ -131,23 +139,21 @@ void ts_mk(ts_doc_id * id) {
     ts_doc_create(&env, id);
     // tag the doc with it's id
     char * id_str = ts_util_str_id(id);
-    ts_tag_create(&env, id_str);
     ts_tag_insert(&env, id_str, id);
     free(id_str);
 
-    /*
     // tag the doc will all tags in the pws
     char * tspws = strdup(getenv("TSPWS"));
     char * head = tspws;
     for(int i = 0; i < strlen(tspws); i++) {
         if(tspws[i] == '+') {
             tspws[i] = '\0';
-            ts_tag_insert(&env, (char *)id, id);
+            if(!_ts_is_empty(head)) ts_tag_insert(&env, head, id);
             head = &(tspws[i+1]);
         }
     }
+    if(!_ts_is_empty(head)) ts_tag_insert(&env, head, id); 
     free(tspws);
-    */
 
     ts_env_close(&env);
 }
