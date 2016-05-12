@@ -1,6 +1,7 @@
 #include "tssearch.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 
 // void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
@@ -8,6 +9,7 @@ void ts_search_create(ts_env * env, ts_tags * tags, ts_doc_id * first, ts_search
     search->index = 0;
     search->tagCount = tags->count;
     search->next = malloc(TS_KEY_SIZE_BYTES);
+    search->nodes = malloc(sizeof(ts_walk) * tags->count);
     for(int i = 0; i < tags->count; i++) {
         ts_walk_create(env, &search->nodes[i], &((char *)tags->tags)[i]);
     }
@@ -18,6 +20,7 @@ void ts_search_close(ts_env * env, ts_search * search) {
     for(int i = 0; i < search->tagCount; i++) {
         ts_walk_close(env, &search->nodes[i]);
     }
+    free(search->nodes);
 }
 
 int _ts_search_push(ts_env * env, ts_search * search, int branch);

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "tsutil.h"
 #include "lmdb.h"
+#include <stdio.h>
 
 
 void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
@@ -13,6 +14,7 @@ void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
     walk->historyIndex = -1;
     walk->history = malloc(TS_KEY_SIZE_BITS * sizeof(ts_walk_history));
 
+    walk->current = malloc(sizeof(ts_node));
     walk->current->key = 0;
     walk->current->doc_id = malloc(TS_KEY_SIZE_BYTES);
     walk->current->mask = malloc(TS_KEY_SIZE_BYTES);
@@ -24,6 +26,7 @@ void ts_walk_close(ts_env * env, ts_walk * walk) {
     free(walk->current->doc_id);
     free(walk->current->mask);
     free(walk->current->jumps);
+    free(walk->current);
 }
 
 int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int key);

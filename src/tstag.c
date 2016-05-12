@@ -44,14 +44,14 @@ void ts_tag_create(ts_env * env, char * tag) {
     
     if(res == MDB_NOTFOUND) _ts_tag_gen_meta(env, tag);
     
-    printf("ts_tag_create done\n");
+    // printf("ts_tag_create done\n");
 }
 
 void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node );
 void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
 
     char * doc_str = ts_util_str_id(doc);
-    printf("tagging: %s <-- %s\n", tag, doc_str);
+    // printf("tagging: %s <-- %s\n", tag, doc_str);
     free(doc_str);
     // create the inverted index DB for this
     //  tag if it doesn't exist
@@ -74,7 +74,7 @@ void _ts_tag_move(
         ts_node * node 
         ){
 
-    printf("_ts_tag_move entered\n");
+    // printf("_ts_tag_move entered\n");
     // variables
     MDB_val * dbOut;
 

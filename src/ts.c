@@ -167,10 +167,11 @@ void ts_rm() {
 
 void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
 
+    ctx->env = malloc(sizeof(ts_env));
     ts_env_create(getenv("TSPATH"), ctx->env);
-    ts_tags * tags; 
 
     // count the tags in the pws
+    ctx->tags = malloc(sizeof(ts_tags));
     ctx->set = strdup(getenv("TSPWS"));
     ctx->tags->count = 1;
     int len = strlen(ctx->set);
@@ -195,6 +196,7 @@ void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
      
     // zero out the counter
     ctx->first = calloc(TS_KEY_SIZE_BYTES, sizeof(uint8_t));
+    ctx->search = malloc(sizeof(ts_search));
     ts_search_create(ctx->env, ctx->tags, ctx->first, ctx->search);
 
     // zero out the 'return' value
@@ -209,6 +211,9 @@ void ts_ls_close(ts_ls_ctx * ctx, ts_ls_item * item) {
     free(ctx->first);
     free(ctx->tags->tags);
     free(ctx->set);
+    free(ctx->env);
+    free(ctx->tags);
+    free(ctx->search);
 }
 int ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item) {
     // next search result, return res
@@ -222,9 +227,26 @@ int ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item) {
 }
 
 void ts_tag(char * tag) {
+    printf("the reads begin...\n");
+
+
+    ts_ls_ctx id_ctx;
+    ts_ls_item id;
+    ts_ls_init(&id_ctx, &id);
+    while(ts_ls_next(&id_ctx, &id)) {
+        printf("the reads begin...\n");
+        ts_tag_insert(id_ctx.env, tag, id);
+    };
+    ts_ls_close(&id_ctx, &id);
+
+
+
+/*
     iter0(ts_ls, id, {
+        printf("the reads begin...\n");
         ts_tag_insert(id_ctx.env, tag, id);
     })
+    */
 }
 
 void ts_untag(char * tag) {
