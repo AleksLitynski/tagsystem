@@ -28,6 +28,8 @@ int _ts_search_reset(ts_env * env, ts_search * search);
 int _ts_search_pop(ts_env * env, ts_search * search);
 int  ts_search_next(ts_env * env, ts_search * search) {
     // walk the tree to the next value 
+
+    printf("first result requested <---\n");
     
     _ts_search_reset(env, search);
     ts_doc_id next;
@@ -43,6 +45,7 @@ int  ts_search_next(ts_env * env, ts_search * search) {
         }
 
         if(!_ts_search_pop(env, search)) {
+            printf("woo first real bug (it shouldnt exit with no result\n");
             return 0;
         }
     }
@@ -50,6 +53,8 @@ int  ts_search_next(ts_env * env, ts_search * search) {
     for(int i = 0; i < TS_KEY_SIZE_BITS; i++) {
         *search->next[i/8] = next[i/8];
     }
+
+
 
     return 1;
 }
@@ -86,10 +91,10 @@ int _ts_search_pop(ts_env * env, ts_search * search) {
 
 int _ts_search_reset(ts_env * env, ts_search * search) {
     search->index = 0; 
-     for(int i = 0; i < search->tagCount; i++) {
+    for(int i = 0; i < search->tagCount; i++) {
         ts_walk_reset(env, &search->nodes[i]);
     }
-     return 0;
+    return 0;
 }
 
 

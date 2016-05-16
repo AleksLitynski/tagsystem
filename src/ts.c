@@ -200,8 +200,9 @@ void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
     ts_search_create(ctx->env, ctx->tags, ctx->first, ctx->search);
 
     // zero out the 'return' value
+    *item = malloc(sizeof(ts_doc_id));
     for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
-        item[i] = 0;
+        (**item)[i] = 0;
     }
 }
 
@@ -214,6 +215,7 @@ void ts_ls_close(ts_ls_ctx * ctx, ts_ls_item * item) {
     free(ctx->env);
     free(ctx->tags);
     free(ctx->search);
+    free(*item);
 }
 int ts_ls_next(ts_ls_ctx * ctx, ts_ls_item * item) {
     // next search result, return res
@@ -233,8 +235,11 @@ void ts_tag(char * tag) {
     ts_ls_ctx id_ctx;
     ts_ls_item id;
     ts_ls_init(&id_ctx, &id);
+
+    id_ctx.search->index = 0;
     while(ts_ls_next(&id_ctx, &id)) {
-        printf("the reads begin...\n");
+
+        printf("ts_ls_next returned once \n");
         ts_tag_insert(id_ctx.env, tag, id);
     };
     ts_ls_close(&id_ctx, &id);
