@@ -11,7 +11,8 @@ void ts_search_create(ts_env * env, ts_tags * tags, ts_doc_id * first, ts_search
     search->next = malloc(TS_KEY_SIZE_BYTES);
     search->nodes = malloc(sizeof(ts_walk) * tags->count);
     for(int i = 0; i < tags->count; i++) {
-        ts_walk_create(env, &search->nodes[i], &((char *)tags->tags)[i]);
+        printf("opening walk for: %s\n", tags->tags[i]);
+        ts_walk_create(env, &search->nodes[i], tags->tags[i]);
     }
 }
 
@@ -45,7 +46,7 @@ int  ts_search_next(ts_env * env, ts_search * search) {
         }
 
         if(!_ts_search_pop(env, search)) {
-            printf("woo first real bug (it shouldnt exit with no result\n");
+            printf("woo first real bug (it shouldnt exit with no result)\n");
             return 0;
         }
     }
@@ -65,7 +66,9 @@ int _ts_search_push(ts_env * env, ts_search * search, int branch) {
     // push each node
     int i = 0;
     for(;i < search->tagCount; i++) {
+        printf("Testing talk\n");
         if(~ts_walk_push(env, &search->nodes[i], branch)) {
+            printf("exited due to walk failure\n");
             break; 
         }
     }

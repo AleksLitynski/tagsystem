@@ -25,4 +25,6 @@ typedef struct {
 void ts_env_create(char * path, ts_env * env);
 void ts_env_close(ts_env * env);
 
+void ts_env_dump(ts_env * env);
+
 #endif

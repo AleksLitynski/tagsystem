@@ -183,14 +183,16 @@ void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
     }
 
     // make space for the tags in the ctx
-    ctx->tags->tags = malloc(sizeof(char) * ctx->tags->count);
-    ctx->tags->tags = ctx->set;
+    ctx->tags->tags = malloc(sizeof(char *) * ctx->tags->count);
     // add the tags to the ctx
-    int inum = 1;
+    int index = 0;
+    int lastItem = 0;
     for(int i = 0; i < len; i++) {
-        if(i < len-1) { //if we're not on the last one
-            ctx->tags->tags[inum] = ctx->set[i+1];
-            inum++;
+        if(ctx->set[i] == '\0' || i == len - 1) { 
+            char * nextWord = ctx->set + lastItem;
+            ctx->tags->tags[index] = nextWord;
+            lastItem = i + 1;
+            index++;
         }
     }
      

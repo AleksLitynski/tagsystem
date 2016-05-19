@@ -133,10 +133,41 @@ char * ts_util_doc_dir(ts_env * env, ts_doc_id * id) {
 char * ts_util_str_id(ts_doc_id * id) {
     char * out = calloc(80, sizeof(char));
     int outIdx = 0;
-    for(int i = 0; i < 20; i++) {
+    for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
         sprintf(out + outIdx, "%x", *id[i]);
         outIdx += numDigits(*id[i], 16);
     }
     return out;
 
+}
+
+char * ts_util_str_id_bin(ts_doc_id * id) {
+    char * out = calloc(160, sizeof(char));
+    for(int i = 0; i < TS_KEY_SIZE_BITS; i++) {
+        if(ts_util_test_bit(id[i/8], i%8)) {
+            out[i] = '1';
+        } else {
+            out[i] = '0';
+        }
+    }
+    return out;
+}
+
+char * ts_util_str_id_bin_split(ts_doc_id * id, char split, int sloc) {
+    char * out = calloc(160 + 20, sizeof(char));
+    int sindex = 0;
+    for(int i = 0; i < TS_KEY_SIZE_BITS + 20; i++) {
+        if(ts_util_test_bit(id[i/8], i%8)) {
+            out[i] = '1';
+        } else {
+            out[i] = '0';
+        }
+        sindex++;
+        if(sindex == sloc && i+1 < TS_KEY_SIZE_BITS + 20) {
+            out[i+1] = split;
+            sindex = 0;
+            i++;
+        }
+    }
+    return out;
 }

@@ -50,9 +50,16 @@ void ts_tag_create(ts_env * env, char * tag) {
 void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node );
 void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
 
+    printf("\n\nInserting tag\n------------------\n\n");
+    printf("tag: %s\n", tag);
+
     char * doc_str = ts_util_str_id(doc);
+    char * doc_str_bin = ts_util_str_id_bin_split(doc, '\n', 8);
+    printf("doc hex: %s\n", doc_str);
+    printf("doc bin: %s\n", doc_str_bin);
     // printf("tagging: %s <-- %s\n", tag, doc_str);
     free(doc_str);
+    free(doc_str_bin);
     // create the inverted index DB for this
     //  tag if it doesn't exist
     ts_tag_create(env, tag);
@@ -66,6 +73,8 @@ void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     node.mask = mask;
     _ts_tag_move(env, txn, tag, &node);
     mdb_txn_commit(txn);
+
+    printf("Done Inserting tag\n");
 
 }
 

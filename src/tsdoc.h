@@ -21,5 +21,7 @@ char * ts_util_doc(ts_env * env, ts_doc_id * id);
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id);
 
 char * ts_util_str_id(ts_doc_id * id);
+char * ts_util_str_id_bin(ts_doc_id * id);
+char * ts_util_str_id_bin_split(ts_doc_id * id, char split, int sloc);
 
 #endif

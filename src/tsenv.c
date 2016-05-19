@@ -29,3 +29,12 @@ void ts_env_close(ts_env * env) {
     free(env->docs);
 }
 
+
+void ts_env_dump(ts_env * env) {
+    // print env loc
+    // go through each db in env
+    //      print db name
+    //      print item 0 (meta)
+    //      go through each item in db and print data + size
+    
+}

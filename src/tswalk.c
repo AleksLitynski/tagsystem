@@ -5,6 +5,7 @@
 #include "lmdb.h"
 #include <stdio.h>
 
+#include "tsdoc.h"
 
 void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
     walk->tag = tagname;
@@ -41,6 +42,13 @@ int ts_walk_pop(ts_env * env, ts_walk * walk) {
 }
 
 int ts_walk_push(ts_env * env, ts_walk * walk, int path) {
+
+    printf("Walking: %s to: %i\n", walk->tag, path);
+
+    char * docid = ts_util_str_id((ts_doc_id *)walk->current->doc_id);
+    printf("%s\n", docid);
+    free(docid);
+
 
     int hasJump = ts_util_test_bit(walk->current->mask, walk->index - walk->offset + 1);
     if(ts_util_test_bit(walk->current->doc_id, walk->index - walk->offset + 1)) {

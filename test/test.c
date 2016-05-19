@@ -3,6 +3,7 @@
 #include "tsiter.h"
 
 int ts_create_test() {
+    printf("\n\n\n-------------------\n");
 
     ts_cws("./datafortest");
 

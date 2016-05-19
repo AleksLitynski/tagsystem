@@ -17,7 +17,7 @@ typedef struct {
 } ts_tag_metadata;
 
 typedef struct {
-    char * tags;
+    char ** tags;
     int count;
 } ts_tags;
 
