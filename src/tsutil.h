@@ -5,12 +5,10 @@
 #include <stdint.h>
 
 // macros
-#define TS_KEY_SIZE_BITS 160
-#define TS_KEY_SIZE_BYTES 20
-#define TS_KEY_SIZE_BITS_DOUBLE 320
-#define TS_KEY_SIZE_BYTES_DOUBLE 40
-#define TS_MAX_NODE_SIZE_BITS (TS_KEY_SIZE_BITS_DOUBLE + (sizeof(unsigned int) * TS_KEY_SIZE_BITS))
-#define TS_MAX_NODE_SIZE_BYTES (TS_KEY_SIZE_BYTES_DOUBLE + (sizeof(unsigned int) * TS_KEY_SIZE_BYTES))
+#define TS_ID_BITS 160
+#define TS_ID_BYTES 20
+#define TS_NODE_BITS ((2*TS_ID_BITS) + (sizeof(unsigned int) * TS_ID_BITS))
+#define TS_NODE_BYTES ((2*TS_ID_BYTES) + (sizeof(unsigned int) * TS_ID_BYTES))
 
 // types
 

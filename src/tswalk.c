@@ -13,13 +13,13 @@ void ts_walk_create(ts_env * env, ts_walk * walk, char * tagname) {
     walk->offset = 0;
     walk->jumps = 0;
     walk->historyIndex = -1;
-    walk->history = malloc(TS_KEY_SIZE_BITS * sizeof(ts_walk_history));
+    walk->history = malloc(TS_ID_BITS * sizeof(ts_walk_history));
 
     walk->current = malloc(sizeof(ts_node));
     walk->current->key = 0;
-    walk->current->doc_id = malloc(TS_KEY_SIZE_BYTES);
-    walk->current->mask = malloc(TS_KEY_SIZE_BYTES);
-    walk->current->jumps = malloc(sizeof(unsigned int) * TS_KEY_SIZE_BITS);
+    walk->current->doc_id = malloc(TS_ID_BYTES);
+    walk->current->mask = malloc(TS_ID_BYTES);
+    walk->current->jumps = malloc(sizeof(unsigned int) * TS_ID_BITS);
 }
 
 void ts_walk_close(ts_env * env, ts_walk * walk) {
@@ -109,14 +109,14 @@ int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int host_key) {
     walk->current->key = (unsigned int)key.mv_data;
 
     int jumps = 0;
-    for(int i = 0; i < TS_KEY_SIZE_BITS - walk->offset; i++) {
+    for(int i = 0; i < TS_ID_BITS - walk->offset; i++) {
         if(ts_util_test_bit(value.mv_data, i)) {
             walk->current->doc_id[i/8] |= 1<<(i%8);
         }
-        if(ts_util_test_bit(&((uint8_t *)value.mv_data)[TS_KEY_SIZE_BITS - walk->offset], i)) {
+        if(ts_util_test_bit(&((uint8_t *)value.mv_data)[TS_ID_BITS - walk->offset], i)) {
             walk->current->mask[i/8] |= 1<<(i%8);
             walk->current->jumps[jumps] = ((unsigned int *)&value.mv_data)[
-                ((TS_KEY_SIZE_BITS - walk->offset) * 2) + 
+                ((TS_ID_BITS - walk->offset) * 2) + 
                 (sizeof(unsigned int) * jumps)];
 
             jumps++;

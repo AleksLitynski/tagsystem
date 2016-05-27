@@ -10,7 +10,7 @@
 // macros
 
 // types
-typedef uint8_t ts_doc_id[TS_KEY_SIZE_BYTES];
+typedef uint8_t ts_doc_id[TS_ID_BYTES];
 
 // functions
 void ts_doc_create(ts_env * env, ts_doc_id * id);

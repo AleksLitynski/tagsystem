@@ -8,7 +8,7 @@
 void ts_search_create(ts_env * env, ts_tags * tags, ts_doc_id * first, ts_search * search) {
     search->index = 0;
     search->tagCount = tags->count;
-    search->next = malloc(TS_KEY_SIZE_BYTES);
+    search->next = malloc(TS_ID_BYTES);
     search->nodes = malloc(sizeof(ts_walk) * tags->count);
     for(int i = 0; i < tags->count; i++) {
         printf("opening walk for: %s\n", tags->tags[i]);
@@ -35,7 +35,7 @@ int  ts_search_next(ts_env * env, ts_search * search) {
     _ts_search_reset(env, search);
     ts_doc_id next;
 
-    while(search->index < TS_KEY_SIZE_BITS) {
+    while(search->index < TS_ID_BITS) {
         
         if(_ts_search_push(env, search, 0)) {
             next[search->index/8] &= ~(1<<(search->index%8));
@@ -51,7 +51,7 @@ int  ts_search_next(ts_env * env, ts_search * search) {
         }
     }
 
-    for(int i = 0; i < TS_KEY_SIZE_BITS; i++) {
+    for(int i = 0; i < TS_ID_BITS; i++) {
         *search->next[i/8] = next[i/8];
     }
 
@@ -61,7 +61,7 @@ int  ts_search_next(ts_env * env, ts_search * search) {
 }
 
 int _ts_search_push(ts_env * env, ts_search * search, int branch) {
-    if(branch < ts_util_test_bit(*search->next, search->index)) return 0;
+    if(branch < ts_util_test_bit((uint8_t *) &search->next, search->index)) return 0;
 
     // push each node
     int i = 0;

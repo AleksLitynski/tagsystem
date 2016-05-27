@@ -197,13 +197,13 @@ void ts_ls_init(ts_ls_ctx * ctx, ts_ls_item * item) {
     }
      
     // zero out the counter
-    ctx->first = calloc(TS_KEY_SIZE_BYTES, sizeof(uint8_t));
+    ctx->first = calloc(TS_ID_BYTES, sizeof(uint8_t));
     ctx->search = malloc(sizeof(ts_search));
     ts_search_create(ctx->env, ctx->tags, ctx->first, ctx->search);
 
     // zero out the 'return' value
     *item = malloc(sizeof(ts_doc_id));
-    for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
+    for(int i = 0; i < TS_ID_BYTES; i++) {
         (**item)[i] = 0;
     }
 }
@@ -273,7 +273,7 @@ char * ts_resolve(ts_doc_id * id) {
 
     char file[39];
     int fpos = 0;
-    for(int i = 2; i < TS_KEY_SIZE_BYTES;  i++) {
+    for(int i = 2; i < TS_ID_BYTES;  i++) {
         file[fpos] = (char)*id[i];
         fpos++;
     }

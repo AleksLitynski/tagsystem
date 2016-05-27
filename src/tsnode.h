@@ -16,7 +16,7 @@ typedef struct {
     uint8_t * mask;
     unsigned int * jumps;
 } ts_node;
-typedef uint8_t ts_node_cmp[TS_MAX_NODE_SIZE_BYTES];
+typedef uint8_t ts_node_cmp[TS_NODE_BYTES];
 
 // functions
 /*

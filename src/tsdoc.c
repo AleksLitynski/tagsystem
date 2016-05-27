@@ -37,7 +37,7 @@ void ts_doc_del(ts_env * env, ts_doc_id * doc) {
     MDB_val * key, * val;
     MDB_cursor * cursor;
 
-    key->mv_size = TS_KEY_SIZE_BYTES;
+    key->mv_size = TS_ID_BYTES;
     key->mv_data = doc;
 
     // iterate index
@@ -68,7 +68,7 @@ void ts_doc_del(ts_env * env, ts_doc_id * doc) {
 
 
 void _ts_doc_gen_weak_id(ts_env * env, ts_doc_id * id) {
-    unsigned char out[TS_KEY_SIZE_BYTES];
+    unsigned char out[TS_ID_BYTES];
     // the current unix time followed by a random number
     // if time/rand is larget/smaller than 32 bits, it'll just get cut off/padded,
     // which should be ok
@@ -76,7 +76,7 @@ void _ts_doc_gen_weak_id(ts_env * env, ts_doc_id * id) {
     const unsigned char * rand_id_str = (const unsigned char *)&rand_id;
     SHA1(rand_id_str, sizeof(uint64_t), out); 
 
-    for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
+    for(int i = 0; i < TS_ID_BYTES; i++) {
         uint8_t mask = 1;
         *id[i] = (uint8_t)out[i];
     }
@@ -133,39 +133,57 @@ char * ts_util_doc_dir(ts_env * env, ts_doc_id * id) {
 char * ts_util_str_id(ts_doc_id * id) {
     char * out = calloc(80, sizeof(char));
     int outIdx = 0;
-    for(int i = 0; i < TS_KEY_SIZE_BYTES; i++) {
-        sprintf(out + outIdx, "%x", *id[i]);
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        sprintf(out + outIdx, "%02x", *id[i]);
         outIdx += numDigits(*id[i], 16);
     }
     return out;
 
 }
+void printid(char * pattern, ts_doc_id * id) {
+    char * hex = ts_util_str_id(id);
+    printf(pattern, hex);
+    free(hex);
+}
 
 char * ts_util_str_id_bin(ts_doc_id * id) {
-    char * out = calloc(160, sizeof(char));
-    for(int i = 0; i < TS_KEY_SIZE_BITS; i++) {
-        if(ts_util_test_bit(id[i/8], i%8)) {
-            out[i] = '1';
-        } else {
-            out[i] = '0';
-        }
+    char * out = calloc(TS_ID_BITS, sizeof(char));
+    printf("Key size: %i\n", TS_ID_BITS);
+
+    for(int i = 0; i < TS_ID_BITS; i++) {
+        uint8_t item = *id[i/8];
+        int val = (item & (((uint8_t)1) << ( 8 - (i % 8)))) > 0;
+        printf("%i", val);
+        if(i % 8 == 0) printf(" ");
     }
+    printf("\n");
+
+    for(int i = 0; i < TS_ID_BITS; i++) {
+        char nxt = ts_util_test_bit((uint8_t *) &id, i) ? '1' : '0';
+        out[i] = nxt;
+        printf("next: %c\n", nxt);
+    }
+    printid("hex id: %s\n", id);
     return out;
 }
 
 char * ts_util_str_id_bin_split(ts_doc_id * id, char split, int sloc) {
+
+
     char * out = calloc(160 + 20, sizeof(char));
     int sindex = 0;
-    for(int i = 0; i < TS_KEY_SIZE_BITS + 20; i++) {
-        if(ts_util_test_bit(id[i/8], i%8)) {
+    int skips = 0;
+    for(int i = 0; i < TS_ID_BITS + 20; i++) {
+        if(ts_util_test_bit((uint8_t *) *id, i - skips)) {
             out[i] = '1';
         } else {
             out[i] = '0';
         }
         sindex++;
-        if(sindex == sloc && i+1 < TS_KEY_SIZE_BITS + 20) {
+        if(sindex == sloc && i+1 < TS_ID_BITS + 20) {
             out[i+1] = split;
             sindex = 0;
+            skips++;
             i++;
         }
     }

@@ -54,7 +54,7 @@ void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     printf("tag: %s\n", tag);
 
     char * doc_str = ts_util_str_id(doc);
-    char * doc_str_bin = ts_util_str_id_bin_split(doc, '\n', 8);
+    char * doc_str_bin = ts_util_str_id_bin(doc);
     printf("doc hex: %s\n", doc_str);
     printf("doc bin: %s\n", doc_str_bin);
     // printf("tagging: %s <-- %s\n", tag, doc_str);
@@ -64,7 +64,7 @@ void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     //  tag if it doesn't exist
     ts_tag_create(env, tag);
 
-    uint8_t mask[TS_KEY_SIZE_BYTES] = {0};
+    uint8_t mask[TS_ID_BYTES] = {0};
     ts_node node;
     MDB_txn * txn;
     mdb_txn_begin(env->env, NULL, 0, &txn);
@@ -107,8 +107,8 @@ void _ts_tag_move(
         
         node->key = *(int *) &meta->rootId;
 
-        MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_MAX_NODE_SIZE_BYTES)};
-        ts_node_to_mdb_val(node, TS_KEY_SIZE_BITS, 0, 0, 0, &new_data);
+        MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_NODE_BYTES)};
+        ts_node_to_mdb_val(node, TS_ID_BITS, 0, 0, 0, &new_data);
         mdb_put(txn, *dbi, &key, &new_data, 0);
         free(new_data.mv_data);
         return;             
@@ -118,13 +118,13 @@ void _ts_tag_move(
     // there is a root. Walk the tree and insert ourself once the walk runs out
     ts_node current;
     current.key = (unsigned int) key.mv_data;
-    ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS, &current);
+    ts_node_from_mdb_val(dbOut, TS_ID_BITS, &current);
 
     // the depth of the current node
     int nodeInset = 0; 
     int maskCount = 0;
 
-    for(int bitIndex = 0; bitIndex < TS_KEY_SIZE_BITS; bitIndex++) {
+    for(int bitIndex = 0; bitIndex < TS_ID_BITS; bitIndex++) {
         int localIndex = bitIndex - nodeInset;
         uint8_t bitHasMask = ts_util_test_bit(current.mask, localIndex);
          
@@ -137,7 +137,7 @@ void _ts_tag_move(
             key.mv_data = &current.jumps[maskCount];
             mdb_get(txn, * dbi, &key, dbOut);  // overwrite current node
             current.key = (unsigned int) key.mv_data;
-            ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS - bitIndex, &current);
+            ts_node_from_mdb_val(dbOut, TS_ID_BITS - bitIndex, &current);
 
             nodeInset = bitIndex;           // increase the inset
             maskCount = 0;                  // reset the mask count
@@ -147,10 +147,10 @@ void _ts_tag_move(
 
             // add the new node
             // copy the mask/jumps the user provided
-            MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_MAX_NODE_SIZE_BYTES)};
+            MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_NODE_BYTES)};
             ts_node_to_mdb_val(
                 node, 
-                TS_KEY_SIZE_BITS - bitIndex, bitIndex, 
+                TS_ID_BITS - bitIndex, bitIndex, 
                 0, 0, 
                 &new_data);
             if(node->key == 0) {
@@ -167,10 +167,10 @@ void _ts_tag_move(
             free(new_data.mv_data);
 
             // update parent mask
-            MDB_val parent_data = {.mv_size = 0, .mv_data = malloc(TS_MAX_NODE_SIZE_BYTES)};
+            MDB_val parent_data = {.mv_size = 0, .mv_data = malloc(TS_NODE_BYTES)};
             ts_node_to_mdb_val(
                 &current, 
-                TS_KEY_SIZE_BITS - nodeInset, nodeInset, 
+                TS_ID_BITS - nodeInset, nodeInset, 
                 node->key, bitIndex - nodeInset, 
                 &parent_data);
 
@@ -218,7 +218,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
 
         // there is a root. Walk the tree to find our leaf
         current->key = (unsigned int) key->mv_data;
-        ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS, current);
+        ts_node_from_mdb_val(dbOut, TS_ID_BITS, current);
 
         // the depth of the current node
         int nodeInset = 0; 
@@ -227,7 +227,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
         int prevMaskCount = 0;
 
         int bitIndex = 0;
-        for(;bitIndex < TS_KEY_SIZE_BITS; bitIndex++) {
+        for(;bitIndex < TS_ID_BITS; bitIndex++) {
             int localIndex = bitIndex - nodeInset;
             uint8_t bitHasMask = ts_util_test_bit(current->mask, localIndex);
              
@@ -243,7 +243,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
                 key->mv_data = &current->jumps[maskCount];
                 mdb_get(txn, *dbi, key, dbOut);  // overwrite current node
                 current->key = (unsigned int) key->mv_data;
-                ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS - bitIndex, current);
+                ts_node_from_mdb_val(dbOut, TS_ID_BITS - bitIndex, current);
 
                 nodeInset = bitIndex;           // increase the inset
                 maskCount = 0;                  // reset the mask count
@@ -255,7 +255,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
             }
         }
 
-        if(bitIndex >= TS_KEY_SIZE_BITS) {
+        if(bitIndex >= TS_ID_BITS) {
             // remove from parent
             MDB_val * dbOutParent;
             key->mv_data = &prevId;
@@ -266,7 +266,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
 
             // re-insert all children
             int jumpNum = 0;
-            for(int i = 0; i < TS_KEY_SIZE_BITS - nodeInset; i++) {
+            for(int i = 0; i < TS_ID_BITS - nodeInset; i++) {
                 if(ts_util_test_bit(current->mask, i)) {
                                     
                     // I'm not sure if this will overwrite the value of dbOut before
@@ -275,7 +275,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
                     mdb_get(txn, *dbi, key, dbOut);
 
                     ts_node * dislocated_child;
-                    ts_node_from_mdb_val(dbOut, TS_KEY_SIZE_BITS, dislocated_child);
+                    ts_node_from_mdb_val(dbOut, TS_ID_BITS, dislocated_child);
                     _ts_tag_move(env, txn, tag, dislocated_child);
 
 //void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_node * node);
