@@ -53,8 +53,8 @@ void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     printf("\n\nInserting tag\n------------------\n\n");
     printf("tag: %s\n", tag);
 
-    char * doc_str = ts_util_str_id(doc);
-    char * doc_str_bin = ts_util_str_id_bin(doc);
+    char * doc_str = ts_util_str_id_split(doc, ' ', 8);
+    char * doc_str_bin = ts_util_str_id_bin_split(doc, ' ', 8);
     printf("doc hex: %s\n", doc_str);
     printf("doc bin: %s\n", doc_str_bin);
     // printf("tagging: %s <-- %s\n", tag, doc_str);

@@ -64,3 +64,8 @@ runtest: buildtest lmdb
 iter:
 	gcc -std=c11 -Werror -Wfatal-errors utils/iter.c -o bin/iter
 	bin/iter
+
+
+redir:
+	gcc -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
+	bin/redir

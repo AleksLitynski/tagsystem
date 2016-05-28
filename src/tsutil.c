@@ -25,21 +25,7 @@ void ts_util_safe_mk(char * name) {
     }
 }
 uint8_t ts_util_test_bit(uint8_t * firstByte, unsigned int index) {
-
-    printf("hex id passed: ");
-        printf("%x", firstByte + 1);
-    for(int i = 0; i < 20; i++) {
-    }
-    printf("\n");
-
-
-    unsigned int indexByte = index / 8;
-    unsigned int indexBit  = 8 - (index % 8);
-    uint8_t item = firstByte[indexByte];
-    unsigned int res = item & (((uint8_t)1) << indexBit) > 0;
-    // printf("%" PRIu8 " at %i is %i\n", firstByte[indexByte], indexBit, res);
-    return res;
-    // 0, 2, 4, 8, 16, 32, 64, 128
+    return (firstByte[index/8] & (((uint8_t)1) << ( 8 - (index % 8)))) > 0;
 }
 
 

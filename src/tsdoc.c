@@ -78,7 +78,7 @@ void _ts_doc_gen_weak_id(ts_env * env, ts_doc_id * id) {
 
     for(int i = 0; i < TS_ID_BYTES; i++) {
         uint8_t mask = 1;
-        *id[i] = (uint8_t)out[i];
+        (*id)[i] = (uint8_t)out[i];
     }
 
 }
@@ -116,7 +116,7 @@ char * ts_util_doc(ts_env * env, ts_doc_id * id) {
 
     int outIdx = strlen(docDir);
     for(int i = 0; i < 18; i++) {
-        sprintf(out + outIdx, "%x", *id[2 + i]);
+        sprintf(out + outIdx, "%02x", *id[2 + i]);
         outIdx += numDigits(*id[2+i], 16); 
     }
     free(docDir);
@@ -134,51 +134,43 @@ char * ts_util_str_id(ts_doc_id * id) {
     char * out = calloc(80, sizeof(char));
     int outIdx = 0;
     for(int i = 0; i < TS_ID_BYTES; i++) {
-        sprintf(out + outIdx, "%02x", *id[i]);
-        outIdx += numDigits(*id[i], 16);
+        sprintf(out + outIdx, "%02x", (*id)[i]);
+        outIdx += numDigits((*id)[i], 16);
     }
     return out;
 
 }
-void printid(char * pattern, ts_doc_id * id) {
-    char * hex = ts_util_str_id(id);
-    printf(pattern, hex);
-    free(hex);
+
+char * ts_util_str_id(ts_doc_id * id) {
+    char * out = calloc(80, sizeof(char));
+    int outIdx = 0;
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        sprintf(out + outIdx, "%02x", (*id)[i]);
+        outIdx += numDigits((*id)[i], 16);
+    }
+    return out;
+
 }
+
 
 char * ts_util_str_id_bin(ts_doc_id * id) {
     char * out = calloc(TS_ID_BITS, sizeof(char));
-    printf("Key size: %i\n", TS_ID_BITS);
 
     for(int i = 0; i < TS_ID_BITS; i++) {
-        uint8_t item = *id[i/8];
-        int val = (item & (((uint8_t)1) << ( 8 - (i % 8)))) > 0;
-        printf("%i", val);
-        if(i % 8 == 0) printf(" ");
+        out[i] = ts_util_test_bit(*id, i) ? '1': '0';
     }
-    printf("\n");
 
-    for(int i = 0; i < TS_ID_BITS; i++) {
-        char nxt = ts_util_test_bit((uint8_t *) &id, i) ? '1' : '0';
-        out[i] = nxt;
-        printf("next: %c\n", nxt);
-    }
-    printid("hex id: %s\n", id);
     return out;
 }
 
 char * ts_util_str_id_bin_split(ts_doc_id * id, char split, int sloc) {
 
 
-    char * out = calloc(160 + 20, sizeof(char));
+    char * out = calloc(160 + 160/sloc, sizeof(char));
     int sindex = 0;
     int skips = 0;
     for(int i = 0; i < TS_ID_BITS + 20; i++) {
-        if(ts_util_test_bit((uint8_t *) *id, i - skips)) {
-            out[i] = '1';
-        } else {
-            out[i] = '0';
-        }
+        out[i] = ts_util_test_bit(*id, i - skips) ? '1' : '0';
         sindex++;
         if(sindex == sloc && i+1 < TS_ID_BITS + 20) {
             out[i+1] = split;
