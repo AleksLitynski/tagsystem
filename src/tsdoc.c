@@ -125,28 +125,14 @@ char * ts_util_doc(ts_env * env, ts_doc_id * id) {
 }
 char * ts_util_doc_dir(ts_env * env, ts_doc_id * id) {
     char * out;
-    asprintf(&out, "%s/docs/%x%x/", env->dir, *id[0], *id[1]);
+    asprintf(&out, "%s/docs/%02x%02x/", env->dir, *id[0], *id[1]);
     return out;
-}
-
-
-char * ts_util_str_id(ts_doc_id * id) {
-    char * out = calloc(80, sizeof(char));
-    int outIdx = 0;
-    for(int i = 0; i < TS_ID_BYTES; i++) {
-        sprintf(out + outIdx, "%02x", (*id)[i]);
-        outIdx += numDigits((*id)[i], 16);
-    }
-    return out;
-
 }
 
 char * ts_util_str_id(ts_doc_id * id) {
     char * out = calloc(80, sizeof(char));
-    int outIdx = 0;
     for(int i = 0; i < TS_ID_BYTES; i++) {
-        sprintf(out + outIdx, "%02x", (*id)[i]);
-        outIdx += numDigits((*id)[i], 16);
+        sprintf(out + (i * 2), "%02x", (*id)[i]);
     }
     return out;
 

@@ -19,7 +19,7 @@ void _ts_tag_gen_meta(ts_env * env, char * tag) {
     MDB_val key = {.mv_size = sizeof(unsigned int), .mv_data = &zero}; 
     ts_tag_metadata meta = {
         .rootId = 1,
-        .nextId = 2
+        .nextId = 1
     }; 
     MDB_val data = {
         .mv_size = sizeof(meta),
@@ -50,16 +50,17 @@ void ts_tag_create(ts_env * env, char * tag) {
 void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node );
 void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
 
-    printf("\n\nInserting tag\n------------------\n\n");
-    printf("tag: %s\n", tag);
+    printf("\n\nInserting tag\n------------------\n");
+    printf("tag: %s\n\n", tag);
 
-    char * doc_str = ts_util_str_id_split(doc, ' ', 8);
+    /*
+    char * doc_str = ts_util_str_id(doc);
     char * doc_str_bin = ts_util_str_id_bin_split(doc, ' ', 8);
     printf("doc hex: %s\n", doc_str);
     printf("doc bin: %s\n", doc_str_bin);
-    // printf("tagging: %s <-- %s\n", tag, doc_str);
     free(doc_str);
     free(doc_str_bin);
+    */
     // create the inverted index DB for this
     //  tag if it doesn't exist
     ts_tag_create(env, tag);
@@ -96,24 +97,30 @@ void _ts_tag_move(
     MDB_val key = { .mv_size = sizeof(unsigned int), .mv_data = &meta_idx};
     MDB_val meta_data;
     mdb_get(txn, *dbi, &key, &meta_data);
-    ts_tag_metadata * meta = (ts_tag_metadata *) meta_data.mv_data;
+    ts_tag_metadata * meta = meta_data.mv_data;
+    printf("rootid: %i, nextid: %i\n", meta->rootId, meta->nextId);
 
     // get root node
-    key.mv_data = &meta->rootId;
+    key.mv_data = &(meta->rootId);
     int res = mdb_get(txn, *dbi, &key, dbOut);
     
     // if no root, insert the whole thing at the root and exit
     if(res == MDB_NOTFOUND) {
+        printf("No root, creating root\n");
         
-        node->key = *(int *) &meta->rootId;
+        node->key = meta->rootId;
 
-        MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_NODE_BYTES)};
+        MDB_val new_data = {
+            .mv_size = 0, 
+            .mv_data = calloc(TS_NODE_BYTES, 1)
+        };
         ts_node_to_mdb_val(node, TS_ID_BITS, 0, 0, 0, &new_data);
         mdb_put(txn, *dbi, &key, &new_data, 0);
         free(new_data.mv_data);
         return;             
  
     }
+    printf("Root existed\n");
 
     // there is a root. Walk the tree and insert ourself once the walk runs out
     ts_node current;
@@ -127,6 +134,8 @@ void _ts_tag_move(
     for(int bitIndex = 0; bitIndex < TS_ID_BITS; bitIndex++) {
         int localIndex = bitIndex - nodeInset;
         uint8_t bitHasMask = ts_util_test_bit(current.mask, localIndex);
+
+        printf("val: %i\n", ts_util_test_bit(current.doc_id, localIndex)); 
          
         if(ts_util_test_bit(node->doc_id, bitIndex) == ts_util_test_bit(current.doc_id, localIndex)) {
             if(bitHasMask) maskCount++;
