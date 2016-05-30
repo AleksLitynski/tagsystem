@@ -25,7 +25,7 @@ void ts_util_safe_mk(char * name) {
     }
 }
 uint8_t ts_util_test_bit(uint8_t * firstByte, unsigned int index) {
-    return (firstByte[index/8] & (((uint8_t)1) << ( 8 - (index % 8)))) > 0;
+    return (firstByte[index/8] & (((uint8_t)1) << ( 7 - (index % 8)))) > 0;
 }
 
 

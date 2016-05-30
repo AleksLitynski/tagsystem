@@ -50,8 +50,7 @@ void ts_tag_create(ts_env * env, char * tag) {
 void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node );
 void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
 
-    printf("\n\nInserting tag\n------------------\n");
-    printf("tag: %s\n\n", tag);
+    printf("Inserting tag: %s\n------------------\n", tag);
 
     /*
     char * doc_str = ts_util_str_id(doc);
@@ -74,8 +73,6 @@ void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     node.mask = mask;
     _ts_tag_move(env, txn, tag, &node);
     mdb_txn_commit(txn);
-
-    printf("Done Inserting tag\n");
 
 }
 
@@ -118,7 +115,6 @@ void _ts_tag_move(
         mdb_put(txn, *dbi, &key, &new_data, 0);
         free(new_data.mv_data);
         return;             
- 
     }
     printf("Root existed\n");
 

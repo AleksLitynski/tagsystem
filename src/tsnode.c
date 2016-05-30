@@ -18,8 +18,36 @@ void ts_node_to_mdb_val(
         int id_size_bits, int starting_offset_bits, 
         unsigned int new_jump, int new_jump_index,
         MDB_val * val) {
+   
+    uint8_t * data = (uint8_t *)val->mv_data;
+    int id_size = id_size_bits/8;
+    int jumps = 0;
+    for(int idx = 0; idx < id_size_bits; idx++){
+        int idx_byte = idx/8;
+        uint8_t idx_bit = 1 << (7 - (idx%8));
+        int has_jump = new_jump && new_jump_index == idx;
 
+        // printf("[%i - %i] ", idx_byte, idx_bit);
 
+        uint8_t doc  = node->doc_id[idx_byte] & idx_bit;
+        uint8_t mask = has_jump ? idx_bit : node->mask[idx_byte] & idx_bit;
+
+        // printf("%i:%" PRIu8 " ", idx, doc);
+        data[idx_byte]           |= doc;
+        data[idx_byte + id_size] |= mask;
+
+        if(mask) {
+            uint8_t firstJump8 = data[id_size * 2 + 1];
+            unsigned int * firstJump = (unsigned int *) &firstJump8;
+            unsigned int * jump = firstJump + jumps;
+
+            *jump = has_jump ? new_jump : node->jumps[jumps];
+            jumps++;
+        }
+    }
+    val->mv_size = (id_size * 2) + (jumps * sizeof(unsigned int));
+
+    /*
     printf("id_size_bits: %i\n", id_size_bits);
     printf("starting_offset_bits: %i\n", starting_offset_bits);
     printf("new_jump: %i\n", new_jump);
@@ -34,41 +62,14 @@ void ts_node_to_mdb_val(
     printf("    mask:   %s\n", mask_str);
     free(doc_str);
     free(mask_str);
-    
-    uint8_t * data = (uint8_t *)val->mv_data;
-    int idSizeBytes = id_size_bits/8;
-    int jumpCount = 0;
-    for(int idx = 0; idx < id_size_bits; idx++){
-        int idx_byte = idx/8;
-        uint8_t idx_bit = 1 << (8 - (idx%8));
-        int has_jump = new_jump && new_jump_index == idx;
-
-        uint8_t doc  = node->doc_id[idx_byte] & idx_bit;
-        uint8_t mask = has_jump ? idx_bit : node->mask  [idx_byte] & idx_bit;
-
-        // printf("%i:%" PRIu8 " ", idx, doc);
-        data[idx_byte]               |= doc;
-        data[idSizeBytes + idx_byte] |= mask;
-
-        if(mask) {
-            uint8_t firstJump8 = data[idSizeBytes * 2 + 1];
-            unsigned int * firstJump = (unsigned int *) &firstJump8;
-            unsigned int * jump = firstJump + jumpCount;
-
-            *jump = has_jump ? new_jump : node->jumps[jumpCount];
-            jumpCount++;
-        }
-    }
-
-
-    val->mv_size = (idSizeBytes * 2) + (jumpCount * sizeof(unsigned int));
-
-    printf("Jumps: %i\n", jumpCount);
-    printf("final: ");
+ 
+    printf("final:  ");
     for(int i = 0; i < val->mv_size; i++) {
         printf("%02x", data[i]);
     }
     printf("\n");
+    printf("Jumps: %i\n", jumps);
+    */
 }
 
 // node will point into val, so don't let val be de-allocated
