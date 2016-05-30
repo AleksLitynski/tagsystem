@@ -19,7 +19,7 @@ void _ts_tag_gen_meta(ts_env * env, char * tag) {
     MDB_val key = {.mv_size = sizeof(unsigned int), .mv_data = &zero}; 
     ts_tag_metadata meta = {
         .rootId = 1,
-        .nextId = 1
+        .nextId = 2
     }; 
     MDB_val data = {
         .mv_size = sizeof(meta),
@@ -72,34 +72,31 @@ void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
     node.doc_id = (uint8_t *) doc;
     node.mask = mask;
     _ts_tag_move(env, txn, tag, &node);
-    mdb_txn_commit(txn);
+    int res = mdb_txn_commit(txn);
+    printf("txn res: %s\n", mdb_strerror(res));
 
 }
 
-void _ts_tag_move(
-        ts_env * env, MDB_txn * txn, char * tag, // execution context
-        ts_node * node 
-        ){
-
-    // printf("_ts_tag_move entered\n");
-    // variables
-    MDB_val * dbOut;
+void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
 
     // setup dbi
-    MDB_dbi * dbi;
-    mdb_dbi_open(txn, tag, MDB_INTEGERKEY, dbi);
+    MDB_dbi dbi;
+    mdb_dbi_open(txn, tag, MDB_INTEGERKEY, &dbi);
 
     // get metadata
     unsigned int meta_idx = 0;
     MDB_val key = { .mv_size = sizeof(unsigned int), .mv_data = &meta_idx};
     MDB_val meta_data;
-    mdb_get(txn, *dbi, &key, &meta_data);
+    mdb_get(txn, dbi, &key, &meta_data);
     ts_tag_metadata * meta = meta_data.mv_data;
     printf("rootid: %i, nextid: %i\n", meta->rootId, meta->nextId);
 
     // get root node
     key.mv_data = &(meta->rootId);
-    int res = mdb_get(txn, *dbi, &key, dbOut);
+    MDB_val dbOut;
+    printf("getting from: %i %i\n", key.mv_size, *(unsigned int *)key.mv_data);
+    int res = mdb_get(txn, dbi, &key, &dbOut);
+    printf("get res: %s\n", mdb_strerror(res));
     
     // if no root, insert the whole thing at the root and exit
     if(res == MDB_NOTFOUND) {
@@ -112,7 +109,11 @@ void _ts_tag_move(
             .mv_data = calloc(TS_NODE_BYTES, 1)
         };
         ts_node_to_mdb_val(node, TS_ID_BITS, 0, 0, 0, &new_data);
-        mdb_put(txn, *dbi, &key, &new_data, 0);
+        printf("insert size: %i\n", new_data.mv_data);
+        printf("Inserting to: %i %i\n", key.mv_size, *(unsigned int *)key.mv_data);
+        printf("Data size: %i\n", new_data.mv_size);
+        int rez = mdb_put(txn, dbi, &key, &new_data, 0);
+        printf("put res: %s\n", mdb_strerror(rez));
         free(new_data.mv_data);
         return;             
     }
@@ -121,7 +122,7 @@ void _ts_tag_move(
     // there is a root. Walk the tree and insert ourself once the walk runs out
     ts_node current;
     current.key = (unsigned int) key.mv_data;
-    ts_node_from_mdb_val(dbOut, TS_ID_BITS, &current);
+    ts_node_from_mdb_val(&dbOut, TS_ID_BITS, &current);
 
     // the depth of the current node
     int nodeInset = 0; 
@@ -140,9 +141,9 @@ void _ts_tag_move(
         } else if(bitHasMask) {
             // the other branch has it, jump, then continue
             key.mv_data = &current.jumps[maskCount];
-            mdb_get(txn, * dbi, &key, dbOut);  // overwrite current node
+            mdb_get(txn, dbi, &key, &dbOut);  // overwrite current node
             current.key = (unsigned int) key.mv_data;
-            ts_node_from_mdb_val(dbOut, TS_ID_BITS - bitIndex, &current);
+            ts_node_from_mdb_val(&dbOut, TS_ID_BITS - bitIndex, &current);
 
             nodeInset = bitIndex;           // increase the inset
             maskCount = 0;                  // reset the mask count
@@ -165,10 +166,10 @@ void _ts_tag_move(
                 // and increment the meta 'next key'
                 meta->nextId++;
                 key.mv_data = &meta_idx;
-                mdb_put(txn, *dbi, &key, &meta_data, 0);
+                mdb_put(txn, dbi, &key, &meta_data, 0);
             }
             key.mv_data = &node->key;
-            mdb_put(txn, *dbi, &key, &new_data, 0);
+            mdb_put(txn, dbi, &key, &new_data, 0);
             free(new_data.mv_data);
 
             // update parent mask
@@ -180,7 +181,7 @@ void _ts_tag_move(
                 &parent_data);
 
             key.mv_data = &current.key;
-            mdb_put(txn, *dbi, &key, &parent_data, 0);
+            mdb_put(txn, dbi, &key, &parent_data, 0);
             free(parent_data.mv_data);
             return;             
         }

@@ -69,3 +69,14 @@ iter:
 redir:
 	gcc -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
 	bin/redir
+
+addremove: cleanbin 
+	mkdir -p bin/
+	gcc -std=c11 -Werror -Wfatal-errors \
+	    -I$(MDBDIR)/ \
+	    -L$(MDBDIR)/ \
+	    -o bin/addremovetest \
+	    test/addremove.c \
+	    -llmdb 
+	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR) && ./addremovetest
+

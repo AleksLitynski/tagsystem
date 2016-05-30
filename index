@@ -1,0 +1,597 @@
+lib/lmdb/libraries/liblmdb/sample-bdb.txt:35:7:	rc = env->open(env, "./testdb", FLAGS, 0664);
+lib/lmdb/libraries/liblmdb/sample-bdb.txt:37:7:	rc = env->txn_begin(env, NULL, &txn, 0);
+lib/lmdb/libraries/liblmdb/sample-bdb.txt:54:7:	rc = env->txn_begin(env, NULL, &txn, 0);
+lib/lmdb/libraries/liblmdb/sample-bdb.txt:71:7:	rc = env->close(env, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:1437:39:	((txn)->mt_dbiseqs[dbi] != (txn)->mt_env->me_dbiseqs[dbi])
+lib/lmdb/libraries/liblmdb/mdb.c:1634:6:	if (env->me_assert_func)
+lib/lmdb/libraries/liblmdb/mdb.c:1635:3:		env->me_assert_func(env, buf);
+lib/lmdb/libraries/liblmdb/mdb.c:1864:18:	MDB_page *ret = env->me_dpages;
+lib/lmdb/libraries/liblmdb/mdb.c:1865:17:	size_t psize = env->me_psize, sz = psize, off;
+lib/lmdb/libraries/liblmdb/mdb.c:1875:4:			env->me_dpages = ret->mp_next;
+lib/lmdb/libraries/liblmdb/mdb.c:1885:9:		if (!(env->me_flags & MDB_NOMEMINIT)) {
+lib/lmdb/libraries/liblmdb/mdb.c:1901:16:	mp->mp_next = env->me_dpages;
+lib/lmdb/libraries/liblmdb/mdb.c:1903:2:	env->me_dpages = mp;
+lib/lmdb/libraries/liblmdb/mdb.c:2147:39:		i += (LEAFSIZE(key, data) + txn->mt_env->me_psize) / txn->mt_env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:2147:64:		i += (LEAFSIZE(key, data) + txn->mt_env->me_psize) / txn->mt_env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:2232:14:	if (txn->mt_env->me_txns) {
+lib/lmdb/libraries/liblmdb/mdb.c:2233:27:		MDB_reader *r = txn->mt_env->me_txns->mti_readers;
+lib/lmdb/libraries/liblmdb/mdb.c:2234:20:		for (i = txn->mt_env->me_txns->mti_numreaders; --i >= 0; ) {
+lib/lmdb/libraries/liblmdb/mdb.c:2298:22:	pgno_t pgno, *mop = env->me_pghead;
+lib/lmdb/libraries/liblmdb/mdb.c:2346:11:			last = env->me_pglast;
+lib/lmdb/libraries/liblmdb/mdb.c:2347:13:			oldest = env->me_pgoldest;
+lib/lmdb/libraries/liblmdb/mdb.c:2354:16:			m2.mc_db = &env->me_metas[(txn->mt_txnid-1) & 1]->mm_dbs[FREE_DBI];
+lib/lmdb/libraries/liblmdb/mdb.c:2373:5:				env->me_pgoldest = oldest;
+lib/lmdb/libraries/liblmdb/mdb.c:2389:5:				env->me_pgoldest = oldest;
+lib/lmdb/libraries/liblmdb/mdb.c:2403:10:			if (!(env->me_pghead = mop = mdb_midl_alloc(i))) {
+lib/lmdb/libraries/liblmdb/mdb.c:2408:29:			if ((rc = mdb_midl_need(&env->me_pghead, i)) != 0)
+lib/lmdb/libraries/liblmdb/mdb.c:2410:10:			mop = env->me_pghead;
+lib/lmdb/libraries/liblmdb/mdb.c:2412:3:		env->me_pglast = last;
+lib/lmdb/libraries/liblmdb/mdb.c:2427:20:	if (pgno + num >= env->me_maxpg) {
+lib/lmdb/libraries/liblmdb/mdb.c:2433:8:	if (!(env->me_flags & MDB_RDONLY)) {
+lib/lmdb/libraries/liblmdb/mdb.c:2435:20:		p = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:2435:34:		p = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:2436:23:		p = VirtualAlloc(p, env->me_psize * num, MEM_COMMIT,
+lib/lmdb/libraries/liblmdb/mdb.c:2437:5:			(env->me_flags & MDB_WRITEMAP) ? PAGE_READWRITE:
+lib/lmdb/libraries/liblmdb/mdb.c:2448:6:	if (env->me_flags & MDB_WRITEMAP) {
+lib/lmdb/libraries/liblmdb/mdb.c:2449:21:		np = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:2449:35:		np = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:2528:8:			if (env->me_flags & MDB_WRITEMAP) {
+lib/lmdb/libraries/liblmdb/mdb.c:2535:27:					memcpy(np, mp, num * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:2537:28:					mdb_page_copy(np, mp, env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:2629:32:	mdb_page_copy(np, mp, txn->mt_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:2673:6:	if (env->me_flags & MDB_RDONLY)
+lib/lmdb/libraries/liblmdb/mdb.c:2675:24:	if (force || !F_ISSET(env->me_flags, MDB_NOSYNC)) {
+lib/lmdb/libraries/liblmdb/mdb.c:2676:7:		if (env->me_flags & MDB_WRITEMAP) {
+lib/lmdb/libraries/liblmdb/mdb.c:2677:18:			int flags = ((env->me_flags & MDB_MAPASYNC) && !force)
+lib/lmdb/libraries/liblmdb/mdb.c:2679:18:			if (MDB_MSYNC(env->me_map, env->me_psize * numpgs, flags))
+lib/lmdb/libraries/liblmdb/mdb.c:2679:31:			if (MDB_MSYNC(env->me_map, env->me_psize * numpgs, flags))
+lib/lmdb/libraries/liblmdb/mdb.c:2682:47:			else if (flags == MS_SYNC && MDB_FDATASYNC(env->me_fd))
+lib/lmdb/libraries/liblmdb/mdb.c:2687:8:			if (env->me_flags & MDB_FSYNCONLY) {
+lib/lmdb/libraries/liblmdb/mdb.c:2688:15:				if (fsync(env->me_fd))
+lib/lmdb/libraries/liblmdb/mdb.c:2692:22:			if (MDB_FDATASYNC(env->me_fd))
+lib/lmdb/libraries/liblmdb/mdb.c:2810:19:		h = OpenProcess(env->me_pidquery, FALSE, pid);
+lib/lmdb/libraries/liblmdb/mdb.c:2828:19:		if ((rc = fcntl(env->me_lfd, op, &lock_info)) == 0) {
+lib/lmdb/libraries/liblmdb/mdb.c:2847:20:	MDB_txninfo *ti = env->me_txns;
+lib/lmdb/libraries/liblmdb/mdb.c:2859:21:			MDB_reader *r = (env->me_flags & MDB_NOTLS) ? txn->mt_u.reader :
+lib/lmdb/libraries/liblmdb/mdb.c:2860:25:				pthread_getspecific(env->me_txkey);
+lib/lmdb/libraries/liblmdb/mdb.c:2862:22:				if (r->mr_pid != env->me_pid || r->mr_txnid != (txnid_t)-1)
+lib/lmdb/libraries/liblmdb/mdb.c:2865:21:				MDB_PID_T pid = env->me_pid;
+lib/lmdb/libraries/liblmdb/mdb.c:2867:29:				mdb_mutexref_t rmutex = env->me_rmutex;
+lib/lmdb/libraries/liblmdb/mdb.c:2869:10:				if (!env->me_live_reader) {
+lib/lmdb/libraries/liblmdb/mdb.c:2873:6:					env->me_live_reader = 1;
+lib/lmdb/libraries/liblmdb/mdb.c:2882:14:				if (i == env->me_maxreaders) {
+lib/lmdb/libraries/liblmdb/mdb.c:2898:5:				env->me_close_readers = nr;
+lib/lmdb/libraries/liblmdb/mdb.c:2902:18:				new_notls = (env->me_flags & MDB_NOTLS);
+lib/lmdb/libraries/liblmdb/mdb.c:2903:47:				if (!new_notls && (rc=pthread_setspecific(env->me_txkey, r))) {
+lib/lmdb/libraries/liblmdb/mdb.c:2913:11:			meta = env->me_metas[txn->mt_txnid & 1];
+lib/lmdb/libraries/liblmdb/mdb.c:2917:30:		/* Not yet touching txn == env->me_txn0, it may be active */
+lib/lmdb/libraries/liblmdb/mdb.c:2919:28:			if (LOCK_MUTEX(rc, env, env->me_wmutex))
+lib/lmdb/libraries/liblmdb/mdb.c:2922:11:			meta = env->me_metas[txn->mt_txnid & 1];
+lib/lmdb/libraries/liblmdb/mdb.c:2936:26:		txn->mt_u.dirty_list = env->me_dirty_list;
+lib/lmdb/libraries/liblmdb/mdb.c:2938:22:		txn->mt_free_pgs = env->me_free_pgs;
+lib/lmdb/libraries/liblmdb/mdb.c:2941:3:		env->me_txn = txn;
+lib/lmdb/libraries/liblmdb/mdb.c:2942:27:		memcpy(txn->mt_dbiseqs, env->me_dbiseqs, env->me_maxdbs * sizeof(unsigned int));
+lib/lmdb/libraries/liblmdb/mdb.c:2942:44:		memcpy(txn->mt_dbiseqs, env->me_dbiseqs, env->me_maxdbs * sizeof(unsigned int));
+lib/lmdb/libraries/liblmdb/mdb.c:2957:19:	txn->mt_numdbs = env->me_numdbs;
+lib/lmdb/libraries/liblmdb/mdb.c:2959:7:		x = env->me_dbflags[i];
+lib/lmdb/libraries/liblmdb/mdb.c:2966:6:	if (env->me_flags & MDB_FATAL_ERROR) {
+lib/lmdb/libraries/liblmdb/mdb.c:2969:13:	} else if (env->me_maxpg < txn->mt_next_pgno) {
+lib/lmdb/libraries/liblmdb/mdb.c:3003:11:	flags |= env->me_flags & MDB_WRITEMAP;
+lib/lmdb/libraries/liblmdb/mdb.c:3005:6:	if (env->me_flags & MDB_RDONLY & ~flags) /* write txn in RDONLY env */
+lib/lmdb/libraries/liblmdb/mdb.c:3015:10:		size = env->me_maxdbs * (sizeof(MDB_db)+sizeof(MDB_cursor *)+1);
+lib/lmdb/libraries/liblmdb/mdb.c:3018:10:		size = env->me_maxdbs * (sizeof(MDB_db)+1);
+lib/lmdb/libraries/liblmdb/mdb.c:3024:9:		txn = env->me_txn0;
+lib/lmdb/libraries/liblmdb/mdb.c:3042:17:	txn->mt_dbxs = env->me_dbxs;	/* static */
+lib/lmdb/libraries/liblmdb/mdb.c:3044:50:	txn->mt_dbflags = (unsigned char *)txn + size - env->me_maxdbs;
+lib/lmdb/libraries/liblmdb/mdb.c:3050:51:		txn->mt_cursors = (MDB_cursor **)(txn->mt_dbs + env->me_maxdbs);
+lib/lmdb/libraries/liblmdb/mdb.c:3078:23:		ntxn->mnt_pgstate = env->me_pgstate; /* save parent me_pghead & co */
+lib/lmdb/libraries/liblmdb/mdb.c:3079:7:		if (env->me_pghead) {
+lib/lmdb/libraries/liblmdb/mdb.c:3080:26:			size = MDB_IDL_SIZEOF(env->me_pghead);
+lib/lmdb/libraries/liblmdb/mdb.c:3081:4:			env->me_pghead = mdb_midl_alloc(env->me_pghead[0]);
+lib/lmdb/libraries/liblmdb/mdb.c:3081:36:			env->me_pghead = mdb_midl_alloc(env->me_pghead[0]);
+lib/lmdb/libraries/liblmdb/mdb.c:3082:8:			if (env->me_pghead)
+lib/lmdb/libraries/liblmdb/mdb.c:3083:12:				memcpy(env->me_pghead, ntxn->mnt_pgstate.mf_pghead, size);
+lib/lmdb/libraries/liblmdb/mdb.c:3092:21:		txn->mt_dbiseqs = env->me_dbiseqs;
+lib/lmdb/libraries/liblmdb/mdb.c:3097:14:		if (txn != env->me_txn0) {
+lib/lmdb/libraries/liblmdb/mdb.c:3140:5:				env->me_dbflags[i] = txn->mt_dbs[i].md_flags | MDB_VALID;
+lib/lmdb/libraries/liblmdb/mdb.c:3142:17:				char *ptr = env->me_dbxs[i].md_name.mv_data;
+lib/lmdb/libraries/liblmdb/mdb.c:3144:6:					env->me_dbxs[i].md_name.mv_data = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:3145:6:					env->me_dbxs[i].md_name.mv_size = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:3146:6:					env->me_dbflags[i] = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:3147:6:					env->me_dbiseqs[i]++;
+lib/lmdb/libraries/liblmdb/mdb.c:3153:14:	if (keep && env->me_numdbs < n)
+lib/lmdb/libraries/liblmdb/mdb.c:3154:3:		env->me_numdbs = n;
+lib/lmdb/libraries/liblmdb/mdb.c:3181:10:			if (!(env->me_flags & MDB_NOTLS)) {
+lib/lmdb/libraries/liblmdb/mdb.c:3192:20:		pgno_t *pghead = env->me_pghead;
+lib/lmdb/libraries/liblmdb/mdb.c:3196:9:		if (!(env->me_flags & MDB_WRITEMAP)) {
+lib/lmdb/libraries/liblmdb/mdb.c:3205:4:			env->me_free_pgs = txn->mt_free_pgs;
+lib/lmdb/libraries/liblmdb/mdb.c:3207:4:			env->me_pghead = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:3208:4:			env->me_pglast = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:3210:4:			env->me_txn = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:3211:24:			mode = 0;	/* txn == env->me_txn0, do not free() it */
+lib/lmdb/libraries/liblmdb/mdb.c:3214:8:			if (env->me_txns)
+lib/lmdb/libraries/liblmdb/mdb.c:3215:18:				UNLOCK_MUTEX(env->me_wmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:3219:4:			env->me_pgstate = ((MDB_ntxn *)txn)->mnt_pgstate;
+lib/lmdb/libraries/liblmdb/mdb.c:3229:17:		MDB_ID3L el = env->me_rpages, tl = txn->mt_rpages;
+lib/lmdb/libraries/liblmdb/mdb.c:3231:23:		pthread_mutex_lock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:3235:37:				munmap(tl[i].mptr, tl[i].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:3242:38:					munmap(tl[i].mptr, tl[i].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:3246:25:		pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:3290:5:	/* env->me_pghead[] can grow and shrink during this call.
+lib/lmdb/libraries/liblmdb/mdb.c:3291:5:	 * env->me_pglast and txn->mt_free_pgs[] can only grow.
+lib/lmdb/libraries/liblmdb/mdb.c:3296:24:	int rc, maxfree_1pg = env->me_maxfree_1pg, more = 1;
+lib/lmdb/libraries/liblmdb/mdb.c:3303:6:	if (env->me_pghead) {
+lib/lmdb/libraries/liblmdb/mdb.c:3310:7:	if (!env->me_pghead && txn->mt_loose_pgs) {
+lib/lmdb/libraries/liblmdb/mdb.c:3324:17:	clean_limit = (env->me_flags & (MDB_NOMEMINIT|MDB_WRITEMAP))
+lib/lmdb/libraries/liblmdb/mdb.c:3336:19:		while (pglast < env->me_pglast) {
+lib/lmdb/libraries/liblmdb/mdb.c:3342:31:			mdb_tassert(txn, pglast <= env->me_pglast);
+lib/lmdb/libraries/liblmdb/mdb.c:3383:9:		mop = env->me_pghead;
+lib/lmdb/libraries/liblmdb/mdb.c:3432:28:		if ((rc = mdb_midl_need(&env->me_pghead, 2*count+1)) != 0)
+lib/lmdb/libraries/liblmdb/mdb.c:3434:9:		mop = env->me_pghead;
+lib/lmdb/libraries/liblmdb/mdb.c:3458:39:			mdb_tassert(txn, len >= 0 && id <= env->me_pglast);
+lib/lmdb/libraries/liblmdb/mdb.c:3486:19:	unsigned	psize = env->me_psize, j;
+lib/lmdb/libraries/liblmdb/mdb.c:3503:6:	if (env->me_flags & MDB_WRITEMAP) {
+lib/lmdb/libraries/liblmdb/mdb.c:3549:18:		if (!WriteFile(env->me_fd, dp, size, NULL, &ov)) {
+lib/lmdb/libraries/liblmdb/mdb.c:3561:20:				wres = pwritev(env->me_fd, iov, n, wpos);
+lib/lmdb/libraries/liblmdb/mdb.c:3564:20:					wres = pwrite(env->me_fd, iov[0].iov_base, wsize, wpos);
+lib/lmdb/libraries/liblmdb/mdb.c:3567:16:					if (lseek(env->me_fd, wpos, SEEK_SET) == -1) {
+lib/lmdb/libraries/liblmdb/mdb.c:3574:20:					wres = writev(env->me_fd, iov, n);
+lib/lmdb/libraries/liblmdb/mdb.c:3613:13:	CACHEFLUSH(env->me_map, txn->mt_next_pgno * env->me_psize, DCACHE);
+lib/lmdb/libraries/liblmdb/mdb.c:3613:46:	CACHEFLUSH(env->me_map, txn->mt_next_pgno * env->me_psize, DCACHE);
+lib/lmdb/libraries/liblmdb/mdb.c:3797:13:	if (txn != env->me_txn) {
+lib/lmdb/libraries/liblmdb/mdb.c:3839:16:	mdb_midl_free(env->me_pghead);
+lib/lmdb/libraries/liblmdb/mdb.c:3840:2:	env->me_pghead = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:3890:17:		rc = ReadFile(env->me_fd, &pbuf, Size, &len, &ov) ? (int)len : -1;
+lib/lmdb/libraries/liblmdb/mdb.c:3894:14:		rc = pread(env->me_fd, &pbuf, Size, off);
+lib/lmdb/libraries/liblmdb/mdb.c:3935:21:	meta->mm_mapsize = env->me_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:3936:19:	meta->mm_psize = env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:3938:19:	meta->mm_flags = env->me_flags & 0xffff;
+lib/lmdb/libraries/liblmdb/mdb.c:3972:10:	psize = env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:3986:16:	DO_PWRITE(rc, env->me_fd, p, psize * NUM_METAS, len, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:4023:26:	flags = txn->mt_flags | env->me_flags;
+lib/lmdb/libraries/liblmdb/mdb.c:4024:7:	mp = env->me_metas[toggle];
+lib/lmdb/libraries/liblmdb/mdb.c:4025:12:	mapsize = env->me_metas[toggle ^ 1]->mm_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:4027:16:	if (mapsize < env->me_mapsize)
+lib/lmdb/libraries/liblmdb/mdb.c:4028:13:		mapsize = env->me_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:4042:25:			unsigned meta_size = env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4043:10:			rc = (env->me_flags & MDB_MAPASYNC) ? MS_ASYNC : MS_SYNC;
+lib/lmdb/libraries/liblmdb/mdb.c:4046:16:			r2 = (ptr - env->me_map) & (env->me_os_psize - 1);
+lib/lmdb/libraries/liblmdb/mdb.c:4046:32:			r2 = (ptr - env->me_map) & (env->me_os_psize - 1);
+lib/lmdb/libraries/liblmdb/mdb.c:4069:22:	off += (char *)mp - env->me_map;
+lib/lmdb/libraries/liblmdb/mdb.c:4072:48:	mfd = (flags & (MDB_NOSYNC|MDB_NOMETASYNC)) ? env->me_fd : env->me_mfd;
+lib/lmdb/libraries/liblmdb/mdb.c:4072:61:	mfd = (flags & (MDB_NOSYNC|MDB_NOMETASYNC)) ? env->me_fd : env->me_mfd;
+lib/lmdb/libraries/liblmdb/mdb.c:4100:13:		WriteFile(env->me_fd, ptr, len, NULL, &ov);
+lib/lmdb/libraries/liblmdb/mdb.c:4102:15:		r2 = pwrite(env->me_fd, ptr, len, off);
+lib/lmdb/libraries/liblmdb/mdb.c:4106:3:		env->me_flags |= MDB_FATAL_ERROR;
+lib/lmdb/libraries/liblmdb/mdb.c:4110:13:	CACHEFLUSH(env->me_map + off, len, DCACHE);
+lib/lmdb/libraries/liblmdb/mdb.c:4118:6:	if (env->me_txns)
+lib/lmdb/libraries/liblmdb/mdb.c:4119:3:		env->me_txns->mti_txnid = txn->mt_txnid;
+lib/lmdb/libraries/liblmdb/mdb.c:4131:27:	MDB_meta *const *metas = env->me_metas;
+lib/lmdb/libraries/liblmdb/mdb.c:4180:23:	unsigned int flags = env->me_flags;
+lib/lmdb/libraries/liblmdb/mdb.c:4199:11:		msize = env->me_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:4203:70:	rc = NtCreateSection(&mh, access, NULL, NULL, secprot, SEC_RESERVE, env->me_fd);
+lib/lmdb/libraries/liblmdb/mdb.c:4208:22:	msize = NUM_METAS * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4212:2:	env->me_fmh = mh;
+lib/lmdb/libraries/liblmdb/mdb.c:4218:2:	env->me_map = map;
+lib/lmdb/libraries/liblmdb/mdb.c:4222:2:	env->me_map = mmap(addr, NUM_METAS * env->me_psize, PROT_READ, MAP_SHARED,
+lib/lmdb/libraries/liblmdb/mdb.c:4222:39:	env->me_map = mmap(addr, NUM_METAS * env->me_psize, PROT_READ, MAP_SHARED,
+lib/lmdb/libraries/liblmdb/mdb.c:4223:3:		env->me_fd, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:4224:6:	if (env->me_map == MAP_FAILED) {
+lib/lmdb/libraries/liblmdb/mdb.c:4225:3:		env->me_map = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:4232:17:		if (ftruncate(env->me_fd, env->me_mapsize) < 0)
+lib/lmdb/libraries/liblmdb/mdb.c:4232:29:		if (ftruncate(env->me_fd, env->me_mapsize) < 0)
+lib/lmdb/libraries/liblmdb/mdb.c:4235:2:	env->me_map = mmap(addr, env->me_mapsize, prot, MAP_SHARED,
+lib/lmdb/libraries/liblmdb/mdb.c:4235:27:	env->me_map = mmap(addr, env->me_mapsize, prot, MAP_SHARED,
+lib/lmdb/libraries/liblmdb/mdb.c:4236:3:		env->me_fd, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:4237:6:	if (env->me_map == MAP_FAILED) {
+lib/lmdb/libraries/liblmdb/mdb.c:4238:3:		env->me_map = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:4245:11:		madvise(env->me_map, env->me_mapsize, MADV_RANDOM);
+lib/lmdb/libraries/liblmdb/mdb.c:4245:24:		madvise(env->me_map, env->me_mapsize, MADV_RANDOM);
+lib/lmdb/libraries/liblmdb/mdb.c:4248:17:		posix_madvise(env->me_map, env->me_mapsize, POSIX_MADV_RANDOM);
+lib/lmdb/libraries/liblmdb/mdb.c:4248:30:		posix_madvise(env->me_map, env->me_mapsize, POSIX_MADV_RANDOM);
+lib/lmdb/libraries/liblmdb/mdb.c:4259:14:	if (addr && env->me_map != addr)
+lib/lmdb/libraries/liblmdb/mdb.c:4263:18:	p = (MDB_page *)env->me_map;
+lib/lmdb/libraries/liblmdb/mdb.c:4264:2:	env->me_metas[0] = METADATA(p);
+lib/lmdb/libraries/liblmdb/mdb.c:4265:2:	env->me_metas[1] = (MDB_meta *)((char *)env->me_metas[0] + env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:4265:42:	env->me_metas[1] = (MDB_meta *)((char *)env->me_metas[0] + env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:4265:61:	env->me_metas[1] = (MDB_meta *)((char *)env->me_metas[0] + env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:4276:6:	if (env->me_map) {
+lib/lmdb/libraries/liblmdb/mdb.c:4282:7:		if (env->me_txn)
+lib/lmdb/libraries/liblmdb/mdb.c:4289:50:			mdb_size_t minsize = (meta->mm_last_pg + 1) * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4297:10:		munmap(env->me_map, env->me_mapsize);
+lib/lmdb/libraries/liblmdb/mdb.c:4297:23:		munmap(env->me_map, env->me_mapsize);
+lib/lmdb/libraries/liblmdb/mdb.c:4298:3:		env->me_mapsize = size;
+lib/lmdb/libraries/liblmdb/mdb.c:4299:10:		old = (env->me_flags & MDB_FIXEDMAP) ? env->me_map : NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:4299:42:		old = (env->me_flags & MDB_FIXEDMAP) ? env->me_map : NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:4305:2:	env->me_mapsize = size;
+lib/lmdb/libraries/liblmdb/mdb.c:4306:6:	if (env->me_psize)
+lib/lmdb/libraries/liblmdb/mdb.c:4307:3:		env->me_maxpg = env->me_mapsize / env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4307:19:		env->me_maxpg = env->me_mapsize / env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4307:37:		env->me_maxpg = env->me_mapsize / env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4314:6:	if (env->me_map)
+lib/lmdb/libraries/liblmdb/mdb.c:4316:2:	env->me_maxdbs = dbs + CORE_DBS;
+lib/lmdb/libraries/liblmdb/mdb.c:4323:6:	if (env->me_map || readers < 1)
+lib/lmdb/libraries/liblmdb/mdb.c:4325:2:	env->me_maxreaders = readers;
+lib/lmdb/libraries/liblmdb/mdb.c:4334:13:	*readers = env->me_maxreaders;
+lib/lmdb/libraries/liblmdb/mdb.c:4369:23:	unsigned int flags = env->me_flags;
+lib/lmdb/libraries/liblmdb/mdb.c:4377:3:		env->me_pidquery = MDB_PROCESS_QUERY_LIMITED_INFORMATION;
+lib/lmdb/libraries/liblmdb/mdb.c:4379:3:		env->me_pidquery = PROCESS_QUERY_INFORMATION;
+lib/lmdb/libraries/liblmdb/mdb.c:4393:11:		fstatfs(env->me_fd, &st);
+lib/lmdb/libraries/liblmdb/mdb.c:4424:4:			env->me_flags |= MDB_FSYNCONLY;
+lib/lmdb/libraries/liblmdb/mdb.c:4435:3:		env->me_psize = env->me_os_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4435:19:		env->me_psize = env->me_os_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4436:7:		if (env->me_psize > MAX_PAGESIZE)
+lib/lmdb/libraries/liblmdb/mdb.c:4437:4:			env->me_psize = MAX_PAGESIZE;
+lib/lmdb/libraries/liblmdb/mdb.c:4442:3:		env->me_psize = meta.mm_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4446:7:	if (!env->me_mapsize) {
+lib/lmdb/libraries/liblmdb/mdb.c:4447:3:		env->me_mapsize = meta.mm_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:4454:7:		if (env->me_mapsize < minsize)
+lib/lmdb/libraries/liblmdb/mdb.c:4455:4:			env->me_mapsize = minsize;
+lib/lmdb/libraries/liblmdb/mdb.c:4457:20:	meta.mm_mapsize = env->me_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:4477:18:		rc = WriteFile(env->me_fd, &dummy, 1, &len, NULL);
+lib/lmdb/libraries/liblmdb/mdb.c:4491:22:			meta.mm_address = env->me_map;
+lib/lmdb/libraries/liblmdb/mdb.c:4498:2:	env->me_maxfree_1pg = (env->me_psize - PAGEHDRSZ) / sizeof(pgno_t) - 1;
+lib/lmdb/libraries/liblmdb/mdb.c:4498:25:	env->me_maxfree_1pg = (env->me_psize - PAGEHDRSZ) / sizeof(pgno_t) - 1;
+lib/lmdb/libraries/liblmdb/mdb.c:4499:2:	env->me_nodemax = (((env->me_psize - PAGEHDRSZ) / MDB_MINKEYS) & -2)
+lib/lmdb/libraries/liblmdb/mdb.c:4499:23:	env->me_nodemax = (((env->me_psize - PAGEHDRSZ) / MDB_MINKEYS) & -2)
+lib/lmdb/libraries/liblmdb/mdb.c:4502:2:	env->me_maxkey = env->me_nodemax - (NODESIZE + sizeof(MDB_db));
+lib/lmdb/libraries/liblmdb/mdb.c:4502:19:	env->me_maxkey = env->me_nodemax - (NODESIZE + sizeof(MDB_db));
+lib/lmdb/libraries/liblmdb/mdb.c:4504:2:	env->me_maxpg = env->me_mapsize / env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4504:18:	env->me_maxpg = env->me_mapsize / env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4504:36:	env->me_maxpg = env->me_mapsize / env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:4512:22:			meta->mm_version, env->me_psize));
+lib/lmdb/libraries/liblmdb/mdb.c:4603:2:	env->me_txns->mti_txnid = meta->mm_txnid;
+lib/lmdb/libraries/liblmdb/mdb.c:4612:19:		if (!LockFileEx(env->me_lfd, 0, 0, 1, 0, &ov)) {
+lib/lmdb/libraries/liblmdb/mdb.c:4615:15:			UnlockFile(env->me_lfd, 0, 0, 1, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:4628:22:		while ((rc = fcntl(env->me_lfd, F_SETLK, &lock_info)) &&
+lib/lmdb/libraries/liblmdb/mdb.c:4645:15:	if (LockFile(env->me_lfd, 0, 0, 1, 0)) {
+lib/lmdb/libraries/liblmdb/mdb.c:4650:18:		if (LockFileEx(env->me_lfd, 0, 0, 1, 0, &ov)) {
+lib/lmdb/libraries/liblmdb/mdb.c:4663:21:	while ((rc = fcntl(env->me_lfd, F_SETLK, &lock_info)) &&
+lib/lmdb/libraries/liblmdb/mdb.c:4673:22:		while ((rc = fcntl(env->me_lfd, F_SETLKW, &lock_info)) &&
+lib/lmdb/libraries/liblmdb/mdb.c:4807:2:	env->me_lfd = CreateFileW(wlpath, GENERIC_READ|GENERIC_WRITE,
+lib/lmdb/libraries/liblmdb/mdb.c:4812:2:	env->me_lfd = open(lpath, O_RDWR|O_CREAT|MDB_CLOEXEC, mode);
+lib/lmdb/libraries/liblmdb/mdb.c:4814:6:	if (env->me_lfd == INVALID_HANDLE_VALUE) {
+lib/lmdb/libraries/liblmdb/mdb.c:4816:34:		if (rc == MDB_ERRCODE_ROFS && (env->me_flags & MDB_RDONLY)) {
+lib/lmdb/libraries/liblmdb/mdb.c:4823:23:	if ((fdflags = fcntl(env->me_lfd, F_GETFD) | FD_CLOEXEC) >= 0)
+lib/lmdb/libraries/liblmdb/mdb.c:4824:10:			fcntl(env->me_lfd, F_SETFD, fdflags);
+lib/lmdb/libraries/liblmdb/mdb.c:4827:8:	if (!(env->me_flags & MDB_NOTLS)) {
+lib/lmdb/libraries/liblmdb/mdb.c:4828:28:		rc = pthread_key_create(&env->me_txkey, mdb_env_reader_dest);
+lib/lmdb/libraries/liblmdb/mdb.c:4831:3:		env->me_flags |= MDB_ENV_TXKEY;
+lib/lmdb/libraries/liblmdb/mdb.c:4838:35:		mdb_tls_keys[mdb_tls_nkeys++] = env->me_txkey;
+lib/lmdb/libraries/liblmdb/mdb.c:4848:21:	size = GetFileSize(env->me_lfd, NULL);
+lib/lmdb/libraries/liblmdb/mdb.c:4850:15:	size = lseek(env->me_lfd, 0, SEEK_END);
+lib/lmdb/libraries/liblmdb/mdb.c:4853:11:	rsize = (env->me_maxreaders-1) * sizeof(MDB_reader) + sizeof(MDB_txninfo);
+lib/lmdb/libraries/liblmdb/mdb.c:4856:22:		if (SetFilePointer(env->me_lfd, rsize, NULL, FILE_BEGIN) != (DWORD)rsize
+lib/lmdb/libraries/liblmdb/mdb.c:4857:21:			|| !SetEndOfFile(env->me_lfd))
+lib/lmdb/libraries/liblmdb/mdb.c:4860:17:		if (ftruncate(env->me_lfd, rsize) != 0) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4865:3:		env->me_maxreaders = size/sizeof(MDB_reader) + 1;
+lib/lmdb/libraries/liblmdb/mdb.c:4870:26:		mh = CreateFileMapping(env->me_lfd, NULL, PAGE_READWRITE,
+lib/lmdb/libraries/liblmdb/mdb.c:4873:3:		env->me_txns = MapViewOfFileEx(mh, FILE_MAP_WRITE, 0, 0, rsize, NULL);
+lib/lmdb/libraries/liblmdb/mdb.c:4875:8:		if (!env->me_txns) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4878:4:			env->me_lfd, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:4880:3:		env->me_txns = m;
+lib/lmdb/libraries/liblmdb/mdb.c:4903:35:		if (!GetFileInformationByHandle(env->me_lfd, &stbuf)) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4910:11:		sprintf(env->me_txns->mti_rmname, "Global\\MDBr%s", encbuf);
+lib/lmdb/libraries/liblmdb/mdb.c:4911:11:		sprintf(env->me_txns->mti_wmname, "Global\\MDBw%s", encbuf);
+lib/lmdb/libraries/liblmdb/mdb.c:4912:3:		env->me_rmutex = CreateMutexA(&mdb_all_sa, FALSE, env->me_txns->mti_rmname);
+lib/lmdb/libraries/liblmdb/mdb.c:4912:53:		env->me_rmutex = CreateMutexA(&mdb_all_sa, FALSE, env->me_txns->mti_rmname);
+lib/lmdb/libraries/liblmdb/mdb.c:4913:8:		if (!env->me_rmutex) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4914:3:		env->me_wmutex = CreateMutexA(&mdb_all_sa, FALSE, env->me_txns->mti_wmname);
+lib/lmdb/libraries/liblmdb/mdb.c:4914:53:		env->me_wmutex = CreateMutexA(&mdb_all_sa, FALSE, env->me_txns->mti_wmname);
+lib/lmdb/libraries/liblmdb/mdb.c:4915:8:		if (!env->me_wmutex) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4928:13:		if (fstat(env->me_lfd, &stbuf)) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4937:11:		sprintf(env->me_txns->mti_rmname, "/MDBr%s", encbuf);
+lib/lmdb/libraries/liblmdb/mdb.c:4938:11:		sprintf(env->me_txns->mti_wmname, "/MDBw%s", encbuf);
+lib/lmdb/libraries/liblmdb/mdb.c:4942:14:		sem_unlink(env->me_txns->mti_rmname);
+lib/lmdb/libraries/liblmdb/mdb.c:4943:14:		sem_unlink(env->me_txns->mti_wmname);
+lib/lmdb/libraries/liblmdb/mdb.c:4944:3:		env->me_rmutex = sem_open(env->me_txns->mti_rmname,
+lib/lmdb/libraries/liblmdb/mdb.c:4944:29:		env->me_rmutex = sem_open(env->me_txns->mti_rmname,
+lib/lmdb/libraries/liblmdb/mdb.c:4946:7:		if (env->me_rmutex == SEM_FAILED) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4947:3:		env->me_wmutex = sem_open(env->me_txns->mti_wmname,
+lib/lmdb/libraries/liblmdb/mdb.c:4947:29:		env->me_wmutex = sem_open(env->me_txns->mti_wmname,
+lib/lmdb/libraries/liblmdb/mdb.c:4949:7:		if (env->me_wmutex == SEM_FAILED) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:4961:3:		env->me_txns->mti_semid = semid;
+lib/lmdb/libraries/liblmdb/mdb.c:4970:32:			|| (rc = pthread_mutex_init(env->me_txns->mti_rmutex, &mattr))
+lib/lmdb/libraries/liblmdb/mdb.c:4971:32:			|| (rc = pthread_mutex_init(env->me_txns->mti_wmutex, &mattr)))
+lib/lmdb/libraries/liblmdb/mdb.c:4976:3:		env->me_txns->mti_magic = MDB_MAGIC;
+lib/lmdb/libraries/liblmdb/mdb.c:4977:3:		env->me_txns->mti_format = MDB_LOCK_FORMAT;
+lib/lmdb/libraries/liblmdb/mdb.c:4978:3:		env->me_txns->mti_txnid = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:4979:3:		env->me_txns->mti_numreaders = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:4985:7:		if (env->me_txns->mti_magic != MDB_MAGIC) {
+lib/lmdb/libraries/liblmdb/mdb.c:4990:7:		if (env->me_txns->mti_format != MDB_LOCK_FORMAT) {
+lib/lmdb/libraries/liblmdb/mdb.c:4992:5:				env->me_txns->mti_format, MDB_LOCK_FORMAT));
+lib/lmdb/libraries/liblmdb/mdb.c:5001:3:		env->me_rmutex = OpenMutexA(SYNCHRONIZE, FALSE, env->me_txns->mti_rmname);
+lib/lmdb/libraries/liblmdb/mdb.c:5001:51:		env->me_rmutex = OpenMutexA(SYNCHRONIZE, FALSE, env->me_txns->mti_rmname);
+lib/lmdb/libraries/liblmdb/mdb.c:5002:8:		if (!env->me_rmutex) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:5003:3:		env->me_wmutex = OpenMutexA(SYNCHRONIZE, FALSE, env->me_txns->mti_wmname);
+lib/lmdb/libraries/liblmdb/mdb.c:5003:51:		env->me_wmutex = OpenMutexA(SYNCHRONIZE, FALSE, env->me_txns->mti_wmname);
+lib/lmdb/libraries/liblmdb/mdb.c:5004:8:		if (!env->me_wmutex) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:5006:3:		env->me_rmutex = sem_open(env->me_txns->mti_rmname, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:5006:29:		env->me_rmutex = sem_open(env->me_txns->mti_rmname, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:5007:7:		if (env->me_rmutex == SEM_FAILED) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:5008:3:		env->me_wmutex = sem_open(env->me_txns->mti_wmname, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:5008:29:		env->me_wmutex = sem_open(env->me_txns->mti_wmname, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:5009:7:		if (env->me_wmutex == SEM_FAILED) goto fail_errno;
+lib/lmdb/libraries/liblmdb/mdb.c:5011:11:		semid = env->me_txns->mti_semid;
+lib/lmdb/libraries/liblmdb/mdb.c:5022:2:	env->me_rmutex->semid = semid;
+lib/lmdb/libraries/liblmdb/mdb.c:5023:2:	env->me_wmutex->semid = semid;
+lib/lmdb/libraries/liblmdb/mdb.c:5024:2:	env->me_rmutex->semnum = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:5025:2:	env->me_wmutex->semnum = 1;
+lib/lmdb/libraries/liblmdb/mdb.c:5026:2:	env->me_rmutex->locked = &env->me_txns->mti_rlocked;
+lib/lmdb/libraries/liblmdb/mdb.c:5026:28:	env->me_rmutex->locked = &env->me_txns->mti_rlocked;
+lib/lmdb/libraries/liblmdb/mdb.c:5027:2:	env->me_wmutex->locked = &env->me_txns->mti_wlocked;
+lib/lmdb/libraries/liblmdb/mdb.c:5027:28:	env->me_wmutex->locked = &env->me_txns->mti_wlocked;
+lib/lmdb/libraries/liblmdb/mdb.c:5031:2:	env->me_rpmutex = CreateMutex(NULL, FALSE, NULL);
+lib/lmdb/libraries/liblmdb/mdb.c:5033:22:	pthread_mutex_init(&env->me_rpmutex, NULL);
+lib/lmdb/libraries/liblmdb/mdb.c:5072:6:	if (env->me_fd!=INVALID_HANDLE_VALUE || (flags & ~(CHANGEABLE|CHANGELESS)))
+lib/lmdb/libraries/liblmdb/mdb.c:5106:11:	flags |= env->me_flags;
+lib/lmdb/libraries/liblmdb/mdb.c:5111:10:		if (!((env->me_free_pgs = mdb_midl_alloc(MDB_IDL_UM_MAX)) &&
+lib/lmdb/libraries/liblmdb/mdb.c:5112:7:			  (env->me_dirty_list = calloc(MDB_IDL_UM_SIZE, sizeof(MDB_ID2)))))
+lib/lmdb/libraries/liblmdb/mdb.c:5117:3:		env->me_rpages = malloc(MDB_ERPAGE_SIZE * sizeof(MDB_ID3));
+lib/lmdb/libraries/liblmdb/mdb.c:5118:8:		if (!env->me_rpages) {
+lib/lmdb/libraries/liblmdb/mdb.c:5122:3:		env->me_rpages[0].mid = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:5123:3:		env->me_rpcheck = MDB_ERPAGE_SIZE/2;
+lib/lmdb/libraries/liblmdb/mdb.c:5126:2:	env->me_flags = flags |= MDB_ENV_ACTIVE;
+lib/lmdb/libraries/liblmdb/mdb.c:5130:2:	env->me_path = strdup(path);
+lib/lmdb/libraries/liblmdb/mdb.c:5131:2:	env->me_dbxs = calloc(env->me_maxdbs, sizeof(MDB_dbx));
+lib/lmdb/libraries/liblmdb/mdb.c:5131:24:	env->me_dbxs = calloc(env->me_maxdbs, sizeof(MDB_dbx));
+lib/lmdb/libraries/liblmdb/mdb.c:5132:2:	env->me_dbflags = calloc(env->me_maxdbs, sizeof(uint16_t));
+lib/lmdb/libraries/liblmdb/mdb.c:5132:27:	env->me_dbflags = calloc(env->me_maxdbs, sizeof(uint16_t));
+lib/lmdb/libraries/liblmdb/mdb.c:5133:2:	env->me_dbiseqs = calloc(env->me_maxdbs, sizeof(unsigned int));
+lib/lmdb/libraries/liblmdb/mdb.c:5133:27:	env->me_dbiseqs = calloc(env->me_maxdbs, sizeof(unsigned int));
+lib/lmdb/libraries/liblmdb/mdb.c:5134:8:	if (!(env->me_dbxs && env->me_path && env->me_dbflags && env->me_dbiseqs)) {
+lib/lmdb/libraries/liblmdb/mdb.c:5134:24:	if (!(env->me_dbxs && env->me_path && env->me_dbflags && env->me_dbiseqs)) {
+lib/lmdb/libraries/liblmdb/mdb.c:5134:40:	if (!(env->me_dbxs && env->me_path && env->me_dbflags && env->me_dbiseqs)) {
+lib/lmdb/libraries/liblmdb/mdb.c:5134:59:	if (!(env->me_dbxs && env->me_path && env->me_dbflags && env->me_dbiseqs)) {
+lib/lmdb/libraries/liblmdb/mdb.c:5138:2:	env->me_dbxs[FREE_DBI].md_cmp = mdb_cmp_long; /* aligned MDB_INTEGERKEY */
+lib/lmdb/libraries/liblmdb/mdb.c:5159:2:	env->me_fd = CreateFileW(wpath, oflags, FILE_SHARE_READ|FILE_SHARE_WRITE,
+lib/lmdb/libraries/liblmdb/mdb.c:5168:2:	env->me_fd = open(dpath, oflags, mode);
+lib/lmdb/libraries/liblmdb/mdb.c:5170:6:	if (env->me_fd == INVALID_HANDLE_VALUE) {
+lib/lmdb/libraries/liblmdb/mdb.c:5183:4:			env->me_mfd = env->me_fd;
+lib/lmdb/libraries/liblmdb/mdb.c:5183:18:			env->me_mfd = env->me_fd;
+lib/lmdb/libraries/liblmdb/mdb.c:5193:4:			env->me_mfd = CreateFileW(wpath, oflags,
+lib/lmdb/libraries/liblmdb/mdb.c:5199:4:			env->me_mfd = open(dpath, oflags | MDB_DSYNC, mode);
+lib/lmdb/libraries/liblmdb/mdb.c:5201:8:			if (env->me_mfd == INVALID_HANDLE_VALUE) {
+lib/lmdb/libraries/liblmdb/mdb.c:5214:48:			int tsize = sizeof(MDB_txn), size = tsize + env->me_maxdbs *
+lib/lmdb/libraries/liblmdb/mdb.c:5216:9:			if ((env->me_pbuf = calloc(1, env->me_psize)) &&
+lib/lmdb/libraries/liblmdb/mdb.c:5216:34:			if ((env->me_pbuf = calloc(1, env->me_psize)) &&
+lib/lmdb/libraries/liblmdb/mdb.c:5220:53:				txn->mt_cursors = (MDB_cursor **)(txn->mt_dbs + env->me_maxdbs);
+lib/lmdb/libraries/liblmdb/mdb.c:5221:58:				txn->mt_dbiseqs = (unsigned int *)(txn->mt_cursors + env->me_maxdbs);
+lib/lmdb/libraries/liblmdb/mdb.c:5222:59:				txn->mt_dbflags = (unsigned char *)(txn->mt_dbiseqs + env->me_maxdbs);
+lib/lmdb/libraries/liblmdb/mdb.c:5234:20:				txn->mt_dbxs = env->me_dbxs;
+lib/lmdb/libraries/liblmdb/mdb.c:5236:5:				env->me_txn0 = txn;
+lib/lmdb/libraries/liblmdb/mdb.c:5257:8:	if (!(env->me_flags & MDB_ENV_ACTIVE))
+lib/lmdb/libraries/liblmdb/mdb.c:5261:6:	if (env->me_dbxs) {
+lib/lmdb/libraries/liblmdb/mdb.c:5262:12:		for (i = env->me_maxdbs; --i >= CORE_DBS; )
+lib/lmdb/libraries/liblmdb/mdb.c:5263:9:			free(env->me_dbxs[i].md_name.mv_data);
+lib/lmdb/libraries/liblmdb/mdb.c:5264:8:		free(env->me_dbxs);
+lib/lmdb/libraries/liblmdb/mdb.c:5267:7:	free(env->me_pbuf);
+lib/lmdb/libraries/liblmdb/mdb.c:5268:7:	free(env->me_dbiseqs);
+lib/lmdb/libraries/liblmdb/mdb.c:5269:7:	free(env->me_dbflags);
+lib/lmdb/libraries/liblmdb/mdb.c:5270:7:	free(env->me_path);
+lib/lmdb/libraries/liblmdb/mdb.c:5271:7:	free(env->me_dirty_list);
+lib/lmdb/libraries/liblmdb/mdb.c:5273:6:	if (env->me_txn0 && env->me_txn0->mt_rpages)
+lib/lmdb/libraries/liblmdb/mdb.c:5273:22:	if (env->me_txn0 && env->me_txn0->mt_rpages)
+lib/lmdb/libraries/liblmdb/mdb.c:5274:8:		free(env->me_txn0->mt_rpages);
+lib/lmdb/libraries/liblmdb/mdb.c:5276:16:		for (x=1; x<=env->me_rpages[0].mid; x++)
+lib/lmdb/libraries/liblmdb/mdb.c:5277:10:		munmap(env->me_rpages[x].mptr, env->me_rpages[x].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5277:34:		munmap(env->me_rpages[x].mptr, env->me_rpages[x].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5277:59:		munmap(env->me_rpages[x].mptr, env->me_rpages[x].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5279:7:	free(env->me_rpages);
+lib/lmdb/libraries/liblmdb/mdb.c:5281:7:	free(env->me_txn0);
+lib/lmdb/libraries/liblmdb/mdb.c:5282:16:	mdb_midl_free(env->me_free_pgs);
+lib/lmdb/libraries/liblmdb/mdb.c:5284:6:	if (env->me_flags & MDB_ENV_TXKEY) {
+lib/lmdb/libraries/liblmdb/mdb.c:5285:22:		pthread_key_delete(env->me_txkey);
+lib/lmdb/libraries/liblmdb/mdb.c:5289:27:			if (mdb_tls_keys[i] == env->me_txkey) {
+lib/lmdb/libraries/liblmdb/mdb.c:5297:6:	if (env->me_map) {
+lib/lmdb/libraries/liblmdb/mdb.c:5299:10:		munmap(env->me_map, NUM_METAS*env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5299:33:		munmap(env->me_map, NUM_METAS*env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5301:10:		munmap(env->me_map, env->me_mapsize);
+lib/lmdb/libraries/liblmdb/mdb.c:5301:23:		munmap(env->me_map, env->me_mapsize);
+lib/lmdb/libraries/liblmdb/mdb.c:5304:6:	if (env->me_mfd != env->me_fd && env->me_mfd != INVALID_HANDLE_VALUE)
+lib/lmdb/libraries/liblmdb/mdb.c:5304:21:	if (env->me_mfd != env->me_fd && env->me_mfd != INVALID_HANDLE_VALUE)
+lib/lmdb/libraries/liblmdb/mdb.c:5304:35:	if (env->me_mfd != env->me_fd && env->me_mfd != INVALID_HANDLE_VALUE)
+lib/lmdb/libraries/liblmdb/mdb.c:5305:16:		(void) close(env->me_mfd);
+lib/lmdb/libraries/liblmdb/mdb.c:5306:6:	if (env->me_fd != INVALID_HANDLE_VALUE)
+lib/lmdb/libraries/liblmdb/mdb.c:5307:16:		(void) close(env->me_fd);
+lib/lmdb/libraries/liblmdb/mdb.c:5308:6:	if (env->me_txns) {
+lib/lmdb/libraries/liblmdb/mdb.c:5309:19:		MDB_PID_T pid = env->me_pid;
+lib/lmdb/libraries/liblmdb/mdb.c:5317:12:		for (i = env->me_close_readers; --i >= 0; )
+lib/lmdb/libraries/liblmdb/mdb.c:5318:8:			if (env->me_txns->mti_readers[i].mr_pid == pid)
+lib/lmdb/libraries/liblmdb/mdb.c:5319:5:				env->me_txns->mti_readers[i].mr_pid = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:5321:7:		if (env->me_rmutex) {
+lib/lmdb/libraries/liblmdb/mdb.c:5322:16:			CloseHandle(env->me_rmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5323:8:			if (env->me_wmutex) CloseHandle(env->me_wmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5323:36:			if (env->me_wmutex) CloseHandle(env->me_wmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5329:7:		if (env->me_rmutex != SEM_FAILED) {
+lib/lmdb/libraries/liblmdb/mdb.c:5330:14:			sem_close(env->me_rmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5331:8:			if (env->me_wmutex != SEM_FAILED)
+lib/lmdb/libraries/liblmdb/mdb.c:5332:15:				sem_close(env->me_wmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5339:16:				sem_unlink(env->me_txns->mti_rmname);
+lib/lmdb/libraries/liblmdb/mdb.c:5340:16:				sem_unlink(env->me_txns->mti_wmname);
+lib/lmdb/libraries/liblmdb/mdb.c:5344:7:		if (env->me_rmutex->semid != -1) {
+lib/lmdb/libraries/liblmdb/mdb.c:5351:12:				semctl(env->me_rmutex->semid, 0, IPC_RMID);
+lib/lmdb/libraries/liblmdb/mdb.c:5354:18:		munmap((void *)env->me_txns, (env->me_maxreaders-1)*sizeof(MDB_reader)+sizeof(MDB_txninfo));
+lib/lmdb/libraries/liblmdb/mdb.c:5354:33:		munmap((void *)env->me_txns, (env->me_maxreaders-1)*sizeof(MDB_reader)+sizeof(MDB_txninfo));
+lib/lmdb/libraries/liblmdb/mdb.c:5356:6:	if (env->me_lfd != INVALID_HANDLE_VALUE) {
+lib/lmdb/libraries/liblmdb/mdb.c:5362:15:			UnlockFile(env->me_lfd, 0, 0, 1, 0);
+lib/lmdb/libraries/liblmdb/mdb.c:5365:16:		(void) close(env->me_lfd);
+lib/lmdb/libraries/liblmdb/mdb.c:5369:6:	if (env->me_fmh) CloseHandle(env->me_fmh);
+lib/lmdb/libraries/liblmdb/mdb.c:5369:31:	if (env->me_fmh) CloseHandle(env->me_fmh);
+lib/lmdb/libraries/liblmdb/mdb.c:5370:6:	if (env->me_rpmutex) CloseHandle(env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5370:35:	if (env->me_rpmutex) CloseHandle(env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5372:25:	pthread_mutex_destroy(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5376:2:	env->me_flags &= ~(MDB_ENV_ACTIVE|MDB_ENV_TXKEY);
+lib/lmdb/libraries/liblmdb/mdb.c:5388:15:	while ((dp = env->me_dpages) != NULL) {
+lib/lmdb/libraries/liblmdb/mdb.c:5390:3:		env->me_dpages = dp->mp_next;
+lib/lmdb/libraries/liblmdb/mdb.c:5697:16:	MDB_ID3L el = env->me_rpages;
+lib/lmdb/libraries/liblmdb/mdb.c:5708:26:	rc = NtMapViewOfSection(env->me_fmh, GetCurrentProcess(), &addr, 0, \
+lib/lmdb/libraries/liblmdb/mdb.c:5709:32:		len, &off, &len, ViewUnmap, (env->me_flags & MDB_RDONLY) ? 0 : MEM_RESERVE, PAGE_READONLY); \
+lib/lmdb/libraries/liblmdb/mdb.c:5716:48:	addr = mmap(NULL, len, PROT_READ, MAP_SHARED, env->me_fd, off); \
+lib/lmdb/libraries/liblmdb/mdb.c:5732:47:		p = (MDB_page *)((char *)tl[x].mptr + rem * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5735:21:			len = id3.mcnt * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:5736:24:			SET_OFF(off, pgno * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5756:26:					pthread_mutex_lock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5760:39:						munmap(el[i].mptr, el[i].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5767:28:					pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5781:23:		pthread_mutex_lock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5789:38:					munmap(tl[i].mptr, tl[i].mcnt * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5796:25:		pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5825:8:		if ((env->me_flags & MDB_RDONLY) && pgno + MDB_RPAGE_CHUNK-1 > txn->mt_last_pgno)
+lib/lmdb/libraries/liblmdb/mdb.c:5829:20:		len = id3.mcnt * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:5833:23:		pthread_mutex_lock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5839:46:			p = (MDB_page *)((char *)id3.mptr + rem * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5842:22:				len = id3.mcnt * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:5843:25:				SET_OFF(off, pgno * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5848:25:					munmap(el[x].mptr, env->me_psize * el[x].mcnt);
+lib/lmdb/libraries/liblmdb/mdb.c:5853:28:					pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5858:26:			pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5861:37:		if (el[0].mid >= MDB_ERPAGE_MAX - env->me_rpcheck) {
+lib/lmdb/libraries/liblmdb/mdb.c:5867:25:					munmap(el[i].mptr, env->me_psize * el[i].mcnt);
+lib/lmdb/libraries/liblmdb/mdb.c:5878:28:					pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5881:5:				env->me_rpcheck /= 2;
+lib/lmdb/libraries/liblmdb/mdb.c:5887:10:				if (!env->me_rpcheck)
+lib/lmdb/libraries/liblmdb/mdb.c:5888:6:					env->me_rpcheck = 1;
+lib/lmdb/libraries/liblmdb/mdb.c:5889:12:				while (env->me_rpcheck < el[0].mid && env->me_rpcheck < MDB_ERPAGE_SIZE/2)
+lib/lmdb/libraries/liblmdb/mdb.c:5889:43:				while (env->me_rpcheck < el[0].mid && env->me_rpcheck < MDB_ERPAGE_SIZE/2)
+lib/lmdb/libraries/liblmdb/mdb.c:5890:6:					env->me_rpcheck *= 2;
+lib/lmdb/libraries/liblmdb/mdb.c:5893:23:		SET_OFF(off, pgno * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5897:26:			pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5901:45:		p = (MDB_page *)((char *)id3.mptr + rem * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5905:21:			len = id3.mcnt * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:5911:25:		pthread_mutex_unlock(&env->me_rpmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:5918:44:	p = (MDB_page *)((char *)id3.mptr + rem * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:5966:23:					p = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:5966:37:					p = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:5991:20:		p = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:5991:34:		p = (MDB_page *)(env->me_map + env->me_psize * pgno);
+lib/lmdb/libraries/liblmdb/mdb.c:6220:6:	if (env->me_pghead &&
+lib/lmdb/libraries/liblmdb/mdb.c:6228:23:		rc = mdb_midl_need(&env->me_pghead, ovpages);
+lib/lmdb/libraries/liblmdb/mdb.c:6256:9:		if (!(env->me_flags & MDB_WRITEMAP))
+lib/lmdb/libraries/liblmdb/mdb.c:6260:9:		mop = env->me_pghead;
+lib/lmdb/libraries/liblmdb/mdb.c:7261:26:			LEAFSIZE(key, data) > env->me_nodemax)
+lib/lmdb/libraries/liblmdb/mdb.c:7267:9:			fp = env->me_pbuf;
+lib/lmdb/libraries/liblmdb/mdb.c:7319:30:			mp = fp = xdata.mv_data = env->me_pbuf;
+lib/lmdb/libraries/liblmdb/mdb.c:7390:51:			if (NODESIZE + NODEKSZ(leaf) + xdata.mv_size > env->me_nodemax) {
+lib/lmdb/libraries/liblmdb/mdb.c:7413:15:					offset = env->me_psize - olddata.mv_size;
+lib/lmdb/libraries/liblmdb/mdb.c:7448:56:			int level, ovpages, dpages = OVPAGES(data->mv_size, env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:7458:18:				  (level || (env->me_flags & MDB_WRITEMAP)))
+lib/lmdb/libraries/liblmdb/mdb.c:7473:27:					size_t sz = (size_t) env->me_psize * ovpages, off;
+lib/lmdb/libraries/liblmdb/mdb.c:7782:34:	    np->mp_pgno, mc->mc_txn->mt_env->me_psize));
+lib/lmdb/libraries/liblmdb/mdb.c:7785:32:	np->mp_upper = mc->mc_txn->mt_env->me_psize - PAGEBASE;
+lib/lmdb/libraries/liblmdb/mdb.c:7817:11:	if (sz > env->me_nodemax) {
+lib/lmdb/libraries/liblmdb/mdb.c:7841:11:	if (sz > env->me_nodemax) {
+lib/lmdb/libraries/liblmdb/mdb.c:7911:57:		} else if (node_size + data->mv_size > mc->mc_txn->mt_env->me_nodemax) {
+lib/lmdb/libraries/liblmdb/mdb.c:7912:56:			int ovpages = OVPAGES(data->mv_size, mc->mc_txn->mt_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9304:11:			pmax = env->me_psize - PAGEHDRSZ;
+lib/lmdb/libraries/liblmdb/mdb.c:9320:21:			copy->mp_upper = env->me_psize - PAGEBASE;
+lib/lmdb/libraries/liblmdb/mdb.c:9493:4:			env->me_psize - copy->mp_upper - PAGEBASE);
+lib/lmdb/libraries/liblmdb/mdb.c:9758:28:	buf = ptr = malloc(my->mc_env->me_psize * mc.mc_snum);
+lib/lmdb/libraries/liblmdb/mdb.c:9763:54:		mdb_page_copy((MDB_page *)ptr, mc.mc_pg[i], my->mc_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9765:17:		ptr += my->mc_env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:9788:39:							mdb_page_copy(leaf, mp, my->mc_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9804:30:						memcpy(mo, omp, my->mc_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9807:37:						my->mc_wlen[toggle] += my->mc_env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:9809:37:							my->mc_olen[toggle] = my->mc_env->me_psize * (omp->mp_pages - 1);
+lib/lmdb/libraries/liblmdb/mdb.c:9810:51:							my->mc_over[toggle] = (char *)omp + my->mc_env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:9823:39:							mdb_page_copy(leaf, mp, my->mc_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9855:52:					mdb_page_copy(mc.mc_pg[mc.mc_top], mp, my->mc_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9869:32:		mdb_page_copy(mo, mp, my->mc_env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9871:33:		my->mc_wlen[toggle] += my->mc_env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:9902:46:	my.mc_wbuf[0] = _aligned_malloc(MDB_WBUF*2, env->me_os_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9909:27:	my.mc_wbuf[0] = memalign(env->me_os_psize, MDB_WBUF*2);
+lib/lmdb/libraries/liblmdb/mdb.c:9913:47:	rc = posix_memalign((void **)&my.mc_wbuf[0], env->me_os_psize, MDB_WBUF*2);
+lib/lmdb/libraries/liblmdb/mdb.c:9937:28:	memset(mp, 0, NUM_METAS * env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9942:19:	mm->mm_address = env->me_metas[0]->mm_address;
+lib/lmdb/libraries/liblmdb/mdb.c:9944:36:	mp = (MDB_page *)(my.mc_wbuf[0] + env->me_psize);
+lib/lmdb/libraries/liblmdb/mdb.c:9974:18:	my.mc_wlen[0] = env->me_psize * NUM_METAS;
+lib/lmdb/libraries/liblmdb/mdb.c:10028:6:	if (env->me_txns) {
+lib/lmdb/libraries/liblmdb/mdb.c:10033:12:		wmutex = env->me_wmutex;
+lib/lmdb/libraries/liblmdb/mdb.c:10044:10:	wsize = env->me_psize * NUM_METAS;
+lib/lmdb/libraries/liblmdb/mdb.c:10045:8:	ptr = env->me_map;
+lib/lmdb/libraries/liblmdb/mdb.c:10069:27:	w3 = txn->mt_next_pgno * env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:10072:23:		if ((rc = mdb_fsize(env->me_fd, &fsize)))
+lib/lmdb/libraries/liblmdb/mdb.c:10128:6:	if (env->me_flags & MDB_NOSUBDIR) {
+lib/lmdb/libraries/liblmdb/mdb.c:10158:6:	if (env->me_psize >= env->me_os_psize) {
+lib/lmdb/libraries/liblmdb/mdb.c:10158:23:	if (env->me_psize >= env->me_os_psize) {
+lib/lmdb/libraries/liblmdb/mdb.c:10176:8:	if (!(env->me_flags & MDB_NOSUBDIR))
+lib/lmdb/libraries/liblmdb/mdb.c:10197:3:		env->me_flags |= flag;
+lib/lmdb/libraries/liblmdb/mdb.c:10199:3:		env->me_flags &= ~flag;
+lib/lmdb/libraries/liblmdb/mdb.c:10209:9:	*arg = env->me_flags & (CHANGEABLE|CHANGELESS);
+lib/lmdb/libraries/liblmdb/mdb.c:10218:2:	env->me_userctx = ctx;
+lib/lmdb/libraries/liblmdb/mdb.c:10225:15:	return env ? env->me_userctx : NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:10234:2:	env->me_assert_func = func;
+lib/lmdb/libraries/liblmdb/mdb.c:10245:9:	*arg = env->me_path;
+lib/lmdb/libraries/liblmdb/mdb.c:10255:9:	*arg = env->me_fd;
+lib/lmdb/libraries/liblmdb/mdb.c:10268:18:	arg->ms_psize = env->me_psize;
+lib/lmdb/libraries/liblmdb/mdb.c:10304:20:	arg->me_mapsize = env->me_mapsize;
+lib/lmdb/libraries/liblmdb/mdb.c:10305:23:	arg->me_maxreaders = env->me_maxreaders;
+lib/lmdb/libraries/liblmdb/mdb.c:10306:23:	arg->me_numreaders = env->me_txns ? env->me_txns->mti_numreaders : 0;
+lib/lmdb/libraries/liblmdb/mdb.c:10306:38:	arg->me_numreaders = env->me_txns ? env->me_txns->mti_numreaders : 0;
+lib/lmdb/libraries/liblmdb/mdb.c:10384:43:	if (!unused && txn->mt_numdbs >= txn->mt_env->me_maxdbs)
+lib/lmdb/libraries/liblmdb/mdb.c:10431:16:		/* txn-> and env-> are the same in read txns, use
+lib/lmdb/libraries/liblmdb/mdb.c:10434:19:		seq = ++txn->mt_env->me_dbiseqs[slot];
+lib/lmdb/libraries/liblmdb/mdb.c:10469:31:	if (dbi < CORE_DBS || dbi >= env->me_maxdbs)
+lib/lmdb/libraries/liblmdb/mdb.c:10471:8:	ptr = env->me_dbxs[dbi].md_name.mv_data;
+lib/lmdb/libraries/liblmdb/mdb.c:10474:3:		env->me_dbxs[dbi].md_name.mv_data = NULL;
+lib/lmdb/libraries/liblmdb/mdb.c:10475:3:		env->me_dbxs[dbi].md_name.mv_size = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:10476:3:		env->me_dbflags[dbi] = 0;
+lib/lmdb/libraries/liblmdb/mdb.c:10477:3:		env->me_dbiseqs[dbi]++;
+lib/lmdb/libraries/liblmdb/mdb.c:10693:7:	if (!env->me_txns) {
+lib/lmdb/libraries/liblmdb/mdb.c:10696:9:	rdrs = env->me_txns->mti_numreaders;
+lib/lmdb/libraries/liblmdb/mdb.c:10697:7:	mr = env->me_txns->mti_readers;
+lib/lmdb/libraries/liblmdb/mdb.c:10768:9:	return env->me_txns ? mdb_reader_check0(env, 0, dead) : MDB_SUCCESS;
+lib/lmdb/libraries/liblmdb/mdb.c:10775:43:	mdb_mutexref_t rmutex = rlocked ? NULL : env->me_rmutex;
+lib/lmdb/libraries/liblmdb/mdb.c:10781:9:	rdrs = env->me_txns->mti_numreaders;
+lib/lmdb/libraries/liblmdb/mdb.c:10786:7:	mr = env->me_txns->mti_readers;
+lib/lmdb/libraries/liblmdb/mdb.c:10789:21:		if (pid && pid != env->me_pid) {
+lib/lmdb/libraries/liblmdb/mdb.c:10841:23:		rlocked = (mutex == env->me_rmutex);
+lib/lmdb/libraries/liblmdb/mdb.c:10847:4:			env->me_txns->mti_txnid = meta->mm_txnid;
+lib/lmdb/libraries/liblmdb/mdb.c:10849:8:			if (env->me_txn) {
+lib/lmdb/libraries/liblmdb/mdb.c:10850:5:				env->me_flags |= MDB_FATAL_ERROR;
+lib/lmdb/libraries/liblmdb/mdb.c:10851:5:				env->me_txn = NULL;
+lib/openssl/crypto/cms/cms_env.c:132:12:    return env->recipientInfos;
+lib/openssl/crypto/cms/cms_env.c:159:36:    if (!cms_EncryptedContent_init(env->encryptedContentInfo,
+lib/openssl/crypto/cms/cms_env.c:262:36:    if (!sk_CMS_RecipientInfo_push(env->recipientInfos, ri))
+lib/openssl/crypto/cms/cms_env.c:573:36:    if (!sk_CMS_RecipientInfo_push(env->recipientInfos, ri))
+lib/openssl/crypto/cms/cms_env.c:827:31:    CMS_OriginatorInfo *org = env->originatorInfo;
+lib/openssl/crypto/cms/cms_env.c:835:13:            env->version = 4;
+lib/openssl/crypto/cms/cms_env.c:838:17:            if (env->version < 3)
+lib/openssl/crypto/cms/cms_env.c:839:17:                env->version = 3;
+lib/openssl/crypto/cms/cms_env.c:847:13:            env->version = 4;
+lib/openssl/crypto/cms/cms_env.c:861:9:    if (env->version >= 4)
+lib/openssl/crypto/cms/cms_env.c:866:9:    if (env->version >= 3)
+lib/openssl/crypto/cms/cms_env.c:869:46:    for (i = 0; i < sk_CMS_RecipientInfo_num(env->recipientInfos); i++) {
+lib/openssl/crypto/cms/cms_env.c:870:41:        ri = sk_CMS_RecipientInfo_value(env->recipientInfos, i);
+lib/openssl/crypto/cms/cms_env.c:872:13:            env->version = 3;
+lib/openssl/crypto/cms/cms_env.c:876:13:            env->version = 2;
+lib/openssl/crypto/cms/cms_env.c:879:9:    if (env->version == 2)
+lib/openssl/crypto/cms/cms_env.c:881:9:    if (env->originatorInfo || env->unprotectedAttrs)
+lib/openssl/crypto/cms/cms_env.c:881:32:    if (env->originatorInfo || env->unprotectedAttrs)
+lib/openssl/crypto/cms/cms_env.c:882:9:        env->version = 2;
+lib/openssl/crypto/cms/cms_env.c:883:5:    env->version = 0;
+lib/openssl/crypto/cms/cms_pwri.c:109:19:        kekciph = env->encryptedContentInfo->cipher;
+lib/openssl/crypto/cms/cms_pwri.c:199:36:    if (!sk_CMS_RecipientInfo_push(env->recipientInfos, ri))
+src/tsdoc.c:44:19:    mdb_txn_begin(env->env, NULL, 0, &txn);
+src/tsdoc.c:128:41:    asprintf(&out, "%s/docs/%02x%02x/", env->dir, *id[0], *id[1]);
+src/tsenv.c:11:5:    env->dir = strdup(path);
+src/tsenv.c:12:5:    env->index = ts_util_concat(path, "/index");
+src/tsenv.c:13:5:    env->docs = ts_util_concat(path, "/docs");
+src/tsenv.c:14:21:    ts_util_safe_mk(env->dir);
+src/tsenv.c:15:21:    ts_util_safe_mk(env->index);
+src/tsenv.c:16:21:    ts_util_safe_mk(env->docs);
+src/tsenv.c:18:21:    mdb_env_create(&env->env);
+src/tsenv.c:19:18:    mdb_env_open(env->env, env->index, 0, 0);
+src/tsenv.c:19:28:    mdb_env_open(env->env, env->index, 0, 0);
+src/tsenv.c:20:28:    mdb_env_set_maxreaders(env->env, 1);
+src/tsenv.c:21:25:    mdb_env_set_mapsize(env->env, 10485760);
+src/tsenv.c:22:24:    mdb_env_set_maxdbs(env->env, 10000); // THIS IS IMPORTANT. THIS IS THE MAX # OF TAGS!! (and its bad if its too big?, accoring to lmdbs documentation? This may require re-designing :( probably to not use lmdb, which is totally the 'wrong tool for the job' at this point :(
+src/tsenv.c:27:19:    mdb_env_close(env->env);
+src/tsenv.c:28:10:    free(env->dir);
+src/tsenv.c:29:10:    free(env->index);
+src/tsenv.c:30:10:    free(env->docs);
+src/tstag.c:15:19:    mdb_txn_begin(env->env, NULL, 0, &txn);
+src/tstag.c:36:19:    mdb_txn_begin(env->env, NULL, 0, &txn);
+src/tstag.c:70:19:    mdb_txn_begin(env->env, NULL, 0, &txn);
+src/tstag.c:205:19:    mdb_txn_begin(env->env, NULL, 0, &txn);
+src/tswalk.c:105:19:    mdb_txn_begin(env->env, NULL, 0, &txn);
