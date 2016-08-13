@@ -1,9 +1,9 @@
 [submodule "lib/lmdb"]
 	path = lib/lmdb
 	url = https://github.com/LMDB/lmdb.git
-[submodule "lib/openssl"]
-	path = lib/openssl
-	url = https://github.com/openssl/openssl.git
 [submodule "lib/klib"]
 	path = lib/klib
 	url = https://github.com/attractivechaos/klib.git
+[submodule "lib/murmurhash.c"]
+	path = lib/murmurhash.c
+	url = https://github.com/jwerle/murmurhash.c.git

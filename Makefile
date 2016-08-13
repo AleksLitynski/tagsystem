@@ -1,7 +1,7 @@
 
-SSLDIR = lib/openssl
 MDBDIR = lib/lmdb/libraries/liblmdb
 KLBDIR = lib/klib
+MURDIR = lib/murmurhash.c
 
 main: cleanbin ts runtest
 
@@ -11,11 +11,10 @@ ts:
 	gcc -std=c11 -Werror -Wfatal-errors -shared -fPIC \
 	    -Wno-error=discarded-qualifiers \
 	    -Wno-discarded-qualifiers \
-	    -I$(SSLDIR)/include/ \
 	    -I$(MDBDIR)/ \
 	    -I$(KLBDIR)/ \
+	    -I$(MURDIR)/ \
 	    -Isrc/ \
-	    -L$(SSLDIR)/ \
 	    -L$(MDBDIR)/ \
 	    -o bin/libts.so \
 	    src/ts.c \
@@ -26,19 +25,14 @@ ts:
 	    src/tstag.c \
 	    src/tsutil.c \
 	    src/tswalk.c \
-	    -llmdb \
-	    -lcrypto
+	    -llmdb
 
-all: ts lmdb openssl
+all: ts lmdb
 
 lmdb: 
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID
-openssl:
-	cd $(SSLDIR) && perl Configure android
-	cd $(SSLDIR) && $(MAKE) -i SHELL=/system/bin/sh
 clean: cleanbin
 	cd $(MDBDIR) && $(MAKE) clean
-	cd $(SSLDIR) && $(MAKE) clean SHELL=/system/bin/sh
 
 cleanbin: 
 	rm -rf bin/
@@ -48,10 +42,8 @@ buildtest:
 	gcc -std=c11 -Werror -Wfatal-errors \
 	    -Isrc/ \
 	    -I$(MDBDIR)/ \
-	    -I$(SSLDIR)/include/ \
 	    -Lbin/ \
 	    -L$(MDBDIR)/ \
-	    -L$(SSLDIR)/ \
 	    -o bin/test \
 	    test/test.c \
 	    -llmdb \
@@ -59,7 +51,7 @@ buildtest:
 	    -lts
 
 runtest: buildtest lmdb
-	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR):../$(SSLDIR):./ && ./test
+	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR):./ && ./test
 
 iter:
 	gcc -std=c11 -Werror -Wfatal-errors utils/iter.c -o bin/iter

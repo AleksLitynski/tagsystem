@@ -19,6 +19,7 @@ MDB_env * env_create(char * name) {
 void tag_put(MDB_env * env, char * tag, char * tag_data) {
     MDB_txn * txn;
     MDB_dbi dbi;
+    printf("dbi opened\n");
     mdb_txn_begin(env, NULL, 0, &txn);
     mdb_dbi_open(txn, tag, MDB_CREATE | MDB_INTEGERKEY, &dbi);
 
@@ -54,7 +55,10 @@ int main(int argc, char * argv[]) {
 
     MDB_env * env = env_create(env_name);
 
+
+    printf("pre put\n");
     tag_put(env, "tag_a", "data_a");
+    printf("post put\n");
     tag_put(env, "tag_a", "data_b");
     tag_put(env, "tag_b", "data_bb");
     tag_put(env, "tag_b", "data_aa");

@@ -2,9 +2,9 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <murmurhash.h>
 #include <time.h>
 #include <stdio.h>
-#include "openssl/sha.h"
 #include "tsutil.h"
 #include "tstag.h"
 #include "math.h"
@@ -74,7 +74,7 @@ void _ts_doc_gen_weak_id(ts_env * env, ts_doc_id * id) {
     // which should be ok
     uint64_t rand_id = ((uint64_t)time(NULL) * 4) + (uint64_t)rand();
     const unsigned char * rand_id_str = (const unsigned char *)&rand_id;
-    SHA1(rand_id_str, sizeof(uint64_t), out); 
+    // SHA1(rand_id_str, sizeof(uint64_t), out); 
 
     for(int i = 0; i < TS_ID_BYTES; i++) {
         uint8_t mask = 1;
