@@ -2,3 +2,4 @@ nvim*/
 bin/
 tags
 tagsystem.kdev4
+.kdev4/*
