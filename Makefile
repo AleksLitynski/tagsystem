@@ -11,7 +11,7 @@ clean:
 # errors are ignore because klib is a stinker
 lib-ts: 
 	mkdir -p bin/
-	gcc -std=c11 -Werror -Wfatal-errors -shared -fPIC \
+	gcc -std=c11 -D_GNU_SOURCE -Werror -Wfatal-errors -shared -fPIC \
 	    -Wno-error=discarded-qualifiers \
 	    -Wno-discarded-qualifiers \
 	    -I$(MDBDIR)/ \
@@ -31,7 +31,9 @@ lib-ts:
 	    -llmdb
 
 lib-lmdb: 
+	mkdir -p bin/
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID
+	cp $(MDBDIR)/liblmdb.so bin/liblmdb.so
 
 test-main:
 	mkdir -p bin/
@@ -43,14 +45,13 @@ test-main:
 	    -o bin/test \
 	    test/test.c \
 	    -llmdb \
-	    -lcrypto \
 	    -lts
 
 test-redir:
 	gcc -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
 	bin/redir
 
-test-addremove: cleanbin 
+test-addremove: clean
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors \
 	    -I$(MDBDIR)/ \

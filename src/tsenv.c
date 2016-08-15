@@ -5,6 +5,7 @@
 #include "tsutil.h"
 
 #include <stdio.h>
+#include <string.h>
 
 void ts_env_create(char * path, ts_env * env) {
 

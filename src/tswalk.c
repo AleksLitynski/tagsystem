@@ -106,7 +106,7 @@ int _ts_walk_copy_to_node(ts_env * env, ts_walk * walk, unsigned int host_key) {
     mdb_dbi_open(txn, walk->tag, MDB_INTEGERKEY, &dbi);
     mdb_get(txn, dbi, &key, &value);
 
-    walk->current->key = (unsigned int)key.mv_data;
+    walk->current->key = *((unsigned int *) key.mv_data);
 
     int jumps = 0;
     for(int i = 0; i < TS_ID_BITS - walk->offset; i++) {

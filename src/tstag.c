@@ -1,4 +1,5 @@
 #include "tstag.h"
+#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 
 #include <stdlib.h>
 #include "stdio.h"
@@ -121,7 +122,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
 
     // there is a root. Walk the tree and insert ourself once the walk runs out
     ts_node current;
-    current.key = (unsigned int) key.mv_data;
+    current.key = *((unsigned int *) key.mv_data);
     ts_node_from_mdb_val(&dbOut, TS_ID_BITS, &current);
 
     // the depth of the current node
@@ -142,7 +143,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
             // the other branch has it, jump, then continue
             key.mv_data = &current.jumps[maskCount];
             mdb_get(txn, dbi, &key, &dbOut);  // overwrite current node
-            current.key = (unsigned int) key.mv_data;
+            current.key = *((unsigned int *) key.mv_data);
             ts_node_from_mdb_val(&dbOut, TS_ID_BITS - bitIndex, &current);
 
             nodeInset = bitIndex;           // increase the inset
@@ -223,7 +224,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
     } else {
 
         // there is a root. Walk the tree to find our leaf
-        current->key = (unsigned int) key->mv_data;
+        current->key = *((unsigned int *) key->mv_data);
         ts_node_from_mdb_val(dbOut, TS_ID_BITS, current);
 
         // the depth of the current node
@@ -248,7 +249,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
                 // the other branch has it, jump, then continue
                 key->mv_data = &current->jumps[maskCount];
                 mdb_get(txn, *dbi, key, dbOut);  // overwrite current node
-                current->key = (unsigned int) key->mv_data;
+                current->key = *((unsigned int *) key->mv_data);
                 ts_node_from_mdb_val(dbOut, TS_ID_BITS - bitIndex, current);
 
                 nodeInset = bitIndex;           // increase the inset
