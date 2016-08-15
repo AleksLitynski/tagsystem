@@ -2,7 +2,6 @@
 
 #include <unistd.h>
 #include <stdlib.h>
-#include <murmurhash.h>
 #include <time.h>
 #include <stdio.h>
 #include "tsutil.h"

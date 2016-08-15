@@ -1,7 +1,6 @@
 
 MDBDIR = lib/lmdb/libraries/liblmdb
 KLBDIR = lib/klib
-MURDIR = lib/murmurhash.c
 
 main: cleanbin ts runtest
 

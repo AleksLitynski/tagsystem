@@ -4,6 +4,3 @@
 [submodule "lib/klib"]
 	path = lib/klib
 	url = https://github.com/attractivechaos/klib.git
-[submodule "lib/murmurhash.c"]
-	path = lib/murmurhash.c
-	url = https://github.com/jwerle/murmurhash.c.git
