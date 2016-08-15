@@ -2,10 +2,14 @@
 MDBDIR = lib/lmdb/libraries/liblmdb
 KLBDIR = lib/klib
 
-main: cleanbin ts runtest
+all: lib-ts lib-lmdb test-main
+
+clean: 
+	rm -rf bin/
+	cd $(MDBDIR) && $(MAKE) clean
 
 # errors are ignore because klib is a stinker
-ts: 
+lib-ts: 
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors -shared -fPIC \
 	    -Wno-error=discarded-qualifiers \
@@ -26,17 +30,10 @@ ts:
 	    src/tswalk.c \
 	    -llmdb
 
-all: ts lmdb
-
-lmdb: 
+lib-lmdb: 
 	cd $(MDBDIR) && $(MAKE) XCFLAGS=-DANDROID
-clean: cleanbin
-	cd $(MDBDIR) && $(MAKE) clean
 
-cleanbin: 
-	rm -rf bin/
-
-buildtest: 
+test-main:
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors \
 	    -Isrc/ \
@@ -49,19 +46,11 @@ buildtest:
 	    -lcrypto \
 	    -lts
 
-runtest: buildtest lmdb
-	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR):./ && ./test
-
-iter:
-	gcc -std=c11 -Werror -Wfatal-errors utils/iter.c -o bin/iter
-	bin/iter
-
-
-redir:
+test-redir:
 	gcc -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
 	bin/redir
 
-addremove: cleanbin 
+test-addremove: cleanbin 
 	mkdir -p bin/
 	gcc -std=c11 -Werror -Wfatal-errors \
 	    -I$(MDBDIR)/ \
