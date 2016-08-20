@@ -1,7 +1,6 @@
 
 MDBDIR = lib/lmdb/libraries/liblmdb
 KLBDIR = lib/klib
-LDFLAGS="-Wl,-R -Wl,/home/ajl/projects/tagsystem/bin"
 
 all: clean build
 
@@ -14,33 +13,17 @@ clean:
 # errors are ignore because klib is a stinker
 lib-ts: lib-lmdb
 	mkdir -p bin/
-	cd bin && gcc -std=c11 -D_GNU_SOURCE -Werror -Wfatal-errors \
-	    -Wno-error=discarded-qualifiers \
-	    -Wno-discarded-qualifiers \
+	cd bin/ \
+	&& gcc -std=c11 -D_GNU_SOURCE -Werror -Wfatal-errors \
+		-Wno-error=discarded-qualifiers -Wno-discarded-qualifiers \
 	    -I../$(MDBDIR)/ \
 	    -I../$(KLBDIR)/ \
 	    -I../src/ \
-	    -L../bin/ \
-	    -c 	../src/ts.c \
-		../src/tsdoc.c \
-		../src/tsenv.c \
-		../src/tsiter.h \
-		../src/tsnode.c \
-		../src/tssearch.c \
-		../src/tstag.c \
-		../src/tsutil.c \
-		../src/tswalk.c 
-	cd bin && ar rvs libts.a \
-		../src/ts.c \
-		../src/tsdoc.c \
-		../src/tsenv.c \
-		../src/tsiter.h \
-		../src/tsnode.c \
-		../src/tssearch.c \
-		../src/tstag.c \
-		../src/tsutil.c \
-		../src/tswalk.c \
-		../bin/liblmdb.a
+	    -c 	../src/*.c \
+		-lpthread \
+	&& ar rvs libts.a \
+		*.o \
+		liblmdb.a
 
 lib-lmdb: 
 	mkdir -p bin/
@@ -55,7 +38,10 @@ test-main: lib-ts
 	    -Lbin/ \
 	    -o bin/test \
 	    test/test.c \
-	    bin/libts.a
+	    bin/libts.a \
+	    bin/liblmdb.a \
+		-lpthread
+	
 
 test-redir:
 	gcc -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
