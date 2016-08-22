@@ -4,9 +4,9 @@
 
 int ts_create_test() {
 
-    ts_cws("./datafortest");
+    ts_cws("/home/ajl/projects/tagsystem/bin/datafortest");
 
-    ts_cs("doc-a");
+    ts_cs("a+doc-a");
     ts_cs("car+bat--+a");
     //printf("%s\n", ts_pws());
 

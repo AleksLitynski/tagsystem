@@ -45,8 +45,11 @@ void _ts_cs_insert(int op, khash_t(str) * h, char * item, int * itemLen) {
             }
         } else if(op == TS_OP_REM) {
             khint_t k = kh_get(str, h, item);
-            free(kh_key(h, k)); // free the data
-            kh_del(str, h, k); // remove from table
+	        if(k != kh_end(h)) {
+                free(kh_key(h, k)); // free the data
+                kh_del(str, h, k); // remove from table
+            }
+            
         }
     }
 

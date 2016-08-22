@@ -2,7 +2,7 @@
 MDBDIR = lib/lmdb/libraries/liblmdb
 KLBDIR = lib/klib
 
-all: clean build
+all: build
 
 build: test-main 
 
@@ -11,15 +11,15 @@ clean:
 	cd $(MDBDIR) && $(MAKE) clean
 
 # errors are ignore because klib is a stinker
-lib-ts: lib-lmdb
+lib-ts: lib-lmdb 
 	mkdir -p bin/
 	cd bin/ \
-	&& gcc -std=c11 -D_GNU_SOURCE -Werror -Wfatal-errors \
+	&& gcc -g -std=c11 -D_GNU_SOURCE -Werror -Wfatal-errors \
 		-Wno-error=discarded-qualifiers -Wno-discarded-qualifiers \
-	    -I../$(MDBDIR)/ \
-	    -I../$(KLBDIR)/ \
-	    -I../src/ \
-	    -c 	../src/*.c \
+		-I../$(MDBDIR)/ \
+		-I../$(KLBDIR)/ \
+		-I../src/ \
+		-c 	../src/*.c \
 		-lpthread \
 	&& ar rvs libts.a \
 		*.o \
@@ -32,7 +32,7 @@ lib-lmdb:
 
 test-main: lib-ts
 	mkdir -p bin/
-	gcc -std=c11 -Werror -Wfatal-errors \
+	gcc -g -o2 -std=c11 -Werror -Wfatal-errors \
 	    -Isrc/ \
 	    -I$(MDBDIR)/ \
 	    -Lbin/ \
@@ -44,12 +44,12 @@ test-main: lib-ts
 	
 
 test-redir:
-	gcc -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
+	gcc -g -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
 	bin/redir
 
 test-addremove: clean
 	mkdir -p bin/
-	export LDFLAGS="-R ./" && gcc -std=c11 -Werror -Wfatal-errors \
+	export LDFLAGS="-R ./" && gcc -g -std=c11 -Werror -Wfatal-errors \
 	    -I$(MDBDIR)/ \
 	    -L$(MDBDIR)/ \
 	    -o bin/addremovetest \

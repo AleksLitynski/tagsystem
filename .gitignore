@@ -3,3 +3,4 @@ bin/
 tags
 tagsystem.kdev4
 .kdev4/*
+.anjuta*
