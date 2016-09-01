@@ -14,7 +14,7 @@ void _ts_tag_gen_meta(ts_env * env, char * tag) {
     MDB_txn * txn;
     MDB_dbi dbi;
     mdb_txn_begin(env->env, NULL, 0, &txn);
-    mdb_dbi_open(txn, tag, MDB_INTEGERKEY, &dbi);
+    mdb_dbi_open(txn, tag, MDB_INTEGERKEY | MDB_CREATE, &dbi);
 
     unsigned int zero = 0;
     MDB_val key = {.mv_size = sizeof(unsigned int), .mv_data = &zero}; 
@@ -43,7 +43,7 @@ void ts_tag_create(ts_env * env, char * tag) {
     int res = mdb_get(txn, dbi, &key, &data);
     mdb_txn_commit(txn);
     
-    if(res == MDB_NOTFOUND) _ts_tag_gen_meta(env, tag);
+    if(res != MDB_SUCCESS) _ts_tag_gen_meta(env, tag);
     
     // printf("ts_tag_create done\n");
 }
@@ -92,7 +92,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
     printf("get res: %s\n", mdb_strerror(res));
     
     // if no root, insert the whole thing at the root and exit
-    if(res == MDB_NOTFOUND) {
+    if(res != MDB_SUCCESS) {
         printf("No root, creating root\n");
         
         node->key = meta->rootId;
@@ -209,7 +209,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
     key->mv_data = &meta->rootId;
     int res = mdb_get(txn, *dbi, key, dbOut);
     
-    if(res == MDB_NOTFOUND) {
+    if(res != MDB_SUCCESS) {
         // these is no root - our item has already been removed
         mdb_txn_commit(txn);
         return;             
