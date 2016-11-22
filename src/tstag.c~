@@ -209,7 +209,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
     key->mv_data = &meta->rootId;
     int res = mdb_get(txn, *dbi, key, dbOut);
     
-    if(res == MDB_NOTFOUND) {
+    if(res != MDB_SUCCESS) {
         // these is no root - our item has already been removed
         mdb_txn_commit(txn);
         return;             

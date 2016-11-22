@@ -27,7 +27,7 @@ void _ts_tag_gen_meta(ts_env * env, char * tag) {
         .mv_data = &meta
     };
     // printf("a+b\n");
-    int res = mdb_put(txn, dbi, &key, &data, 0);
+   int res = mdb_put(txn, dbi, &key, &data, 0);
     mdb_txn_commit(txn);
 }
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "ts.h"
 #include "tsiter.h"
 
@@ -8,17 +9,17 @@ int ts_create_test() {
 
     ts_cs("a+doc-a");
     ts_cs("car+bat--+a");
-    //printf("%s\n", ts_pws());
-
     ts_mk0();
-    /*
+    
     ts_cs("--doc+b");
     ts_mk0();
+
     ts_cs("--doc+b");
     ts_tag("doc_b");
 
     printf(ts_pws()); printf("\n");
 
+	/*
     printf("stuff with 'doc' tag\n");
     ts_cs("--doc");
     iter0(ts_ls, doc, {

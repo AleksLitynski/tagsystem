@@ -40,7 +40,7 @@ test-main: lib-ts
 	    test/test.c \
 	    bin/libts.a \
 	    bin/liblmdb.a \
-		-lpthread
+	    -lpthread
 	
 
 test-redir:

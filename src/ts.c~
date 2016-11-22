@@ -32,7 +32,7 @@ const char * ts_pws() {
         return "";
     }
 }
- 
+
 
 void _ts_cs_insert(int op, khash_t(str) * h, char * item, int * itemLen) {
     if(*itemLen > 0) {
@@ -149,7 +149,7 @@ void ts_mk(ts_doc_id * id) {
 
     // tag the doc will all tags in the pws
     char * tspws = strdup(getenv("TSPWS"));
-    char * head = tspws;
+    char ** head = *tspws;
     for(int i = 0; i < strlen(tspws); i++) {
         if(tspws[i] == '+') {
             tspws[i] = '\0';
