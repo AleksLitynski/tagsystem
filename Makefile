@@ -4,14 +4,14 @@ KLBDIR = lib/klib
 
 all: build
 
-build: test-main 
+build: test-main
 
-clean: 
+clean:
 	rm -rf bin/
 	cd $(MDBDIR) && $(MAKE) clean
 
 # errors are ignore because klib is a stinker
-lib-ts: lib-lmdb 
+lib-ts: lib-lmdb
 	mkdir -p bin/
 	cd bin/ \
 	&& gcc -g -std=c11 -D_GNU_SOURCE -Werror -Wfatal-errors \
@@ -25,7 +25,7 @@ lib-ts: lib-lmdb
 		*.o \
 		liblmdb.a
 
-lib-lmdb: 
+lib-lmdb:
 	mkdir -p bin/
 	cd $(MDBDIR) && $(MAKE)
 	cp $(MDBDIR)/liblmdb.a bin/liblmdb.a
@@ -41,7 +41,7 @@ test-main: lib-ts
 	    bin/libts.a \
 	    bin/liblmdb.a \
 	    -lpthread
-	
+
 
 test-redir:
 	gcc -g -std=c11 -Werror -Wfatal-errors test/redir.c -o bin/redir
@@ -54,6 +54,5 @@ test-addremove: clean
 	    -L$(MDBDIR)/ \
 	    -o bin/addremovetest \
 	    test/addremove.c \
-	    -llmdb 
+	    -llmdb
 	cd bin/ && export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:../$(MDBDIR) && ./addremovetest
-
