@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "lmdb.h"
 #include <sys/stat.h>
+#include <string.h>
+#include <stdlib.h>
 
 MDB_env * env_create(char * name) {
     // ts_env_create(path, &env);
