@@ -37,7 +37,7 @@ void ts_cs(char * set);
 // Change tag system. Stored in $TTSPATH
 void ts_cws(char * path); 
 // get the present working set. Stored in $TSPWS
-const char * ts_pws(); 
+char * ts_pws();
 
 // get the file path of a doc id.
 // ALLOCATES MEMORY

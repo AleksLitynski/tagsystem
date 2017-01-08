@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include "tsutil.h"

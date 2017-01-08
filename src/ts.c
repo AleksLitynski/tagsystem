@@ -24,7 +24,7 @@ void ts_cws(char * path) {
     free(fullPath);
 }
 
-const char * ts_pws() {
+char * ts_pws() {
     char * out = getenv("TSPWS");
     if(out) {
         return out;
