@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "stdlib.h": "c",
-        "sds.h": "c"
+        "sds.h": "c",
+        "tserror.h": "c",
+        "tsdoc.h": "c",
+        "lmdb.h": "c",
+        "stdbool.h": "c",
+        "tsdb.h": "c"
     }
 }
