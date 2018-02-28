@@ -2,6 +2,7 @@
 #include "tserror.h"
 #include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 #include "../lib/sds/sds.h"
+#include "../lib/fs.c/fs.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -10,7 +11,7 @@
 static void ts_db_mkdir(sds path) {
     struct stat st = {0};
     if(stat(path, &st) == -1) {
-        mkdir(path, 0700);
+        fs_mkdir(path, 0700);
     }
 }
 

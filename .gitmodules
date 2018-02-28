@@ -4,3 +4,6 @@
 [submodule "lib/sds"]
 	path = lib/sds
 	url = https://github.com/antirez/sds
+[submodule "lib/fs.c"]
+	path = lib/fs.c
+	url = https://github.com/jwerle/fs.c

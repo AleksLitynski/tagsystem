@@ -6,3 +6,8 @@ tagsystem.kdev4
 .kdev4/*
 .anjuta*
 cmake-build-debug/
+
+
+*.o
+*.so
+*.a
