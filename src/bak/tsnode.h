@@ -4,7 +4,7 @@
 // includes
 #include <stdint.h>
 #include "tsutil.h"
-#include "lmdb.h"
+#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 
 // macros
 
@@ -33,8 +33,8 @@ void ts_node_cmp_copy(ts_node_cmp * from, ts_node * to);
 */
 
 // tsdoc uses these, otherwise, they can be private.
-void ts_node_from_mdb_val(MDB_val * val, int id_size_bits, ts_node * node);
-void ts_node_to_mdb_val(
+void ts_node_from_MDB_val(MDB_val * val, int id_size_bits, ts_node * node);
+void ts_node_to_MDB_val(
         ts_node * node, 
         int id_size_bits, int starting_offset_bits, 
         unsigned int new_jump, int new_jump_index,

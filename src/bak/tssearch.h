@@ -5,7 +5,7 @@
 #include "tsdoc.h"
 #include "tsenv.h"
 #include "tstag.h"
-#include "lmdb.h"
+#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 
 typedef struct {
     int index;

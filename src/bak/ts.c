@@ -1,13 +1,12 @@
 #include "ts.h"
 #include <paths.h>
-#include "khash.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "tsiter.h"
 #include "errno.h"
-#include "lmdb.h"
+#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
 
 #define TS_OP_ADD 0
 #define TS_OP_REM 1

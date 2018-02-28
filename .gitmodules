@@ -1,6 +1,6 @@
 [submodule "lib/lmdb"]
 	path = lib/lmdb
 	url = https://github.com/LMDB/lmdb.git
-[submodule "lib/klib"]
-	path = lib/klib
-	url = https://github.com/attractivechaos/klib.git
+[submodule "lib/sds"]
+	path = lib/sds
+	url = https://github.com/antirez/sds

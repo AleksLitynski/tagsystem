@@ -101,7 +101,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
             .mv_size = 0, 
             .mv_data = calloc(TS_NODE_BYTES, 1)
         };
-        ts_node_to_mdb_val(node, TS_ID_BITS, 0, 0, 0, &new_data);
+        ts_node_to_MDB_val(node, TS_ID_BITS, 0, 0, 0, &new_data);
         printf("insert size: %i\n", new_data.mv_data);
         printf("Inserting to: %i %i\n", key.mv_size, *(unsigned int *)key.mv_data);
         printf("Data size: %i\n", new_data.mv_size);
@@ -115,7 +115,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
     // there is a root. Walk the tree and insert ourself once the walk runs out
     ts_node current;
     current.key = *((unsigned int *) key.mv_data);
-    ts_node_from_mdb_val(&dbOut, TS_ID_BITS, &current);
+    ts_node_from_MDB_val(&dbOut, TS_ID_BITS, &current);
 
     // the depth of the current node
     int nodeInset = 0; 
@@ -136,7 +136,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
             key.mv_data = &current.jumps[maskCount];
             mdb_get(txn, dbi, &key, &dbOut);  // overwrite current node
             current.key = *((unsigned int *) key.mv_data);
-            ts_node_from_mdb_val(&dbOut, TS_ID_BITS - bitIndex, &current);
+            ts_node_from_MDB_val(&dbOut, TS_ID_BITS - bitIndex, &current);
 
             nodeInset = bitIndex;           // increase the inset
             maskCount = 0;                  // reset the mask count
@@ -147,7 +147,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
             // add the new node
             // copy the mask/jumps the user provided
             MDB_val new_data = {.mv_size = 0, .mv_data = malloc(TS_NODE_BYTES)};
-            ts_node_to_mdb_val(
+            ts_node_to_MDB_val(
                 node, 
                 TS_ID_BITS - bitIndex, bitIndex, 
                 0, 0, 
@@ -167,7 +167,7 @@ void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node){
 
             // update parent mask
             MDB_val parent_data = {.mv_size = 0, .mv_data = malloc(TS_NODE_BYTES)};
-            ts_node_to_mdb_val(
+            ts_node_to_MDB_val(
                 &current, 
                 TS_ID_BITS - nodeInset, nodeInset, 
                 node->key, bitIndex - nodeInset, 
@@ -217,7 +217,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
 
         // there is a root. Walk the tree to find our leaf
         current->key = *((unsigned int *) key->mv_data);
-        ts_node_from_mdb_val(dbOut, TS_ID_BITS, current);
+        ts_node_from_MDB_val(dbOut, TS_ID_BITS, current);
 
         // the depth of the current node
         int nodeInset = 0; 
@@ -242,7 +242,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
                 key->mv_data = &current->jumps[maskCount];
                 mdb_get(txn, *dbi, key, dbOut);  // overwrite current node
                 current->key = *((unsigned int *) key->mv_data);
-                ts_node_from_mdb_val(dbOut, TS_ID_BITS - bitIndex, current);
+                ts_node_from_MDB_val(dbOut, TS_ID_BITS - bitIndex, current);
 
                 nodeInset = bitIndex;           // increase the inset
                 maskCount = 0;                  // reset the mask count
@@ -274,7 +274,7 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
                     mdb_get(txn, *dbi, key, dbOut);
 
                     ts_node * dislocated_child;
-                    ts_node_from_mdb_val(dbOut, TS_ID_BITS, dislocated_child);
+                    ts_node_from_MDB_val(dbOut, TS_ID_BITS, dislocated_child);
                     _ts_tag_move(env, txn, tag, dislocated_child);
 
 //void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_node * node);

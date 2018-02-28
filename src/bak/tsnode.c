@@ -13,7 +13,7 @@ typedef struct {
 */
 
 // val->mv_data must have TS_MAX_NODE_SIZE_BYTES free space 
-void ts_node_to_mdb_val(
+void ts_node_to_MDB_val(
         ts_node * node, 
         int id_size_bits, int starting_offset_bits, 
         unsigned int new_jump, int new_jump_index,
@@ -73,7 +73,7 @@ void ts_node_to_mdb_val(
 }
 
 // node will point into val, so don't let val be de-allocated
-void ts_node_from_mdb_val(MDB_val * val, int id_size_bits, ts_node * node) {
+void ts_node_from_MDB_val(MDB_val * val, int id_size_bits, ts_node * node) {
     int idSizeBytes = (id_size_bits+8-1)/8;
     uint8_t * data = val->mv_data; 
     node->doc_id = data; 

@@ -1,27 +1,26 @@
-#ifndef _TS_DOC_H_
-#define _TS_DOC_H_
+#pragma once
 
 // includes
-#include "tsenv.h"
-#include "lmdb.h"
+#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
+#include "../lib/sds/sds.h"
+#include "tsid.h"
 #include <stdint.h>
-#include "tsutil.h"
 
 // macros
 
 // types
-typedef uint8_t ts_doc_id[TS_ID_BYTES];
+typedef struct { 
+    ts_id id;
+    ts_db * env;
+} ts_doc;
+
 
 // functions
-void ts_doc_create(ts_env * env, ts_doc_id * id);
-void ts_doc_del(ts_env * env, ts_doc_id * id);
+void ts_doc_create(ts_doc * self, ts_db * db);
+void ts_doc_delete(ts_doc * self);
 
-void ts_doc_gen_id(ts_env * env, ts_doc_id * id);
-char * ts_util_doc(ts_env * env, ts_doc_id * id);
-char * ts_util_doc_dir(ts_env * env, ts_doc_id * id);
+void ts_doc_open(ts_doc * self, ts_db * db, ts_id id);
+void ts_doc_close(ts_doc * self);
 
-char * ts_util_str_id(ts_doc_id * id);
-char * ts_util_str_id_bin(ts_doc_id * id);
-char * ts_util_str_id_bin_split(ts_doc_id * id, char split, int sloc);
-
-#endif
+void ts_doc_tag(ts_doc * self, sds tag);
+void ts_doc_untag(ts_doc * self, sds tag);
