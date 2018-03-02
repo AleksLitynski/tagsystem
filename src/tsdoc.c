@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
 
 int ts_doc_create(ts_doc * self, ts_db * db) {
     self->env = db;
@@ -39,14 +40,16 @@ int ts_doc_delete(ts_doc * self) {
 
   unlink(self->path);
   fs_rmdir(self->dir);
-  ts_db_del(self->env, "index", self->id_str)
+  ts_db_del(self->env, "index", self->id_str);
 
-  return TD_SUCCESS;
+  return TS_SUCCESS;
 }
 
 int ts_doc_open(ts_doc * self, ts_db * db, ts_id id) {
   self->env = db;
-  self->id = id;
+  for(int i = 0; i < TS_ID_BYTES; i++) {
+    self->id[i] = id[i];
+  }
 
   ts_id_string(&(self->id), self->id_str);
 
