@@ -9,9 +9,12 @@
 // macros
 
 // types
-typedef struct { 
+typedef struct {
     ts_id id;
+    sds id_str;
     ts_db * env;
+    sds dir;
+    sds path;
 } ts_doc;
 
 

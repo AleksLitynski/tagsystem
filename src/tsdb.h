@@ -7,7 +7,7 @@
 // macros
 
 // types
-typedef struct { 
+typedef struct {
     sds dir;
     sds docs;
     MDB_env * index;
@@ -18,6 +18,7 @@ int ts_db_open(ts_db * self, char * path);
 int ts_db_close(ts_db * self);
 
 int ts_db_test(ts_db * self, sds db_name, sds key_name);
+int ts_db_del(ts_db * self, sds db_name, sds key_name);
 
 // the user should commit the transaction when they're done with the value
 int ts_db_get(ts_db * self, sds db_name, sds key_name, MDB_val * val, MDB_txn * txn);

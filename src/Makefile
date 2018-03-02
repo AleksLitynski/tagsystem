@@ -14,24 +14,25 @@ LINKED  = ../lib/lmdb/libraries/liblmdb/liblmdb.a
 
 ifeq ($(detected_os),Windows)
 	CFLAGS = -g
-	LDFLAGS = 
+	LDFLAGS =
 	LINKED += -lntdll
 endif
 ifeq ($(detected_os),Linux)
 	CFLAGS = -fPIC -g
+	LINKED += -lpthread
 endif
 CC = gcc
 
 
-# For shared library linking - 
+# For shared library linking -
 # LDFLAGS = -shared
 # LINKED  = ../lib/lmdb/libraries/liblmdb/liblmdb.so
 
-CFLAGS += -std=c11 
-CFLAGS += -D_GNU_SOURCE 
-CFLAGS += -Werror 
-CLFAGS += -Wfatal-errors 
-CFLAGS += -Wno-error=discarded-qualifiers 
+CFLAGS += -std=c11
+CFLAGS += -D_GNU_SOURCE
+CFLAGS += -Werror
+CLFAGS += -Wfatal-errors
+CFLAGS += -Wno-error=discarded-qualifiers
 CLFAGS += -Wno-discarded-qualifiers
 
 all: $(TARGET)

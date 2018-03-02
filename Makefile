@@ -12,10 +12,10 @@ build: lmdb src test
 
 clean:
 	rm -rf testdata
-	-$(MAKE) -C src clean
-	-$(MAKE) -C test clean
-	-$(MAKE) -C lib/lmdb/libraries/liblmdb clean
-	
+	$(MAKE) -C src clean
+	$(MAKE) -C test clean
+	$(MAKE) -C lib/lmdb/libraries/liblmdb clean
+
 test:
 	-$(MAKE) -C test all
 
@@ -27,4 +27,4 @@ ifeq ($(detected_os),Windows)
 endif
 
 lmdb:
-	-$(MAKE) -C lib/lmdb/libraries/liblmdb $(LMDBOVERIDES)
+	$(MAKE) -C lib/lmdb/libraries/liblmdb $(LMDBOVERIDES)
