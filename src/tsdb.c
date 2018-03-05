@@ -118,3 +118,8 @@ int ts_db_put(ts_db * self, sds db_name, sds key_name, MDB_val * val) {
 
     return res == 0 ? TS_SUCCESS : TS_FAILURE;
 }
+
+
+sds hello_world() {
+  return "hello world I'm special";
+}

@@ -1,39 +1,33 @@
 .PHONY: clean all
-ifeq ($(OS),Windows_NT)
-    detected_os := Windows
-else
-    detected_os := $(shell uname -s)
-endif
 
-SOURCE = $(shell echo *.c) $(shell echo ../lib/sds/*.c) $(shell echo ../lib/fs.c/*.c)
-HEADER = $(shell echo *.h) $(shell echo ../lib/lmdb/libraries/liblmdb/*.h) $(shell echo ../lib/sds/*.h) $(shell echo ../lib/fs.c/*.c)
+LMDBDIR = ../lib/lmdb/libraries/liblmdb
+SOURCE = $(shell echo *.c)
+SOURCE += $(shell echo ../lib/sds/*.c)
+SOURCE += $(shell echo ../lib/fs.c/*.c)
+SOURCE += $(LMDBDIR)/mdb.c
+SOURCE += $(LMDBDIR)/midl.c
+HEADER = $(shell echo *.h)
+HEADER += $(shell echo ../lib/lmdb/libraries/liblmdb/*.h)
+HEADER += $(shell echo ../lib/sds/*.h)
+HEADER += $(shell echo ../lib/fs.c/*.h)
+HEADER += $(LMDBDIR)/mdb.h
+HEADER += $(LMDBDIR)/midl.h
+
 OBJECT = $(SOURCE:.c=.o)
 TARGET = libts.a
 
-LINKED  = ../lib/lmdb/libraries/liblmdb/liblmdb.a
+LINKED  = $(LMDBDIR)/liblmdb.a
 
-ifeq ($(detected_os),Windows)
-	CFLAGS = -g
-	LDFLAGS =
-	LINKED += -lntdll
-endif
-ifeq ($(detected_os),Linux)
-	CFLAGS = -fPIC -g
-	LINKED += -lpthread
-endif
 CC = gcc
 
-
-# For shared library linking -
-# LDFLAGS = -shared
-# LINKED  = ../lib/lmdb/libraries/liblmdb/liblmdb.so
-
+CFLAGS = -g
 CFLAGS += -std=c11
 CFLAGS += -D_GNU_SOURCE
 CFLAGS += -Werror
-CLFAGS += -Wfatal-errors
+CFLAGS += -Wfatal-errors
 CFLAGS += -Wno-error=discarded-qualifiers
-CLFAGS += -Wno-discarded-qualifiers
+CFLAGS += -Wno-discarded-qualifiers
+CFLAGS += -I $(LMDBDIR)
 
 all: $(TARGET)
 
@@ -41,4 +35,5 @@ clean:
 	rm -f $(OBJECT) $(TARGET)
 
 $(TARGET): $(OBJECT)
-	$(CC) $(CFLAGS) $(SOURCE) -o $@ $(LDFLAGS) $(LINKED)
+	# check archive contents with `ar -t libts.a`
+	ar rcs $@ $^

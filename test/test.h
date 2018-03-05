@@ -1,5 +1,5 @@
 
 #pragma once
 
-void null_test_success(void **state);
+void hello_world_test(void **state);
 int main(void);
