@@ -8,6 +8,7 @@ tagsystem.kdev4
 cmake-build-debug/
 
 
+test/test
 *.o
 *.so
 *.a

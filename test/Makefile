@@ -1,4 +1,4 @@
-.PHONY: clean all
+.PHONY: clean all run
 ifeq ($(OS),Windows_NT)
     detected_os := Windows
 else
@@ -6,14 +6,15 @@ else
 endif
 
 
-SOURCE = $(shell echo *.c) # $(shell ls ../src/*.c | grep -v "../src/main.c")
-HEADER = $(shell echo *.h) # $(shell ls ../src/*.h | grep -v "../src/main.h")
+SOURCE = $(shell echo *.c) $(shell ls ../lib/cmocka/src/cmocka.c)
+HEADER = $(shell echo *.h) $(shell ls ../lib/cmocka/include/cmocka.h)
+MACROS = ./cmocka.def.h
 OBJECT = $(SOURCE:.c=.o)
 TARGET = test
 
 CC = gcc
-CFLAGS  = -g -Wfatal-errors
-LDFLAGS = 
+CFLAGS  = $(CMOCKADEFS) -imacros $(MACROS) -I ../lib/cmocka/include/ -g -Wfatal-errors
+LDFLAGS =
 ifeq ($(detected_os),Linux)
 LINKED  = -ldl
 endif
@@ -21,7 +22,7 @@ endif
 all: $(TARGET)
 
 clean:
-	rm -rf $(OBJECT) $(TARGET) "testdata"
+	rm -f $(OBJECT) $(TARGET)
 
 $(TARGET): $(OBJECT)
 	$(CC) $(CFLAGS) $(OBJECT) -o $@ $(LDFLAGS) $(LINKED)

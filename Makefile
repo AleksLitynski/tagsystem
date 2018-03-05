@@ -11,7 +11,6 @@ all: build
 build: lmdb src test
 
 clean:
-	rm -rf testdata
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
 	$(MAKE) -C lib/lmdb/libraries/liblmdb clean
