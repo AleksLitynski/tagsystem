@@ -18,7 +18,11 @@ TARGET = test
 CC = gcc
 CFLAGS = $(CMOCKADEFS)
 CFLAGS += -imacros ./cmocka.def.h
-CFLAGS += -I ../lib/cmocka/include/
+CFLAGS += -I ../lib/cmocka/include
+CFLAGS += -I ../lib/fs.c
+CFLAGS += -I ../lib/lmdb/libraries/liblmdb
+CFLAGS += -I ../lib/sds
+CFLAGS += -I ../src
 CFLAGS += -g -Wfatal-errors
 
 LINKED = ../src/libts.a

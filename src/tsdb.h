@@ -1,8 +1,8 @@
 #pragma once
 
 // includes
-#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
-#include "../lib/sds/sds.h"
+#include "lmdb.h"
+#include "sds.h"
 
 // macros
 
@@ -10,12 +10,14 @@
 typedef struct {
     sds dir;
     sds docs;
+    sds index_path;
     MDB_env * index;
 } ts_db;
 
 // functions
 int ts_db_open(ts_db * self, char * path);
 int ts_db_close(ts_db * self);
+int ts_db_DESTROY(ts_db * self);
 
 int ts_db_test(ts_db * self, sds db_name, sds key_name);
 int ts_db_del(ts_db * self, sds db_name, sds key_name);

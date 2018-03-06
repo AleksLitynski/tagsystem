@@ -1,8 +1,8 @@
 #pragma once
 
 // includes
-#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
-#include "../lib/sds/sds.h"
+#include "lmdb.h"
+#include "sds.h"
 #include "tsid.h"
 #include <stdint.h>
 

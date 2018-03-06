@@ -28,6 +28,8 @@ CFLAGS += -Wfatal-errors
 CFLAGS += -Wno-error=discarded-qualifiers
 CFLAGS += -Wno-discarded-qualifiers
 CFLAGS += -I $(LMDBDIR)
+CFLAGS += -I ../lib/fs.c
+CFLAGS += -I ../lib/sds
 
 all: $(TARGET)
 

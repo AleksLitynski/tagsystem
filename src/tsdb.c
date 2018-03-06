@@ -1,27 +1,33 @@
 #include "tsdb.h"
 #include "tserror.h"
-#include "../lib/lmdb/libraries/liblmdb/lmdb.h"
-#include "../lib/sds/sds.h"
-#include "../lib/fs.c/fs.h"
+#include "lmdb.h"
+#include "sds.h"
+#include "fs.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <unistd.h>
 
 static void ts_db_mkdir(sds path) {
     struct stat st = {0};
     if(stat(path, &st) == -1) {
+        LOG("Creating folder: %s", path);
         fs_mkdir(path, 0700);
     }
 }
 
 int ts_db_open(ts_db * self, char * path) {
     self->dir = sdsnew(path);
-    self->docs = sdscat(self->dir, "/docs");
-    sds index_path = sdscat(self->dir, "/index");
+
+    self->docs = sdsdup(self->dir);
+    self->docs = sdscat(self->docs, "/docs");
+
+    self->index_path = sdsdup(self->dir);
+    self->index_path = sdscat(self->index_path, "/index");
 
     ts_db_mkdir(self->dir);
-    ts_db_mkdir(index_path);
+    ts_db_mkdir(self->index_path);
     ts_db_mkdir(self->docs);
 
     mdb_env_create(&self->index);
@@ -29,10 +35,9 @@ int ts_db_open(ts_db * self, char * path) {
     mdb_env_set_mapsize(self->index, 10485760);
     mdb_env_set_maxdbs(self->index, 100); // index, inverted index, metadata.
 
-    int res = mdb_env_open(self->index, index_path, 0, 0664);
-    printf("mdb_env_open: %s\n", mdb_strerror(res));
+    int res = mdb_env_open(self->index, self->index_path, 0, 0664);
+    LOG("mdb_env_open: %s", mdb_strerror(res));
 
-    sdsfree(index_path);
 
     return res == 0 ? TS_SUCCESS : TS_FAILURE;
 }
@@ -40,8 +45,28 @@ int ts_db_open(ts_db * self, char * path) {
 int ts_db_close(ts_db * self) {
     sdsfree(self->dir);
     sdsfree(self->docs);
+    sdsfree(self->index_path);
     mdb_env_close(self->index);
 
+    return TS_SUCCESS;
+}
+
+int ts_db_DESTROY(ts_db * self) {
+    sds data = sdsdup(self->index_path);
+    data = sdscat(data, "/data.mdb");
+    sds lock = sdsdup(self->index_path);
+    lock = sdscat(lock, "/lock.mdb");
+
+    unlink(data);
+    unlink(lock);
+    fs_rmdir(self->index_path);
+    fs_rmdir(self->docs);
+    fs_rmdir(self->dir);
+
+    sdsfree(data);
+    sdsfree(lock);
+
+    ts_db_close(self);
     return TS_SUCCESS;
 }
 

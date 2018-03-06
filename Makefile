@@ -15,7 +15,10 @@ clean:
 	$(MAKE) -C test clean
 
 test:
-	-$(MAKE) -C test all
+	$(MAKE) -C test all
 
 src:
-	-$(MAKE) -C src all
+	$(MAKE) -C src all
+
+runtest:
+	$(MAKE) -C test run

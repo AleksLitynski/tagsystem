@@ -11,9 +11,9 @@
     } \
 }
 
-// #define TS_SUCCESS 0
-// #define TS_FAILURE 1
-// #define TS_KEY_NOT_FOUND 3
+// mostly chosing this format to match the unit tests :)
+#define LOG(fmt, ...) printf ("[ +LOG     ] " fmt "\n", __VA_ARGS__)
+#define LOG1(fmt) LOG(fmt, "")
 
 // types
 typedef enum {
