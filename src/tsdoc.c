@@ -17,7 +17,7 @@ int ts_doc_create(ts_doc * self, ts_db * db) {
 
     // get an id
     ts_id_generate(&self->id, db);
-    ts_id_string(&(self->id), self->id_str);
+    self->id_str = ts_id_string(&(self->id), sdsempty());
 
     // create file for the document
     self->dir = sdsdup(self->id_str);
@@ -51,7 +51,7 @@ int ts_doc_open(ts_doc * self, ts_db * db, ts_id id) {
     self->id[i] = id[i];
   }
 
-  ts_id_string(&(self->id), self->id_str);
+  self->id_str = ts_id_string(&(self->id), sdsempty());
 
   self->dir = sdsdup(self->id_str);
   sdsrange(self->dir, 0, 1);

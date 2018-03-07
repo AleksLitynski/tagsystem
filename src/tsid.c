@@ -55,3 +55,10 @@ bool ts_id_eq(ts_id * self, ts_id * other) {
     }
     return eq;
 }
+
+int ts_id_dup(ts_id * self, ts_id * other) {
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        (*other)[i] = (*self)[i];
+    }
+    return TS_SUCCESS;
+}

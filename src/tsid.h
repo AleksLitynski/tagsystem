@@ -16,3 +16,4 @@ typedef uint8_t ts_id[TS_ID_BYTES];
 int ts_id_generate(ts_id * self, ts_db * db);
 sds ts_id_string(ts_id * self, sds str);
 bool ts_id_eq(ts_id * self, ts_id * other);
+int ts_id_dup(ts_id * self, ts_id * other);
