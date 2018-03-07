@@ -41,36 +41,31 @@ static int teardown(void **state) {
 void id_test(void ** state) {
     test_state * st = (test_state*)*state;
 
-    int items = 10;
-    ts_id * ids[items];
-    for(int i = 0; i < items; i++) {
-        ids[i] = calloc(sizeof(ts_id), 1);
-    }
+    int items = 3;
+    ts_id ids[items];
     
     for(int i = 0; i < items; i++) {
-      ts_id_generate(ids[i], st->db);
+      ts_id_generate(&ids[i], st->db);
     }
     
     int duplicates = 0;
-    sds str;
     for(int i = 0; i < items; i++) {
         for(int j = 0; j < items; j++) {
-            if(ts_id_eq(ids[i], ids[j])) {
+            if(ts_id_eq(&ids[i], &ids[j])) {
                 duplicates++;
             }
         }
 
-        str = ts_id_string(ids[i], str);
+        sds str = ts_id_string(&ids[i], sdsempty());
         LOG("    %s", str);
+        sdsfree(str);
     }
 
-    sdsfree(str);
-    for(int i = 0; i < items; i++) {
-        free(ids[i]);
-    }
+    assert_true(duplicates == items);
+}
 
-    LOG1("id_test c");
-    assert_true(duplicates == 0);
+void doc_test(void ** state) {
+    
 }
 
 

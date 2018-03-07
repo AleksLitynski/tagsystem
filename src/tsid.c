@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <time.h>
 #include "tserror.h"
 
 // #define _GNU_SOURCE_
@@ -12,7 +11,7 @@
 #include "tserror.h"
 
 int ts_id_generate_weak(ts_id * self) {
-    srand(time(0));
+    
     for(int i = 0; i < TS_ID_BYTES; i++) {
         (*self)[i] = (uint8_t)rand();
     }
@@ -27,8 +26,7 @@ int ts_id_generate(ts_id * self, ts_db * db) {
         // check if id is available, if it is, re-gen,
         sds idx = sdsnew("index");
         sds key = ts_id_string(self, sdsempty());
-        LOG("%s", key);
-        is_taken = ts_db_test(db, idx, key) == TS_KEY_NOT_FOUND;
+        is_taken = ts_db_test(db, idx, key) != TS_KEY_NOT_FOUND;
         if(is_taken) ts_id_generate_weak(self);
         sdsfree(idx);
         sdsfree(key);

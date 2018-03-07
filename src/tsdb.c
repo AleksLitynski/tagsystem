@@ -8,16 +8,10 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <unistd.h>
-
-static void ts_db_mkdir(sds path) {
-    struct stat st = {0};
-    if(stat(path, &st) == -1) {
-        LOG("Creating folder: %s", path);
-        fs_mkdir(path, 0700);
-    }
-}
+#include <time.h>
 
 int ts_db_open(ts_db * self, char * path) {
+    srand(time(0));
     self->dir = sdsnew(path);
 
     self->docs = sdsdup(self->dir);
@@ -26,9 +20,9 @@ int ts_db_open(ts_db * self, char * path) {
     self->index_path = sdsdup(self->dir);
     self->index_path = sdscat(self->index_path, "/index");
 
-    ts_db_mkdir(self->dir);
-    ts_db_mkdir(self->index_path);
-    ts_db_mkdir(self->docs);
+    fs_mkdir(self->dir, 0700);
+    fs_mkdir(self->index_path, 0700);
+    fs_mkdir(self->docs, 0700);
 
     mdb_env_create(&self->index);
     mdb_env_set_maxreaders(self->index, 1);
@@ -73,38 +67,38 @@ int ts_db_DESTROY(ts_db * self) {
 int ts_db_test(ts_db * self, sds db_name, sds key_name) {
 
     MDB_txn * txn;
-    MDB_dbi * dbi;
-    MDB_val * key, * val;
+    MDB_dbi dbi;
+    MDB_val key, val;
 
-    key->mv_size = sdslen(key_name);
-    key->mv_data = key_name;
+    key.mv_size = sdslen(key_name);
+    key.mv_data = key_name;
 
     // iterate index
     mdb_txn_begin(self->index, NULL, 0, &txn);
-    mdb_dbi_open(txn, db_name, MDB_CREATE, dbi);
+    mdb_dbi_open(txn, db_name, MDB_CREATE, &dbi);
 
-    int res = mdb_get(txn, *dbi, key, val);
+    int res = mdb_get(txn, dbi, &key, &val);
     mdb_txn_commit(txn);
 
     // return 3 for no value found
-    return res == MDB_NOTFOUND ? TS_KEY_NOT_FOUND : TS_SUCCESS;
+    return res == MDB_NOTFOUND ? TS_KEY_NOT_FOUND : TS_FAILURE;
 }
 
 
 int ts_db_del(ts_db * self, sds db_name, sds key_name) {
 
     MDB_txn * txn;
-    MDB_dbi * dbi;
-    MDB_val * key, * val;
+    MDB_dbi dbi;
+    MDB_val key, val;
 
-    key->mv_size = sdslen(key_name);
-    key->mv_data = key_name;
+    key.mv_size = sdslen(key_name);
+    key.mv_data = key_name;
 
     // iterate index
     mdb_txn_begin(self->index, NULL, 0, &txn);
-    mdb_dbi_open(txn, db_name, MDB_CREATE, dbi);
+    mdb_dbi_open(txn, db_name, MDB_CREATE, &dbi);
 
-    int res = mdb_del(txn, *dbi, key, val);
+    int res = mdb_del(txn, dbi, &key, &val);
     mdb_txn_commit(txn);
 
     // return 3 for no value found
@@ -113,15 +107,15 @@ int ts_db_del(ts_db * self, sds db_name, sds key_name) {
 
 int ts_db_get(ts_db * self, sds db_name, sds key_name, MDB_val * val, MDB_txn * txn) {
     MDB_dbi dbi;
-    MDB_val * key;
+    MDB_val key;
 
-    key->mv_size = sdslen(key_name);
-    key->mv_data = key_name;
+    key.mv_size = sdslen(key_name);
+    key.mv_data = key_name;
 
     mdb_txn_begin(self->index, NULL, 0, &txn);
     mdb_dbi_open(txn, db_name, MDB_CREATE, &dbi);
 
-    int res = mdb_get(txn, dbi, key, val);
+    int res = mdb_get(txn, dbi, &key, val);
 
     return res == MDB_NOTFOUND ? TS_KEY_NOT_FOUND : TS_SUCCESS;
 }
@@ -129,22 +123,18 @@ int ts_db_get(ts_db * self, sds db_name, sds key_name, MDB_val * val, MDB_txn * 
 int ts_db_put(ts_db * self, sds db_name, sds key_name, MDB_val * val) {
     MDB_txn * txn;
     MDB_dbi dbi;
-    MDB_val * key;
+    MDB_val key;
 
-    key->mv_size = sdslen(key_name);
-    key->mv_data = key_name;
+    key.mv_size = sdslen(key_name);
+    key.mv_data = key_name;
 
     // iterate index
     mdb_txn_begin(self->index, NULL, 0, &txn);
     mdb_dbi_open(txn, db_name, MDB_CREATE, &dbi);
 
-    int res = mdb_put(txn, dbi, key, val, 0);
+    int res = mdb_put(txn, dbi, &key, val, 0);
     mdb_txn_commit(txn);
 
     return res == 0 ? TS_SUCCESS : TS_FAILURE;
 }
-
-
-sds hello_world() {
-  return "hello world I'm special";
-}
+ 
