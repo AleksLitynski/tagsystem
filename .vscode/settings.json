@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "time.h": "c",
+        "tsid.h": "c",
+        "tsdb.h": "c",
+        "stdbool.h": "c",
+        "unistd.h": "c"
+    }
+}

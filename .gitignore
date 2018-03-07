@@ -6,7 +6,6 @@ tagsystem.kdev4
 .kdev4/*
 .anjuta*
 cmake-build-debug/
-.vscode/*
 
 
 test/test
