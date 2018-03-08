@@ -17,7 +17,6 @@ TARGET = test
 
 CC = gcc
 CFLAGS = $(CMOCKADEFS)
-CFLAGS += -imacros ./cmocka.def.h
 CFLAGS += -I ../lib/cmocka/include
 CFLAGS += -I ../lib/fs.c
 CFLAGS += -I ../lib/lmdb/libraries/liblmdb
@@ -27,12 +26,17 @@ CFLAGS += -g -Wfatal-errors
 
 LINKED = ../src/libts.a
 ifeq ($(detected_os),Windows)
+	CFLAGS += -imacros ./cmocka.win.def.h
 	LINKED += -lntdll
+	LDLIBS = -lntdll 
+	SOLIBS = -lntdll
 endif
 ifeq ($(detected_os),Linux)
+	CFLAGS += -imacros ./cmocka.unix.def.h
 	LINKED += -lpthread
 endif
 
+pwd: $(pwd)
 
 all: $(TARGET)
 

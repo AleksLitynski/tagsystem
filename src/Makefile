@@ -1,4 +1,9 @@
 .PHONY: clean all
+ifeq ($(OS),Windows_NT)
+    detected_os := Windows
+else
+    detected_os := $(shell uname -s)
+endif
 
 LMDBDIR = ../lib/lmdb/libraries/liblmdb
 SOURCE = $(shell echo *.c)
@@ -30,6 +35,11 @@ CFLAGS += -Wno-discarded-qualifiers
 CFLAGS += -I $(LMDBDIR)
 CFLAGS += -I ../lib/fs.c
 CFLAGS += -I ../lib/sds
+
+ifeq ($(detected_os),Windows)
+	LDLIBS = -lntdll 
+	SOLIBS = -lntdll
+endif
 
 all: $(TARGET)
 
