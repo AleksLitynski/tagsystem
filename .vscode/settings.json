@@ -4,6 +4,8 @@
         "tsid.h": "c",
         "tsdb.h": "c",
         "stdbool.h": "c",
-        "unistd.h": "c"
-    }
+        "unistd.h": "c",
+        "tstags.h": "c"
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

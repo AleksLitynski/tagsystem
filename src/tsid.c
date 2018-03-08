@@ -62,3 +62,17 @@ int ts_id_dup(ts_id * self, ts_id * other) {
     }
     return TS_SUCCESS;
 }
+
+int ts_id_value(ts_id * self, int index) {
+    return ((*self)[index/8] & (((uint8_t)1) << ( 7 - (index % 8)))) > 0;
+}
+
+
+int ts_id_from_string(ts_id * self, sds str) {
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        sds str_i = sdsdup(str);
+        sdsrange(str_i, i * 3, (i * 3) + 2);
+        (*self)[i] = atoi(str_i);
+        sdsfree(str_i);
+    }
+}

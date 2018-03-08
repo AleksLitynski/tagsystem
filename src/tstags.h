@@ -10,27 +10,28 @@
 // types
 typedef struct {
     ts_id id;
-} ts_tagleaf;
+} ts_tag_leaf;
 
 // these are not pointers because this can be flattened to disk.
 // they are the relative offset from ts_tagtree * root.
 typedef struct {
-    uint64_t left;
-    uint64_t right;
-} ts_taginner;
+    size_t _0;
+    size_t _1;
+} ts_tag_inner;
 
 typedef struct {
     bool leaf;
     union {
-        ts_tagleaf leaf;
-        ts_taginner inner;
+        ts_tag_leaf leaf;
+        ts_tag_inner inner;
     } value;
-} ts_tagnode;
+} ts_tag_node;
 
 typedef struct {
-    uint64_t size;
-    uint64_t occupied;
-    ts_tagnode * data;
+    size_t size;
+    size_t occupied;
+    size_t next;
+    ts_tag_node * data;
 } ts_tags;
 
 

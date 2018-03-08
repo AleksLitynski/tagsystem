@@ -17,3 +17,5 @@ int ts_id_generate(ts_id * self, ts_db * db);
 sds ts_id_string(ts_id * self, sds str);
 bool ts_id_eq(ts_id * self, ts_id * other);
 int ts_id_dup(ts_id * self, ts_id * other);
+int ts_id_value(ts_id * self, int index);
+int ts_id_from_string(ts_id * self, sds str);

@@ -14,10 +14,20 @@
 
 #define LOG(fmt, ...) printf ("[ +LOG     ] " fmt "\n", __VA_ARGS__)
 #define LOG1(fmt) LOG(fmt, "")
+#define LOGID(id) {                             \
+        sds str = ts_id_string(id, sdsempty()); \
+        LOG("    %s", str);                     \
+        sdsfree(str); }
 
 typedef struct {
     ts_db * db;
 } test_state;
+
+void set_id(ts_id * id, uint8_t value) {
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        (*id)[i] = value;
+    }
+}
 
 static int setup(void **state) {
     test_state * st = malloc(sizeof(test_state));
@@ -57,12 +67,48 @@ void id_test(void ** state) {
             }
         }
 
-        sds str = ts_id_string(&ids[i], sdsempty());
-        LOG("    %s", str);
-        sdsfree(str);
+        LOGID(&ids[i]);
     }
 
     assert_true(duplicates == items);
+}
+
+void id_value_test(void ** state) {
+
+    ts_id sample_1;
+    set_id(&sample_1, 255);
+    LOGID(&sample_1);
+    for(int i = 0; i < TS_ID_BYTES; i++) { 
+        assert_int_equal(ts_id_value(&sample_1, i), 1);
+    }
+    
+    ts_id sample_0;
+    set_id(&sample_0, 0);
+    LOGID(&sample_0);
+    for(int i = 0; i < TS_ID_BYTES; i++) { 
+        assert_int_equal(ts_id_value(&sample_0, i), 0);
+    }
+    
+    ts_id sample_1010;
+    set_id(&sample_1010, 170);
+    LOGID(&sample_1010);
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        int v = ts_id_value(&sample_1010, i);
+        assert_int_equal(v, !(i % 2));
+    }
+}
+
+void id_to_str_test(void ** state) {
+    ts_id sample;
+    set_id(&sample, 170);
+    sds sample_str = ts_id_string(&sample, sdsempty());
+    ts_id sample_from_str;
+    ts_id_from_string(&sample_from_str, sample_str);
+
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        assert_int_equal(sample[i], sample_from_str[i]);
+    }
+    sdsfree(sample_str);
 }
 
 void doc_test(void ** state) {
@@ -98,11 +144,12 @@ void doc_test(void ** state) {
     free(read);
 }
 
-
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(id_test),
+        cmocka_unit_test(id_value_test),
         cmocka_unit_test(doc_test),
+        cmocka_unit_test(id_to_str_test),
     };
     return cmocka_run_group_tests(tests, setup, teardown);
 }
