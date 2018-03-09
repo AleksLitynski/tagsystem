@@ -5,25 +5,22 @@
 #include "tsid.h"
 
 // macros
-#define TS_TAGS_MAXRESIZE 8
 
 // types
-typedef struct {
-    ts_id id;
-} ts_tag_leaf;
-
-// these are not pointers because this can be flattened to disk.
-// they are the relative offset from ts_tagtree * root.
-typedef struct {
-    size_t _0;
-    size_t _1;
-} ts_tag_inner;
+enum ts_tag_node_type {
+    TS_TAG_NODE_LEAF,
+    TS_TAG_NODE_INNER,
+    TS_TAG_NODE_JUMP
+};
 
 typedef struct {
-    bool leaf;
+    enum ts_tag_node_type type;
     union {
-        ts_tag_leaf leaf;
-        ts_tag_inner inner;
+        ts_id leaf;
+        // these are not pointers because this can be flattened to disk.
+        // they are the relative offset from ts_tagtree * root.
+        size_t inner[2];
+        size_t jump;
     } value;
 } ts_tag_node;
 
@@ -36,6 +33,11 @@ typedef struct {
 
 
 // functions
-int ts_tagtree_empty(ts_tags * self);
-int ts_tagtree_insert(ts_tags * self, ts_id * id);
-int ts_tagtree_remove(ts_tags * self, ts_id * id);
+int ts_tags_empty(ts_tags * self);
+int ts_tags_empty_sized(ts_tags * self, int size);
+size_t ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert);
+int ts_tags_insert(ts_tags * self, ts_id * id);
+int ts_tags_remove(ts_tags * self, ts_id * id);
+int ts_tags_copy(ts_tags * self, ts_tag_node * source);
+int ts_tags_resize(ts_tags ** self, int delta);
+int ts_tags_close(ts_tags * self);
