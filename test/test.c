@@ -11,6 +11,7 @@
 #include "tsid.h"
 #include "tsdoc.h"
 #include "tserror.h"
+#include "tstags.h"
 
 #define LOG(fmt, ...) printf ("[ +LOG     ] " fmt "\n", __VA_ARGS__)
 #define LOG1(fmt) LOG(fmt, "")
@@ -144,12 +145,25 @@ void doc_test(void ** state) {
     free(read);
 }
 
+void tags_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    ts_tags tags;
+    ts_tags_empty(&tags);
+
+    sds tags_str = ts_tags_print(&tags, sdsempty());
+    LOG("\n%s\n", tags_str);
+    sdsfree(tags_str);
+
+}
+
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(id_test),
         cmocka_unit_test(id_value_test),
         cmocka_unit_test(doc_test),
         cmocka_unit_test(id_to_str_test),
+        cmocka_unit_test(tags_test),
     };
     return cmocka_run_group_tests(tests, setup, teardown);
 }

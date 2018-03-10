@@ -7,11 +7,11 @@
 #include "tstags.h"
 
 int ts_tags_empty(ts_tags * self) {
-    ts_tags_empty_sized(self, 2);
+    _ts_tags_empty_sized(self, 2);
     return TS_SUCCESS;
 }
 
-int ts_tags_empty_sized(ts_tags * self, int size) {
+int _ts_tags_empty_sized(ts_tags * self, int size) {
     self->size = size;                          // start with one slot for the root and slot for an element
     self->occupied = 1;                         // always have a root element
     self->next = 1;                             // the next free slot is at 1
@@ -23,7 +23,7 @@ int ts_tags_empty_sized(ts_tags * self, int size) {
 size_t ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert) {
 
     // make sure there's space before we insert the new node
-    ts_tags_resize(&self, 1);
+    _ts_tags_resize(&self, 1);
 
     // remember where we're putting the new value
     size_t next = self->next;
@@ -109,11 +109,60 @@ int ts_tags_insert(ts_tags * self, ts_id * id) {
     return TS_SUCCESS;
 }
 
+int _ts_tags_remove_node(ts_tags * self, size_t node_addr) {
+    
+    // Empty nodes are a linked list of unoccupied nodes.
+    // The last node in the chain will always be the last occupied node
+    // in self->data.
+
+    // create a new empty node to replace the deleted node
+    ts_tag_node empty_node;
+    empty_node.type = TS_TAG_NODE_JUMP;
+    // empty node points to the current 'next' node
+    empty_node.value.jump = self->next;
+
+    // overwrite the deleted node
+    *(self->data + node_addr) = empty_node;
+    // next now points to the deleted node
+    self->next = node_addr;
+
+    // one less node is occupied
+    self->occupied--;
+    // if we're more than half unoccupied, the tree will be 
+    // repacked into a smaller space
+    _ts_tags_resize(&self, 0);
+    return TS_SUCCESS;
+}
+
 int ts_tags_remove(ts_tags * self, ts_id * id) {
+
+    _ts_tags_remove_recursive(self, id, 0, 0);
+    return TS_SUCCESS;
+}
+
+int _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx) {
+
+    ts_tag_node * current = self->data + node_addr;
+    int branch = ts_id_value(id, idx);
+
+    // if the node is a leaf, delete it and we're done
+    if(current->type == TS_TAG_NODE_LEAF) {
+        _ts_tags_remove_node(self, node_addr);
+    }
+    // if the node is an inner, recurse left or right, then if both childen are 0, delete it
+    if(current->type == TS_TAG_NODE_INNER) {
+        _ts_tags_remove_recursive(self, id, current->value.inner[branch], idx + 1);
+        current->value.inner[branch] = 0;
+        if(current->value.inner[0] == 0 && current->value.inner[1] == 0) {
+            _ts_tags_remove_node(self, node_addr);
+        }
+    }
+
+    return TS_SUCCESS;
 
 }
 
-int ts_tags_copy(ts_tags * self, ts_tag_node * source) {
+int _ts_tags_copy(ts_tags * self, ts_tag_node * source) {
     // recursive function to insert all items in source into self
     if(source->type == TS_TAG_NODE_LEAF) {
         // if this is a leaf, insert the value
@@ -122,15 +171,15 @@ int ts_tags_copy(ts_tags * self, ts_tag_node * source) {
     if(source->type == TS_TAG_NODE_INNER) {
         // if this is an inner node, recurse left/right if left/right exist
         if(source->value.inner[0] != 0) {
-            ts_tags_copy(self, self->data + source->value.inner[0]);
+            _ts_tags_copy(self, self->data + source->value.inner[0]);
         }
         if(source->value.inner[1] != 0) {
-            ts_tags_copy(self, self->data + source->value.inner[1]);
+            _ts_tags_copy(self, self->data + source->value.inner[1]);
         }
     }
 }
 
-int ts_tags_resize(ts_tags ** self, int delta) {
+int _ts_tags_resize(ts_tags ** self, int delta) {
     ts_tags * current_self = *self;
 
     int new_size = 0;
@@ -144,10 +193,10 @@ int ts_tags_resize(ts_tags ** self, int delta) {
 
     if(new_size != 0) {
         ts_tags * new_tags = malloc(sizeof(ts_tags));
-        ts_tags_empty_sized(new_tags, new_size);
+        _ts_tags_empty_sized(new_tags, new_size);
 
         // copy over all items
-        ts_tags_copy(new_tags, current_self->data);
+        _ts_tags_copy(new_tags, current_self->data);
 
         // free the old one, overwrite with the new one
         ts_tags_close(*self);
@@ -159,4 +208,73 @@ int ts_tags_resize(ts_tags ** self, int delta) {
 
 int ts_tags_close(ts_tags * self) {
     free(self->data);
+}
+
+sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds printed) {
+    /*
+            . 
+            ├── 0
+            │   ├── abc123
+            |   └── abc124
+            └── 1
+    */
+
+    ts_tag_node * current = self->data + node_addr;
+
+    if(current->type == TS_TAG_NODE_LEAF) {
+        sds id_str;
+        ts_id_string(&(current->value.leaf), id_str);
+        printed = sdscatprintf(printed, "%s└── %s\n", padding, id_str);
+        sdsfree(id_str);
+    }
+
+    if(current->type == TS_TAG_NODE_INNER) {
+
+        sds extendedpadding = sdscatprintf(sdsempty(), "%s|   ", padding);
+        if(current->value.inner[0] != 0) {
+            // print first when second exists
+            char * tee = "├";
+            // print when second doesn't exist
+            if(current->value.inner[1] == 0) tee = "└";
+            
+            printed = sdscatprintf(printed, "%s%s── 0\n", padding, tee);
+            printed = _ts_tags_print_node(self, current->value.inner[0], extendedpadding, printed);
+            
+        }
+
+        // print second
+        if(current->value.inner[1] != 0) {
+            printed = sdscatprintf(printed, "%s└── 1\n", padding);
+            printed = _ts_tags_print_node(self, current->value.inner[1], extendedpadding, printed);
+        }
+
+        sdsfree(extendedpadding);
+    }
+
+    return printed;
+}
+
+sds ts_tags_print(ts_tags * self, sds printed) {
+    // print size, occupied, and all 'next' values
+    printed = sdscatprintf(printed, "\nsize: %s\n", self->size);
+    printed = sdscatprintf(printed, "occupied: %s\n", self->occupied);
+
+    // print the chain of empty cells
+    size_t next = self->next;
+    printed = sdscatprintf(printed, "nexts: ");
+    do {
+        printed = sdscatprintf(printed, "%s, ", next);
+        next = (self->data + next)->value.jump;
+    } while(next != 0);
+    printed = sdscatprintf(printed, "\n");
+    printed = sdscatprintf(printed, "next: %s\n", self->next);
+
+    // print the actual tree structure
+ 
+    printed = sdscatprintf(printed, ".\n");
+    sds padding = sdsempty();
+    _ts_tags_print_node(self, 0, padding, printed);
+    sdsfree(padding);
+
+    return printed;
 }
