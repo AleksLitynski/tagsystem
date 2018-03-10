@@ -13,12 +13,23 @@
 #include "tserror.h"
 #include "tstags.h"
 
-#define LOG(fmt, ...) printf ("[ +LOG     ] " fmt "\n", __VA_ARGS__)
+#define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
 #define LOG1(fmt) LOG(fmt, "")
-#define LOGID(id) {                             \
-        sds str = ts_id_string(id, sdsempty()); \
-        LOG("    %s", str);                     \
-        sdsfree(str); }
+#define LOGID(id) {                         \
+    sds str = ts_id_string(id, sdsempty()); \
+    LOG("    %s", str);                     \
+    sdsfree(str);                           \
+}
+#define LOGTAGS(tags) {                                             \
+    sds str = ts_tags_print(tags, sdsempty());                      \
+    int count;                                                      \
+    sds * lines = sdssplitlen(str, sdslen(str), "\n", 1, &count);   \
+    for(int i = 0; i < count; i++) {                                \
+        LOG("%s", lines[i]);                                        \
+    }                                                               \
+    sdsfreesplitres(lines, count);                                  \
+    sdsfree(str);                                                   \
+}
 
 typedef struct {
     ts_db * db;
@@ -148,22 +159,20 @@ void doc_test(void ** state) {
 void tags_test(void ** state) {
     test_state * st = (test_state*)*state;
 
-    ts_tags tags;
+    ts_tags * tags;
     ts_tags_empty(&tags);
 
     
+    ts_id id;
     for(int i = 0; i < 3; i++) {
-        ts_id id;
         ts_id_generate(&id, st->db);
         ts_tags_insert(&tags, &id);
     }
+    LOGTAGS(&tags);
 
-    // int ts_tags_remove(ts_tags * self, ts_id * id);
+    ts_tags_remove(&tags, &id);
+    LOGTAGS(&tags);
 
-    sds ts_tags_print(ts_tags * self, sds printed);
-    sds tags_str = ts_tags_print(&tags, sdsempty());
-    LOG("\n%s\n", tags_str);
-    sdsfree(tags_str);
     ts_tags_close(&tags);
 
 }
