@@ -34,12 +34,12 @@ typedef struct {
 
 // functions
 int ts_tags_empty(ts_tags * self);
-size_t _ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert);
 int ts_tags_insert(ts_tags * self, ts_id * id);
 int ts_tags_remove(ts_tags * self, ts_id * id);
 int ts_tags_close(ts_tags * self);
 sds ts_tags_print(ts_tags * self, sds printed);
 
+size_t _ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert);
 int _ts_tags_empty_sized(ts_tags * self, int size);
 int _ts_tags_remove_node(ts_tags * self, size_t node_addr);
 int _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx);

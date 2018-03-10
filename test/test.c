@@ -151,9 +151,20 @@ void tags_test(void ** state) {
     ts_tags tags;
     ts_tags_empty(&tags);
 
+    
+    for(int i = 0; i < 3; i++) {
+        ts_id id;
+        ts_id_generate(&id, st->db);
+        ts_tags_insert(&tags, &id);
+    }
+
+    // int ts_tags_remove(ts_tags * self, ts_id * id);
+
+    sds ts_tags_print(ts_tags * self, sds printed);
     sds tags_str = ts_tags_print(&tags, sdsempty());
     LOG("\n%s\n", tags_str);
     sdsfree(tags_str);
+    ts_tags_close(&tags);
 
 }
 

@@ -256,18 +256,17 @@ sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds print
 
 sds ts_tags_print(ts_tags * self, sds printed) {
     // print size, occupied, and all 'next' values
-    printed = sdscatprintf(printed, "\nsize: %s\n", self->size);
-    printed = sdscatprintf(printed, "occupied: %s\n", self->occupied);
+    printed = sdscatprintf(printed, "\nsize: %i\n", self->size);
+    printed = sdscatprintf(printed, "occupied: %i\n", self->occupied);
 
     // print the chain of empty cells
     size_t next = self->next;
     printed = sdscatprintf(printed, "nexts: ");
     do {
-        printed = sdscatprintf(printed, "%s, ", next);
+        printed = sdscatprintf(printed, "%zu, ", next);
         next = (self->data + next)->value.jump;
     } while(next != 0);
     printed = sdscatprintf(printed, "\n");
-    printed = sdscatprintf(printed, "next: %s\n", self->next);
 
     // print the actual tree structure
  
