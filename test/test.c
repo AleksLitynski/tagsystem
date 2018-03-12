@@ -28,7 +28,6 @@
         LOG("%s", lines[i]);                                        \
     }                                                               \
     sdsfreesplitres(lines, count);                                  \
-    sdsfree(str);                                                   \
 }
 
 typedef struct {
@@ -160,20 +159,23 @@ void tags_test(void ** state) {
     test_state * st = (test_state*)*state;
 
     ts_tags * tags;
-    ts_tags_empty(&tags);
+    ts_tags_empty(tags);
+    LOG1("Created empty tag tree");
 
     
     ts_id id;
     for(int i = 0; i < 3; i++) {
         ts_id_generate(&id, st->db);
-        ts_tags_insert(&tags, &id);
+        ts_tags_insert(tags, &id);
+        LOG1("Added id to tag tree");
     }
-    LOGTAGS(&tags);
+    LOGTAGS(tags);                             
 
-    ts_tags_remove(&tags, &id);
-    LOGTAGS(&tags);
+    ts_tags_remove(tags, &id);
+    LOG1("Removed id from tag tree");
+    LOGTAGS(tags);
 
-    ts_tags_close(&tags);
+    ts_tags_close(tags);
 
 }
 

@@ -33,17 +33,17 @@ typedef struct {
 
 
 // functions
-int ts_tags_empty(ts_tags ** self_addr);
-int ts_tags_insert(ts_tags ** self_addr, ts_id * id);
-int ts_tags_remove(ts_tags ** self_addr, ts_id * id);
-int ts_tags_close(ts_tags ** self_addr);
-sds ts_tags_print(ts_tags ** self_addr, sds printed);
+int ts_tags_empty(ts_tags * self);
+int ts_tags_insert(ts_tags * self, ts_id * id);
+int ts_tags_remove(ts_tags * self, ts_id * id);
+int ts_tags_close(ts_tags * self);
+sds ts_tags_print(ts_tags * self, sds printed);
 
-size_t _ts_tags_insert_node(ts_tags ** self_addr, ts_tag_node * to_insert, size_t * node_addr);
-int _ts_tags_insert_no_resize(ts_tags ** self_addr, ts_id * id);
-int _ts_tags_empty_sized(ts_tags ** self_addr, int size);
-int _ts_tags_remove_node(ts_tags ** self_addr, size_t node_addr);
-int _ts_tags_remove_recursive(ts_tags ** self_addr, ts_id * id, size_t node_addr, int idx);
-int _ts_tags_copy(ts_tags ** self_addr, ts_tags * source, size_t source_idx);
-int _ts_tags_resize(ts_tags ** self_addr, int delta);
-sds _ts_tags_print_node(ts_tags ** self_addr, size_t node_addr, sds padding, sds printed);
+size_t _ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert, size_t * node_addr);
+int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id);
+int _ts_tags_empty_sized(ts_tags * self, int size);
+int _ts_tags_remove_node(ts_tags * self, size_t node_addr);
+int _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx);
+int _ts_tags_copy(ts_tags * self, ts_tag_node * source, size_t current_addr);
+int _ts_tags_resize(ts_tags * self, int delta);
+sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds printed);
