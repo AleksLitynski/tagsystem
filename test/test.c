@@ -1,42 +1,21 @@
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include "cmocka.h"
-#include "sds.h"
-#include "fs.h"
-#include "tsdb.h"
-#include "tsid.h"
-#include "tsdoc.h"
-#include "tserror.h"
-#include "tstags.h"
+#include "test.h"
 
-#define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
-#define LOG1(fmt) LOG(fmt, "")
-#define LOGID(id) {                         \
-    sds str = ts_id_string(id, sdsempty()); \
-    LOG("    %s", str);                     \
-    sdsfree(str);                           \
-}
-#define LOGTAGS(tags) {                                             \
-    sds str = ts_tags_print(tags, sdsempty());                      \
-    int count;                                                      \
-    sds * lines = sdssplitlen(str, sdslen(str), "\n", 1, &count);   \
-    for(int i = 0; i < count; i++) {                                \
-        LOG("%s", lines[i]);                                        \
-    }                                                               \
-    sdsfreesplitres(lines, count);                                  \
-}
 
-typedef struct {
-    ts_db * db;
-} test_state;
 
 void set_id(ts_id * id, uint8_t value) {
     for(int i = 0; i < TS_ID_BYTES; i++) {
         (*id)[i] = value;
+    }
+}
+
+void id_from_binary_string(char * source, ts_id * id) {
+    int len = strlen(source);
+    for(int i = 0; i < TS_ID_BITS; i++) {
+        if(i < len) {
+            ts_id_set_bit(id, i, source[i] == '1' ? 1 : 0);
+        } else {
+            ts_id_set_bit(id, i, 0);
+        }
     }
 }
 
@@ -60,132 +39,21 @@ static int teardown(void **state) {
 }
 
 
-void id_test(void ** state) {
-    test_state * st = (test_state*)*state;
-
-    int items = 3;
-    ts_id ids[items];
-    
-    for(int i = 0; i < items; i++) {
-      ts_id_generate(&ids[i], st->db);
-    }
-    
-    int duplicates = 0;
-    for(int i = 0; i < items; i++) {
-        for(int j = 0; j < items; j++) {
-            if(ts_id_eq(&ids[i], &ids[j])) {
-                duplicates++;
-            }
-        }
-
-        LOGID(&ids[i]);
-    }
-
-    assert_true(duplicates == items);
-}
-
-void id_value_test(void ** state) {
-
-    ts_id sample_1;
-    set_id(&sample_1, 255);
-    LOGID(&sample_1);
-    for(int i = 0; i < TS_ID_BYTES; i++) { 
-        assert_int_equal(ts_id_value(&sample_1, i), 1);
-    }
-    
-    ts_id sample_0;
-    set_id(&sample_0, 0);
-    LOGID(&sample_0);
-    for(int i = 0; i < TS_ID_BYTES; i++) { 
-        assert_int_equal(ts_id_value(&sample_0, i), 0);
-    }
-    
-    ts_id sample_1010;
-    set_id(&sample_1010, 170);
-    LOGID(&sample_1010);
-    for(int i = 0; i < TS_ID_BYTES; i++) {
-        int v = ts_id_value(&sample_1010, i);
-        assert_int_equal(v, !(i % 2));
-    }
-}
-
-void id_to_str_test(void ** state) {
-    ts_id sample;
-    set_id(&sample, 170);
-    sds sample_str = ts_id_string(&sample, sdsempty());
-    ts_id sample_from_str;
-    ts_id_from_string(&sample_from_str, sample_str);
-
-    for(int i = 0; i < TS_ID_BYTES; i++) {
-        assert_int_equal(sample[i], sample_from_str[i]);
-    }
-    sdsfree(sample_str);
-}
-
-void doc_test(void ** state) {
-    test_state * st = (test_state*)*state;
-
-    char * contents, * read;
-    contents = "some text";
-    ts_doc doc, doc2;
-    ts_id doc_id;
-
-    // create a document and write some text to it
-    ts_doc_create(&doc, st->db);
-    ts_id_dup(&doc.id, &doc_id);
-    fs_write (doc.path, contents);
-    // close the document
-    ts_doc_close(&doc);
-
-    // reopen the document and read the text
-    ts_doc_open(&doc2, st->db, doc_id);
-    read = fs_read(doc2.path);
-    ts_doc_delete(&doc2);
-
-    // confirm the index was deleted
-    sds idx = sdsnew("index");
-    sds val = ts_id_string(&doc_id, sdsempty());
-    bool delete_success = ts_db_test(st->db, idx, val) == TS_KEY_NOT_FOUND;
-    sdsfree(idx);
-    sdsfree(val);
-
-    // confirm the document had the correct text in it
-    assert_string_equal(contents, read);
-    assert_true(delete_success);
-    free(read);
-}
-
-void tags_test(void ** state) {
-    test_state * st = (test_state*)*state;
-
-    ts_tags * tags;
-    ts_tags_empty(tags);
-    LOG1("Created empty tag tree");
-
-    
-    ts_id id;
-    for(int i = 0; i < 3; i++) {
-        ts_id_generate(&id, st->db);
-        ts_tags_insert(tags, &id);
-        LOG1("Added id to tag tree");
-    }
-    LOGTAGS(tags);                             
-
-    ts_tags_remove(tags, &id);
-    LOG1("Removed id from tag tree");
-    LOGTAGS(tags);
-
-    ts_tags_close(tags);
-
-}
 
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(id_test),
         cmocka_unit_test(id_value_test),
-        cmocka_unit_test(doc_test),
         cmocka_unit_test(id_to_str_test),
+
+        cmocka_unit_test(doc_test),
+        
         cmocka_unit_test(tags_test),
+        cmocka_unit_test(tag_empty_test),
+        cmocka_unit_test(tag_insert_test),
+        cmocka_unit_test(tag_remove_test)
     };
-    return cmocka_run_group_tests(tests, setup, teardown);
+
+    return cmocka_run_group_tests_name("main tests", tests, setup, teardown);
+
 }

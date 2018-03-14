@@ -58,3 +58,20 @@ src (see the header for the exact functions)
     * tsiter - Macro for iterating. Wraps a certain common series of function calls. More or less a for-loop with a destructor.
 
 test - test.c is the important one. The other ones are one-offs I used for debugging.. stuff
+
+```graphviz
+
+
+digraph {
+    inner_a [label=""] 
+    inner_b [label=""] 
+    inner_c [label=""] 
+    inner_a -> inner_b
+    inner_a -> inner_c
+    inner_b -> leaf_a
+    inner_b -> leaf_b
+    inner_c -> leaf_d
+    # inner_c -> leaf_e
+}
+
+```

@@ -45,6 +45,19 @@ sds ts_id_string(ts_id * self, sds str) {
     return str;
 }
 
+sds ts_id_bit_string(ts_id * self, sds str) {
+    return ts_id_nbit_string(self, str, TS_ID_BITS);
+}
+
+sds ts_id_nbit_string(ts_id * self, sds str, int nbits) {
+    for(int i = 0; i < nbits; i++) {
+        // unsigned int, max 3 digits, pad with 0s if less than 3
+        str = sdscatprintf(str, "%i", ts_id_get_bit(self, i));
+    }
+
+    return str;
+}
+
 bool ts_id_eq(ts_id * self, ts_id * other) {
     bool eq = true;
     for(int i = 0; i < TS_ID_BYTES; i++) {
@@ -63,8 +76,21 @@ int ts_id_dup(ts_id * self, ts_id * other) {
     return TS_SUCCESS;
 }
 
-int ts_id_value(ts_id * self, int index) {
+int ts_id_get_bit(ts_id * self, int index) {
     return ((*self)[index/8] & (((uint8_t)1) << ( 7 - (index % 8)))) > 0;
+}
+
+int ts_id_set_bit(ts_id * self, int index, int bit) {
+
+    int block = index / 8;
+    int remainder = 7 - (index % 8);
+    if(bit == 1) {
+        (*self)[block] |= 1 << remainder;
+    }
+    if(bit == 0) {
+        (*self)[block] &= ~(1 << remainder);
+    }
+    return TS_SUCCESS;
 }
 
 

@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stddef.h>
 #include "sds.h"
 #include "tserror.h"
@@ -63,22 +64,35 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
     // but we know we need the leaf node
 
     // walk out the length of the tag
-    for(int i = 0; i < TS_ID_BYTES; i++) {
+    for(int i = 0; i < TS_ID_BITS; i++) {
         // does the tag branch left or right?
-        int branch = ts_id_value(id, i);
+        int branch = ts_id_get_bit(id, i);
 
         if(current->type == TS_TAG_NODE_LEAF) {
+            ts_tag_node common_parent;
+            common_parent.type = TS_TAG_NODE_INNER;
+            common_parent.value.inner[0] = 0;
+            common_parent.value.inner[1] = 0;
+            common_parent.value.inner[branch] = current - self->data;
+
+            // insert new parent. Set correct branch of current parent to new parent
+            int res = _ts_tags_insert_node(self, &common_parent, &parent->value.inner[parent_branch]);
+            // if we were unable to allocate new parent, throw that we need more space
+            if(res == TS_TAGS_TREE_FULL) return TS_TAGS_TREE_FULL;
+            
+            // set current parent to new parent and set branch to new branch
+            parent = self->data + parent->value.inner[parent_branch];
+            parent_branch = branch;
             // we've hit a leaf.
             // If we diverge from the leaf, add one inner node and attach
             // the new leaf and the existing leaf to each branch.
             // Otherwise, add a new inner node and repeat at the next index.
             // document ids should be unique, so eventually they will diverge.
-            while(i < TS_ID_BYTES) {
-                int current_value = ts_id_value(&current->value.leaf, i);
-                int new_node_value = ts_id_value(id, i);
+            while(i < TS_ID_BITS) {
+                int current_value = ts_id_get_bit(&current->value.leaf, i);
+                int new_node_value = ts_id_get_bit(id, i);
                 if(current_value == new_node_value) {
-                    // insert new parent. New Parent has a branch pointing towards existing child
-                    ts_tag_node common_parent;
+                    // insert new parent. New Parent has a branch pointing towards existing childB
                     common_parent.type = TS_TAG_NODE_INNER;
                     common_parent.value.inner[0] = 0;
                     common_parent.value.inner[1] = 0;
@@ -181,26 +195,36 @@ int ts_tags_remove(ts_tags * self, ts_id * id) {
     return TS_SUCCESS;
 }
 
-int _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx) {
+size_t _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx) {
 
     ts_tag_node * current = self->data + node_addr;
 
     // if the node is a leaf, delete it and we're done
     if(current->type == TS_TAG_NODE_LEAF) {
         _ts_tags_remove_node(self, node_addr);
+        return 0;
+    
     }
     // if the node is an inner, recurse left or right, then if both childen are 0, delete it
-    else if(current->type == TS_TAG_NODE_INNER) {
-        int branch = ts_id_value(id, idx);
+    if(current->type == TS_TAG_NODE_INNER) {
+        int branch = ts_id_get_bit(id, idx);
 
-        _ts_tags_remove_recursive(self, id, current->value.inner[branch], idx + 1);
-        current->value.inner[branch] = 0;
-        if(current->value.inner[0] == 0 && current->value.inner[1] == 0) {
+        size_t to_hoist = _ts_tags_remove_recursive(self, id, current->value.inner[branch], idx + 1);
+        current->value.inner[branch] = to_hoist;
+
+        int not_branch = branch == 1 ? 0 : 1;
+        size_t other_branch_addr = current->value.inner[not_branch];
+        if(to_hoist == 0) {
             _ts_tags_remove_node(self, node_addr);
+            return other_branch_addr;
         }
+        // if(other_branch_addr == 0 && to_hoist == 0) {
+        //     _ts_tags_remove_node(self, node_addr);
+        //     return 0;
+        // }
     }
 
-    return TS_SUCCESS;
+    return node_addr;
 
 }
 
@@ -265,7 +289,7 @@ sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds print
     ts_tag_node * current = self->data + node_addr;
 
     if(current->type == TS_TAG_NODE_LEAF) {
-        sds id_str = ts_id_string(&(current->value.leaf), sdsempty());
+        sds id_str = ts_id_nbit_string(&(current->value.leaf), sdsempty(), 8);
         printed = sdscatprintf(printed, "%s└── %s\n", padding, id_str);
         sdsfree(id_str);
     }

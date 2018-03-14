@@ -43,7 +43,7 @@ size_t _ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert, size_t * no
 int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id);
 int _ts_tags_empty_sized(ts_tags * self, int size);
 int _ts_tags_remove_node(ts_tags * self, size_t node_addr);
-int _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx);
+size_t _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx);
 int _ts_tags_copy(ts_tags * self, ts_tag_node * source, size_t current_addr);
 int _ts_tags_resize(ts_tags * self, int delta);
 sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds printed);

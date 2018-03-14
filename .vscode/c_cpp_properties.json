@@ -35,7 +35,9 @@
                 "${workspaceRoot}",
                 "${workspaceRoot}/lib/lmdb/libraries/liblmdb",
                 "${workspaceRoot}/lib/sds",
-                "${workspaceRoot}/lib/fs.c"
+                "${workspaceRoot}/lib/fs.c",
+                "${workspaceRoot}/src",
+                "${workspaceRoot}/lib/cmocka/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
