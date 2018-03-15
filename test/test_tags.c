@@ -27,7 +27,7 @@ void tags_test(void ** state) {
     // LOGTAGS(&tags); 
     assert_int_equal(tags.size, 32); // seems like we always end up w/ 32 size. Possibly we could exceed the block, but i'm not doing the math ;)
     
-    ts_tags_remove(&tags, &id);
+    // ts_tags_remove(&tags, &id);
     LOG1("Removed id from tag tree");
     // LOGTAGS(&tags);
 
@@ -107,10 +107,63 @@ void tag_remove_test(void ** state) {
     ts_tags_insert(&tags, &id_0110);
     ts_tags_insert(&tags, &id_0111);
 
-    ts_tags_remove(&tags, &id_0000);
-    LOGTAGS(&tags);
+    ts_tags_remove(&tags, &id_0110);
+    // LOGTAGS(&tags);
 
     ts_tags_close(&tags);
     
+}
 
+void tag_shuffle_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    int items = 10;
+
+    ts_id ids[items];
+    ts_tags tags;
+    ts_tags_empty(&tags);
+
+    LOG("Inserted %i random ids", items);
+    for(int i = 0; i < items; i++) {
+        ts_id_generate(&ids[i], st->db);
+        ts_tags_insert(&tags, &ids[i]);
+    }
+
+    LOG("Removed %i random ids", items / 3);
+    for(int i = 0; i < items / 3; i++) {
+        ts_tags_remove(&tags, &ids[i]);
+    }
+    
+    LOG("Inserted %i more random ids", items);
+    for(int i = 0; i < items; i++) {
+        ts_id id;
+        ts_id_generate(&id, st->db);
+        ts_tags_insert(&tags, &id);
+    }
+
+    LOGTAGS(&tags);
+    ts_tags_close(&tags);
+}
+
+void tag_double_ops_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    ts_tags tags;
+    ts_tags_empty(&tags);
+
+    ID(01);
+
+    LOG1("Insert A");
+    ts_tags_insert(&tags, &id_01);
+    LOG1("Insert B");
+    ts_tags_insert(&tags, &id_01);
+
+    LOG1("Remove A");
+    ts_tags_remove(&tags, &id_01);
+    LOG1("Remove B");
+    ts_tags_remove(&tags, &id_01);
+
+
+    LOGTAGS(&tags);
+    ts_tags_close(&tags);
 }

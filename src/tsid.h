@@ -7,7 +7,7 @@
 
 // macros
 #define TS_ID_BYTES 20
-#define TS_ID_BITS 20 * 8
+#define TS_ID_BITS TS_ID_BYTES * 8
 
 // types
 typedef uint8_t ts_id[TS_ID_BYTES];

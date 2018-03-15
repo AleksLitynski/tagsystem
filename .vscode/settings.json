@@ -6,7 +6,8 @@
         "stdbool.h": "c",
         "unistd.h": "c",
         "tstags.h": "c",
-        "tests.h": "c"
+        "tests.h": "c",
+        "stdint.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

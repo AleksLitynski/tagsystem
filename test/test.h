@@ -61,7 +61,8 @@ void tags_test(void ** state);
 void tag_empty_test(void ** state);
 void tag_insert_test(void ** state);
 void tag_remove_test(void ** state);
-
+void tag_shuffle_test(void ** state);
+void tag_double_ops_test(void ** state);
 
 // ids
 void id_test(void ** state);

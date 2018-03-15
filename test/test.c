@@ -51,7 +51,9 @@ int main(void) {
         cmocka_unit_test(tags_test),
         cmocka_unit_test(tag_empty_test),
         cmocka_unit_test(tag_insert_test),
-        cmocka_unit_test(tag_remove_test)
+        cmocka_unit_test(tag_remove_test),
+        cmocka_unit_test(tag_shuffle_test),
+        cmocka_unit_test(tag_double_ops_test)
     };
 
     return cmocka_run_group_tests_name("main tests", tests, setup, teardown);

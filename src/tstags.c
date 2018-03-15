@@ -69,6 +69,10 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
         int branch = ts_id_get_bit(id, i);
 
         if(current->type == TS_TAG_NODE_LEAF) {
+
+            // the item already exists in the tree, no need to add it again
+            if(ts_id_eq(&current->value.leaf, id)) return TS_SUCCESS;
+
             ts_tag_node common_parent;
             common_parent.type = TS_TAG_NODE_INNER;
             common_parent.value.inner[0] = 0;
@@ -197,31 +201,38 @@ int ts_tags_remove(ts_tags * self, ts_id * id) {
 
 size_t _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, int idx) {
 
+    // it's possible we're removing an item that's not in the tree. If so, just return
+    if(idx >= TS_ID_BITS) return node_addr;
+
     ts_tag_node * current = self->data + node_addr;
 
-    // if the node is a leaf, delete it and we're done
-    if(current->type == TS_TAG_NODE_LEAF) {
+    // if the node is a leaf and it's actually the leaf we're looking for, delete it and we're done
+    if(current->type == TS_TAG_NODE_LEAF && ts_id_eq(&current->value.leaf, id)) {
         _ts_tags_remove_node(self, node_addr);
         return 0;
-    
     }
+
     // if the node is an inner, recurse left or right, then if both childen are 0, delete it
     if(current->type == TS_TAG_NODE_INNER) {
         int branch = ts_id_get_bit(id, idx);
+        int off_branch = branch == 1 ? 0 : 1;
 
-        size_t to_hoist = _ts_tags_remove_recursive(self, id, current->value.inner[branch], idx + 1);
-        current->value.inner[branch] = to_hoist;
+        size_t branch_addr = _ts_tags_remove_recursive(self, id, current->value.inner[branch], idx + 1);
+        current->value.inner[branch] = branch_addr;
+        size_t off_branch_addr = current->value.inner[off_branch];
 
-        int not_branch = branch == 1 ? 0 : 1;
-        size_t other_branch_addr = current->value.inner[not_branch];
-        if(to_hoist == 0) {
+        if(node_addr == 0) return node_addr;
+
+        if(branch_addr == 0) {
             _ts_tags_remove_node(self, node_addr);
-            return other_branch_addr;
+            return off_branch_addr;
         }
-        // if(other_branch_addr == 0 && to_hoist == 0) {
-        //     _ts_tags_remove_node(self, node_addr);
-        //     return 0;
-        // }
+
+        if(off_branch_addr == 0) {
+            _ts_tags_remove_node(self, node_addr);
+            return branch_addr;
+
+        }
     }
 
     return node_addr;
@@ -338,7 +349,7 @@ sds ts_tags_print(ts_tags * self, sds printed) {
     do {
         printed = sdscatprintf(printed, "%zu, ", next);
         next = (self->data + next)->value.jump;
-    } while(next != 0);
+    } while((self->data + next)->type == TS_TAG_NODE_JUMP);
     printed = sdscatprintf(printed, "\n");
 
     // print the actual tree structure
