@@ -14,6 +14,7 @@ typedef uint8_t ts_id[TS_ID_BYTES];
 
 
 // functions
+int ts_id_empty(ts_id * self);
 int ts_id_generate(ts_id * self, ts_db * db);
 sds ts_id_string(ts_id * self, sds str);
 sds ts_id_bit_string(ts_id * self, sds str);

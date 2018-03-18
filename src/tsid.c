@@ -35,6 +35,14 @@ int ts_id_generate(ts_id * self, ts_db * db) {
     return TS_SUCCESS;
 }
 
+
+int ts_id_empty(ts_id * self) {
+    for(int i = 0; i < TS_ID_BYTES; i++) {
+        (*self)[i] = 0;
+    }
+    return TS_SUCCESS;
+}
+
 sds ts_id_string(ts_id * self, sds str) {
 
     for(int i = 0; i < TS_ID_BYTES; i++) {

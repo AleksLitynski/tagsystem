@@ -13,8 +13,15 @@ void id_from_binary_string(char * source, ts_id * id) {
     for(int i = 0; i < TS_ID_BITS; i++) {
         if(i < len) {
             ts_id_set_bit(id, i, source[i] == '1' ? 1 : 0);
-        } else {
-            ts_id_set_bit(id, i, 0);
+        }
+    }
+}
+
+void id_from_binary_string_tail(char * source, ts_id * id) {
+    int len = strlen(source);
+    for(int i = TS_ID_BITS - 1; i >= 0; i--) {
+        if(i >= len) {
+            ts_id_set_bit(id, i, source[i] == '1' ? 1 : 0);
         }
     }
 }
@@ -53,7 +60,9 @@ int main(void) {
         cmocka_unit_test(tag_insert_test),
         cmocka_unit_test(tag_remove_test),
         cmocka_unit_test(tag_shuffle_test),
-        cmocka_unit_test(tag_double_ops_test)
+        cmocka_unit_test(tag_double_ops_test),
+
+        cmocka_unit_test(search_test)
     };
 
     return cmocka_run_group_tests_name("main tests", tests, setup, teardown);

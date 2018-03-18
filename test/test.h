@@ -16,6 +16,7 @@
 #include "tsdoc.h"
 #include "tserror.h"
 #include "tstags.h"
+#include "tssearch.h"
 
 // macros
 #define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
@@ -25,6 +26,12 @@
     LOG("    %s", str);                     \
     sdsfree(str);                           \
 }
+#define LOGIDBIN(id) {                          \
+    sds str = ts_id_bit_string(id, sdsempty()); \
+    LOG("    %s", str);                         \
+    sdsfree(str);                               \
+}
+
 
 #define LOGTAGS(tags) {                                             \
     sds str = ts_tags_print(tags, sdsempty());                      \
@@ -52,6 +59,7 @@ void set_id(ts_id * id, uint8_t value);
 static int setup(void **state);
 static int teardown(void **state);
 void id_from_binary_string(char * source, ts_id * id);
+void id_from_binary_string_tail(char * source, ts_id * id);
 
 // docs
 void doc_test(void ** state);
@@ -68,3 +76,6 @@ void tag_double_ops_test(void ** state);
 void id_test(void ** state);
 void id_value_test(void ** state);
 void id_to_str_test(void ** state);
+
+// search
+void search_test(void ** state);

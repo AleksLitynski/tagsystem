@@ -7,7 +7,8 @@
         "unistd.h": "c",
         "tstags.h": "c",
         "tests.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "test.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }
