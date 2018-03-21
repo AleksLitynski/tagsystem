@@ -74,20 +74,7 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
             // the item already exists in the tree, no need to add it again
             if(ts_id_eq(&current->value.leaf, id)) return TS_SUCCESS;
             
-            ts_tag_node common_parent;
-            common_parent.type = TS_TAG_NODE_INNER;
-            common_parent.value.inner[0] = 0;
-            common_parent.value.inner[1] = 0;
-            common_parent.value.inner[branch] = current - self->data;
-
-            // insert new parent. Set correct branch of current parent to new parent
-            int res = _ts_tags_insert_node(self, &common_parent, &parent->value.inner[parent_branch]);
-            // if we were unable to allocate new parent, throw that we need more space
-            if(res == TS_TAGS_TREE_FULL) return TS_TAGS_TREE_FULL;
             
-            // set current parent to new parent and set branch to new branch
-            parent = self->data + parent->value.inner[parent_branch];
-            parent_branch = branch;
             // we've hit a leaf.
             // If we diverge from the leaf, add one inner node and attach
             // the new leaf and the existing leaf to each branch.
@@ -98,6 +85,7 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
                 int new_node_value = ts_id_get_bit(id, i);
                 if(current_value == new_node_value) {
                     // insert new parent. New Parent has a branch pointing towards existing child
+                    ts_tag_node common_parent;
                     common_parent.type = TS_TAG_NODE_INNER;
                     common_parent.value.inner[0] = 0;
                     common_parent.value.inner[1] = 0;
@@ -113,6 +101,15 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
                     parent_branch = current_value;
                     // repeat
                 } else {
+
+                    ts_tag_node common_parent;
+                    common_parent.type = TS_TAG_NODE_INNER;
+                    common_parent.value.inner[0] = 0;
+                    common_parent.value.inner[1] = 0;
+                    common_parent.value.inner[current_value] = current - self->data;
+                    int res2 = _ts_tags_insert_node(self, &common_parent, &parent->value.inner[parent_branch]);
+                    if(res2 == TS_TAGS_TREE_FULL) return TS_TAGS_TREE_FULL;
+
                     ts_tag_node new_node;
                     new_node.type = TS_TAG_NODE_LEAF;
                     ts_id_dup(id, &new_node.value.leaf);
@@ -121,8 +118,9 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
                     if(res == TS_TAGS_TREE_FULL) return TS_TAGS_TREE_FULL;
                     
                     // the doc ids diverged. Insert one on the left and one on the right
-                    parent->value.inner[current_value] = current - self->data;
-                    parent->value.inner[new_node_value] = new_node_addr;
+                    // common_parent.value.inner[current_value] = current - self->data;
+                    ts_tag_node * inserted_common_parent = self->data + parent->value.inner[parent_branch];
+                    inserted_common_parent->value.inner[new_node_value] = new_node_addr;
                     return TS_SUCCESS;
                 }
                 i++;
