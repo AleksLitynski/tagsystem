@@ -47,3 +47,4 @@ size_t _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, i
 int _ts_tags_copy(ts_tags * self, ts_tag_node * source, size_t current_addr);
 int _ts_tags_resize(ts_tags * self, int delta);
 sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds printed);
+void ts_tags_log(ts_tags * tags);

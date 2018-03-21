@@ -22,7 +22,13 @@ CFLAGS += -I ../lib/fs.c
 CFLAGS += -I ../lib/lmdb/libraries/liblmdb
 CFLAGS += -I ../lib/sds
 CFLAGS += -I ../src
-CFLAGS += -g -Wfatal-errors
+CFLAGS += -g 
+CFLAGS += -Wfatal-errors
+CFLAGS += -std=c11
+CFLAGS += -D_GNU_SOURCE
+CFLAGS += -Werror
+CFLAGS += -Wno-error=discarded-qualifiers
+CFLAGS += -Wno-discarded-qualifiers
 
 LINKED = ../src/libts.a
 ifeq ($(detected_os),Windows)

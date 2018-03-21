@@ -22,7 +22,7 @@ int _ts_tags_empty_sized(ts_tags * self, int size) {
     return TS_SUCCESS;
 }
 
-size_t _ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert, size_t * node_addr) {
+size_t _ts_tags_insert_node(ts_tags * self, ts_tag_node * to_insert, /* out value */ size_t * node_addr) {
 
     // if there's no space, throw an error
     if(self->occupied >= self->size) return TS_TAGS_TREE_FULL;
@@ -73,7 +73,7 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
 
             // the item already exists in the tree, no need to add it again
             if(ts_id_eq(&current->value.leaf, id)) return TS_SUCCESS;
-
+            
             ts_tag_node common_parent;
             common_parent.type = TS_TAG_NODE_INNER;
             common_parent.value.inner[0] = 0;
@@ -97,7 +97,7 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
                 int current_value = ts_id_get_bit(&current->value.leaf, i);
                 int new_node_value = ts_id_get_bit(id, i);
                 if(current_value == new_node_value) {
-                    // insert new parent. New Parent has a branch pointing towards existing childB
+                    // insert new parent. New Parent has a branch pointing towards existing child
                     common_parent.type = TS_TAG_NODE_INNER;
                     common_parent.value.inner[0] = 0;
                     common_parent.value.inner[1] = 0;
@@ -302,7 +302,7 @@ sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds print
 
     if(current->type == TS_TAG_NODE_LEAF) {
         sds id_str = ts_id_nbit_string(&(current->value.leaf), sdsempty(), 8);
-        printed = sdscatprintf(printed, "%s└── %s\n", padding, id_str);
+        printed = sdscatprintf(printed, "%s+-- %s\n", padding, id_str); // sdscatprintf(printed, "%s└── %s\n", padding, id_str);
         sdsfree(id_str);
     }
 
@@ -312,22 +312,22 @@ sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds print
         sds emptypadding = sdscatprintf(sdsempty(), "%s    ", padding);
         if(current->value.inner[0] != 0) {
             // print first when second exists
-            char * tee = "├";
+            char * tee = "|"; // "├";
             sds currentpadding = extendedpadding;
             // print when second doesn't exist
             if(current->value.inner[1] == 0) {
-                tee = "└";
+                tee = "+"; // "└";
                 currentpadding = emptypadding;
             }
             
-            printed = sdscatprintf(printed, "%s%s── 0\n", padding, tee);
+            printed = sdscatprintf(printed, "%s%s-- 0\n", padding, tee); // sdscatprintf(printed, "%s%s── 0\n", padding, tee);
             printed = _ts_tags_print_node(self, current->value.inner[0], currentpadding, printed);
             
         }
 
         // print second
         if(current->value.inner[1] != 0) {
-            printed = sdscatprintf(printed, "%s└── 1\n", padding);
+            printed = sdscatprintf(printed, "%s+-- 1\n", padding); // sdscatprintf(printed, "%s└── 1\n", padding);
             printed = _ts_tags_print_node(self, current->value.inner[1], emptypadding, printed);
         }
 
@@ -361,4 +361,14 @@ sds ts_tags_print(ts_tags * self, sds printed) {
     sdsfree(padding);
 
     return printed;
+}
+
+void ts_tags_log(ts_tags * tags) {
+    sds str = ts_tags_print(tags, sdsempty());                      
+    int count;                                                      
+    sds * lines = sdssplitlen(str, sdslen(str), "\n", 1, &count);   
+    for(int i = 0; i < count; i++) {                                
+        LOG("%s", lines[i]);                                        
+    }                                                               
+    sdsfreesplitres(lines, count);
 }

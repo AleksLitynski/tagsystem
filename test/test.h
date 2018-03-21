@@ -33,15 +33,7 @@
 }
 
 
-#define LOGTAGS(tags) {                                             \
-    sds str = ts_tags_print(tags, sdsempty());                      \
-    int count;                                                      \
-    sds * lines = sdssplitlen(str, sdslen(str), "\n", 1, &count);   \
-    for(int i = 0; i < count; i++) {                                \
-        LOG("%s", lines[i]);                                        \
-    }                                                               \
-    sdsfreesplitres(lines, count);                                  \
-}
+#define LOGTAGS(tags) ts_tags_log(tags)
 
 #define ID(binary) \
     ts_id id_ ## binary = {0}; \
