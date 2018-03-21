@@ -6,7 +6,7 @@
 #include "tsdb.h"
 
 // macros
-#define TS_ID_BYTES 20
+#define TS_ID_BYTES 1
 #define TS_ID_BITS TS_ID_BYTES * 8
 
 // types

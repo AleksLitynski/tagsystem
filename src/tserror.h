@@ -18,6 +18,11 @@
 // mostly chosing this format to match the unit tests :)
 #define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
 #define LOG1(fmt) LOG(fmt, "")
+#define LOGIDBIN(id) {                          \
+    sds str = ts_id_bit_string(id, sdsempty()); \
+    LOG("    %s", str);                         \
+    sdsfree(str);                               \
+}
 
 // types
 typedef enum {

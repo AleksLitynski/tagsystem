@@ -69,6 +69,12 @@ bool _ts_search_test(ts_search * self, int branch) {
 
 int ts_search_step(ts_search * self, ts_id * id) {
 
+    printf("[ INFO     ] ");
+    for(int i = 0; i < TS_ID_BITS; i++) {
+        printf("%i", self->current_id[i]);
+    }
+    printf("\n");
+
     int branch = self->current_id[self->index];
     // LOG("%i.%i", self->index, branch);
 
@@ -90,6 +96,8 @@ int ts_search_step(ts_search * self, ts_id * id) {
     if(all_can_continue && TS_ID_BITS - 1 == self->index) {
         ts_id_dup(&(self->walks[0].history->current->value.leaf), id);
         self->current_id[self->index]++;
+        LOG1("Found id: ");
+        LOGIDBIN(id);
         return TS_SEARCH_FOUND;
     }
 

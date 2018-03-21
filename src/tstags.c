@@ -68,6 +68,7 @@ int _ts_tags_insert_no_resize(ts_tags * self, ts_id * id) {
         // does the tag branch left or right?
         int branch = ts_id_get_bit(id, i);
 
+        // TODO: randomly (~1/10 times) current will be pointing to the wrong data even though self->data is defined 
         if(current->type == TS_TAG_NODE_LEAF) {
 
             // the item already exists in the tree, no need to add it again

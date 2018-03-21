@@ -81,3 +81,22 @@ bool ts_walk_test(ts_walk * self, int branch) {
     // the leaf or inner node pointed to a valid next item
     return true;
 }
+
+
+
+/*
+[ INFO     ] .
+[ INFO     ] └── 1
+[ INFO     ]     └── 0
+[ INFO     ]         └── 0
+[ INFO     ]             └── 0
+[ INFO     ]                 └── 0
+[ INFO     ]                     ├── 0
+[ INFO     ]                     |   └── 10001011
+[ INFO     ]                     └── 1
+[ INFO     ]                         └── 10001110
+
+
+insert appears to be broken. There's one too many inner nodes :(
+
+*/

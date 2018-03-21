@@ -48,7 +48,6 @@ void ts_tag_create(ts_env * env, char * tag) {
     // printf("ts_tag_create done\n");
 }
 
-void _ts_tag_move(ts_env * env, MDB_txn * txn, char * tag, ts_node * node );
 void ts_tag_insert(ts_env * env, char * tag, ts_doc_id * doc) {
 
     printf("Inserting tag: %s\n------------------\n", tag);
@@ -277,7 +276,6 @@ void ts_tag_remove(ts_env * env, char * tag, ts_doc_id * doc) {
                     ts_node_from_MDB_val(dbOut, TS_ID_BITS, dislocated_child);
                     _ts_tag_move(env, txn, tag, dislocated_child);
 
-//void _ts_tag_move(MDB_txn * txn, MDB_val * new_data, ts_env * env, ts_tag * tag, ts_node * node);
                     jumpNum++;
                 }
             }
