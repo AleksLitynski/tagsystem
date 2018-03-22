@@ -40,6 +40,7 @@ static int teardown(void **state) {
     test_state * st = (test_state*)*state;
     // ts_db_close(st->db);
     ts_db_DESTROY(st->db);
+    free(st->db);
     free(*state);
 
     return 0;
@@ -49,9 +50,9 @@ static int teardown(void **state) {
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        // cmocka_unit_test(id_test),
-        // cmocka_unit_test(id_value_test),
-        // cmocka_unit_test(id_to_str_test),
+        cmocka_unit_test(id_test),
+        cmocka_unit_test(id_value_test),
+        cmocka_unit_test(id_to_str_test),
 
         // cmocka_unit_test(doc_test),
         
@@ -63,7 +64,8 @@ int main(void) {
         // cmocka_unit_test(tag_double_ops_test),
 
         // cmocka_unit_test(search_test),
-        cmocka_unit_test(search_intersection_test)
+        // cmocka_unit_test(search_remove_test),
+        // cmocka_unit_test(search_intersection_test)
     };
 
     return cmocka_run_group_tests_name("main tests", tests, setup, teardown);

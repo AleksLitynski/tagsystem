@@ -211,6 +211,23 @@ size_t _ts_tags_remove_recursive(ts_tags * self, ts_id * id, size_t node_addr, i
         return 0;
     }
 
+    // if we hit the end and we're still on an inner node, the inner node will point to the leaf to remove
+    if(current->type == TS_TAG_NODE_INNER && idx == TS_ID_BITS - 1) {
+        int branch = ts_id_get_bit(id, TS_ID_BITS - 1);
+        size_t leaf_addr = current->value.inner[branch];
+        if(leaf_addr != 0) {
+            _ts_tags_remove_node(self, leaf_addr);
+            current->value.inner[branch] = 0;
+        }
+
+        if(current->value.inner[0] == 0 && current->value.inner[1] == 0) {
+            _ts_tags_remove_node(self, node_addr);
+            return 0;
+        }
+
+        return node_addr;
+    }
+
     // if the node is an inner, recurse left or right, then if both childen are 0, delete it
     if(current->type == TS_TAG_NODE_INNER) {
         int branch = ts_id_get_bit(id, idx);

@@ -3,7 +3,7 @@
 void id_test(void ** state) {
     test_state * st = (test_state*)*state;
 
-    int items = 3;
+    int items = 20;
     ts_id ids[items];
     
     for(int i = 0; i < items; i++) {
@@ -13,15 +13,16 @@ void id_test(void ** state) {
     int duplicates = 0;
     for(int i = 0; i < items; i++) {
         for(int j = 0; j < items; j++) {
-            if(ts_id_eq(&ids[i], &ids[j])) {
+            if(ts_id_eq(&ids[i], &ids[j]) && i != j) {
                 duplicates++;
+                LOG1("DUPLICATE:");
             }
         }
 
         LOGID(&ids[i]);
     }
 
-    assert_true(duplicates == items);
+    assert_int_equal(duplicates, 0);
 }
 
 void id_value_test(void ** state) {

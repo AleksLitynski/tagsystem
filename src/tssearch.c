@@ -69,12 +69,6 @@ bool _ts_search_test(ts_search * self, int branch) {
 
 int ts_search_step(ts_search * self, ts_id * id) {
 
-    printf("[ INFO     ] ");
-    for(int i = 0; i < TS_ID_BITS; i++) {
-        printf("%i", self->current_id[i]);
-    }
-    printf("\n");
-
     int branch = self->current_id[self->index];
     // LOG("%i.%i", self->index, branch);
 
@@ -94,10 +88,15 @@ int ts_search_step(ts_search * self, ts_id * id) {
     
     // if we reach the tip of a leaf, return the leaf and try the next branch
     if(all_can_continue && TS_ID_BITS - 1 == self->index) {
-        ts_id_dup(&(self->walks[0].history->current->value.leaf), id);
+        // if the tags only diverge on the very last bit, we will be on an inner node,
+        // not a leaf node. Jump to the leaf corosponding to the final branch before copying out the ID
+        ts_tag_node * found_id = self->walks[0].history->current;
+        if(found_id->type == TS_TAG_NODE_INNER) {
+            found_id = self->walks[0].source->data + found_id->value.inner[branch];
+        }
+        
+        ts_id_dup(&(found_id->value.leaf), id);
         self->current_id[self->index]++;
-        LOG1("Found id: ");
-        LOGIDBIN(id);
         return TS_SEARCH_FOUND;
     }
 
@@ -119,7 +118,9 @@ int ts_search_next(ts_search * self, ts_id * id) {
     while(true) {
         int next = ts_search_step(self, id);
         if(next == TS_SEARCH_NONE) continue;
-        if(next == TS_SEARCH_FOUND) return TS_SEARCH_FOUND;
+        if(next == TS_SEARCH_FOUND) {
+            return TS_SEARCH_FOUND;
+        }
         if(next == TS_SEARCH_DONE) return TS_SEARCH_DONE;
     }
     return TS_SEARCH_DONE;

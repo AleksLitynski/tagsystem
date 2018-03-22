@@ -141,7 +141,7 @@ void tag_shuffle_test(void ** state) {
         ts_tags_insert(&tags, &id);
     }
 
-    LOGTAGS(&tags);
+    // LOGTAGS(&tags);
     ts_tags_close(&tags);
 }
 

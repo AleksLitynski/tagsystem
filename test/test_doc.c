@@ -1,5 +1,27 @@
 #include "test.h"
 
+char * read_file(char * filename) {
+    char * buffer = 0;
+    long length;
+    FILE * f = fopen (filename, "rb");
+
+    if (f)
+    {
+        fseek (f, 0, SEEK_END);
+        length = ftell (f);
+        fseek (f, 0, SEEK_SET);
+        buffer = malloc (length+1);
+        if (buffer)
+        {
+            fread (buffer, 1, length, f);
+        }
+        fclose (f);
+    }
+    buffer[length] = '\0';
+
+    return buffer;
+}
+
 void doc_test(void ** state) {
     test_state * st = (test_state*)*state;
 
@@ -17,7 +39,7 @@ void doc_test(void ** state) {
 
     // reopen the document and read the text
     ts_doc_open(&doc2, st->db, doc_id);
-    read = fs_read(doc2.path);
+    read = read_file(doc2.path);
     ts_doc_delete(&doc2);
 
     // confirm the index was deleted

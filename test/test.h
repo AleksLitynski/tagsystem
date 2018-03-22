@@ -76,4 +76,5 @@ void id_to_str_test(void ** state);
 
 // search
 void search_test(void ** state);
+void search_remove_test(void ** state);
 void search_intersection_test(void ** state);
