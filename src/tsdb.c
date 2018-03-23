@@ -4,6 +4,8 @@
 #include "sds.h"
 #include "fs.h"
 
+
+#include <ftw.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
@@ -45,20 +47,22 @@ int ts_db_close(ts_db * self) {
     return TS_SUCCESS;
 }
 
+int _ts_db_delete_fs_item(const char * fpath, const struct stat * sb, int tflag, struct FTW * ftwbuf) {
+
+    if(S_ISDIR(sb->st_mode)) {
+        fs_rmdir(fpath);
+    }
+
+    if(!S_ISDIR(sb->st_mode)) {
+        unlink(fpath);
+    }
+
+    return 0;
+}
+
 int ts_db_DESTROY(ts_db * self) {
-    sds data = sdsdup(self->index_path);
-    data = sdscat(data, "/data.mdb");
-    sds lock = sdsdup(self->index_path);
-    lock = sdscat(lock, "/lock.mdb");
 
-    unlink(data);
-    unlink(lock);
-    fs_rmdir(self->index_path);
-    fs_rmdir(self->docs);
-    fs_rmdir(self->dir);
-
-    sdsfree(data);
-    sdsfree(lock);
+    nftw(self->dir, _ts_db_delete_fs_item, 200, FTW_DEPTH);
 
     ts_db_close(self);
     return TS_SUCCESS;
