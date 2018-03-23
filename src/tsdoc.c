@@ -67,3 +67,11 @@ int ts_doc_close(ts_doc * self) {
   sdsfree(self->path);
   sdsfree(self->id_str);
 }
+
+int ts_doc_tag(ts_doc * self, sds tag) {
+  return TS_SUCCESS;
+}
+
+int ts_doc_untag(ts_doc * self, sds tag) {
+  return TS_SUCCESS;
+}

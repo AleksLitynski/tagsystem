@@ -60,6 +60,7 @@ void id_from_binary_string_tail(char * source, ts_id * id);
 
 // docs
 void doc_test(void ** state);
+void doc_unique_test(void ** state);
 
 // tags
 void tags_test(void ** state);
@@ -70,7 +71,6 @@ void tag_shuffle_test(void ** state);
 void tag_double_ops_test(void ** state);
 
 // ids
-void id_test(void ** state);
 void id_value_test(void ** state);
 void id_to_str_test(void ** state);
 

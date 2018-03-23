@@ -55,3 +55,27 @@ void doc_test(void ** state) {
     free(read);
 }
 
+
+void doc_unique_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    int items = 25;
+    ts_doc docs[items];
+    
+    for(int i = 0; i < items; i++) {
+      ts_doc_create(&docs[i], st->db);
+    }
+    
+    int duplicates = 0;
+    for(int i = 0; i < items; i++) {
+        for(int j = 0; j < items; j++) {
+            if(ts_id_eq(&docs[i].id, &docs[j].id) && i != j) {
+                duplicates++;
+                LOG1("DUPLICATE:");
+                LOGID(&docs[i].id);
+            }
+        }
+    }
+
+    assert_int_equal(duplicates, 0);
+}
