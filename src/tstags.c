@@ -1,4 +1,5 @@
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -6,6 +7,7 @@
 #include "tserror.h"
 #include "tsid.h"
 #include "tstags.h"
+#include "lmdb.h"
 
 int ts_tags_empty(ts_tags * self) {
     _ts_tags_empty_sized(self, 2);
@@ -386,4 +388,86 @@ void ts_tags_log(ts_tags * tags) {
         LOG("%s", lines[i]);                                        
     }                                                               
     sdsfreesplitres(lines, count);
+}
+
+int ts_tags_from_mdb(ts_tags * self, MDB_val * val) {
+    memcpy(self, val->mv_data, sizeof(ts_tags));
+    memcpy(self->data, val->mv_data + sizeof(ts_tags), self->size);
+    return TS_SUCCESS;
+}
+
+int ts_tags_from_mdb_readonly(ts_tags_readonly * self, MDB_val * val) {
+
+    self->tags = malloc(sizeof(ts_tags));
+    self->val = val;
+
+    memcpy(self->tags, val->mv_data, sizeof(ts_tags));
+    self->tags->data = val->mv_data + sizeof(ts_tags);
+    return TS_SUCCESS;
+}
+
+int ts_tags_to_mdb(ts_tags * self, MDB_val * val) {
+    val->mv_size = sizeof(ts_tags) + sizeof(ts_tag_node) * self->size;
+    val->mv_data = malloc(val->mv_size);
+
+    memcpy(val->mv_data, self, sizeof(ts_tags));
+    memcpy(val->mv_data + sizeof(ts_tags), self->data, sizeof(ts_tag_node) * self->size);
+
+    return TS_SUCCESS;
+}
+
+int ts_tags_open(ts_tags * self, ts_db * db, sds tag) {
+
+    MDB_txn * txn;
+    MDB_val current;
+    ts_tags tags;
+
+    // load the tag or create it if it doesn't exist
+    int found_tag = ts_db_get(db, "iindex", tag, &current, txn);
+    if(found_tag == TS_KEY_NOT_FOUND) {
+        mdb_txn_commit(txn);
+        return TS_FAILURE;
+    }
+
+    ts_tags_from_mdb(self, &current);
+    mdb_txn_commit(txn);
+    free(current.mv_data);
+
+    return TS_SUCCESS;
+}
+
+int ts_tags_open_readonly(ts_tags_readonly * self, ts_db * db, sds tag, MDB_txn * txn) {
+
+    MDB_val current;
+    ts_tags tags;
+
+    // load the tag or create it if it doesn't exist
+    int found_tag = ts_db_get(db, "iindex", tag, &current, txn);
+    if(found_tag == TS_KEY_NOT_FOUND) {
+        return TS_FAILURE;
+    }
+
+    ts_tags_from_mdb_readonly(self, &current);
+    free(current.mv_data);
+
+    return TS_SUCCESS;
+}
+
+int ts_tags_close_readonly(ts_tags_readonly * self) {
+
+    free(self->tags);
+    free(self->val);
+
+    return TS_SUCCESS;
+}
+
+
+int ts_tags_write(ts_tags * self, ts_db * db, sds tag) {
+
+    MDB_val updated;
+    ts_tags_to_mdb(self, &updated);
+    ts_db_put(db, "iindex", tag, &updated);
+    free(updated.mv_data);
+
+    return TS_SUCCESS;
 }

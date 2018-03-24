@@ -155,3 +155,73 @@ void tag_double_ops_test(void ** state) {
 
     ts_tags_close(&tags);
 }
+
+void tag_mdb_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    // create a document
+    ts_doc doc;
+    ts_doc_create(&doc, st->db);
+
+    // create a tag
+    ts_tags tags;
+    ts_tags_empty(&tags);
+    ts_tags_insert(&tags, &doc.id);
+
+    // write the tag
+    ts_tags_write(&tags, st->db, "tag_name");
+
+    // read the tag
+    ts_tags tags_read;
+    ts_tags_open(&tags_read, st->db, "tag_name");    
+
+    // confirm the content
+    ts_search search;
+    ts_search_create(&search, &tags_read, 1);
+
+    ts_id id;
+    while(ts_search_next(&search, &id) != TS_SEARCH_DONE);
+
+    assert_true(ts_id_eq(&doc.id, &id));
+
+    ts_doc_close(&doc);
+    ts_tags_close(&tags);
+    ts_tags_close(&tags_read);
+    ts_search_close(&search);
+
+}
+
+void tag_mdb_readonly_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    // create a document
+    ts_doc doc;
+    ts_doc_create(&doc, st->db);
+
+    // create a tag
+    ts_tags tags;
+    ts_tags_empty(&tags);
+
+    // write the tag
+    ts_tags_write(&tags, st->db, "tag_name");
+
+    // read the tag
+    ts_tags_readonly tags_read;
+    MDB_txn * txn;
+    ts_tags_open_readonly(&tags_read, st->db, "tag_name", txn);    
+
+    // confirm the content
+    ts_search search;
+    ts_search_create(&search, tags_read.tags, 1);
+
+    ts_id id;
+    while(ts_search_next(&search, &id) != TS_SEARCH_DONE);
+
+    assert_true(ts_id_eq(&doc.id, &id));
+
+    mdb_txn_commit(txn);
+    ts_doc_close(&doc);
+    ts_tags_close(&tags);
+    ts_tags_close_readonly(&tags_read);
+    ts_search_close(&search);
+}

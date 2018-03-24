@@ -69,6 +69,8 @@ void tag_insert_test(void ** state);
 void tag_remove_test(void ** state);
 void tag_shuffle_test(void ** state);
 void tag_double_ops_test(void ** state);
+void tag_mdb_test(void ** state);
+void tag_mdb_readonly_test(void ** state);
 
 // ids
 void id_value_test(void ** state);

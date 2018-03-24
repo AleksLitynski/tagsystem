@@ -31,6 +31,11 @@ typedef struct {
     ts_tag_node * data;
 } ts_tags;
 
+typedef struct {
+    ts_tags * tags;
+    MDB_val * val;
+} ts_tags_readonly;
+
 
 // functions
 int ts_tags_empty(ts_tags * self);
@@ -48,3 +53,12 @@ int _ts_tags_copy(ts_tags * self, ts_tag_node * source, size_t current_addr);
 int _ts_tags_resize(ts_tags * self, int delta);
 sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds printed);
 void ts_tags_log(ts_tags * tags);
+
+int ts_tags_from_mdb(ts_tags * self, MDB_val * val);
+int ts_tags_open_readonly(ts_tags_readonly * self, ts_db * db, sds tag, MDB_txn * txn);
+int ts_tags_to_mdb(ts_tags * self, MDB_val * val);
+
+int ts_tags_open(ts_tags * self, ts_db * db, sds tag);
+int ts_tags_open_readonly(ts_tags_readonly * self, ts_db * db, sds tag, MDB_txn * txn);
+int ts_tags_write(ts_tags * self, ts_db * db, sds tag);
+int ts_tags_close_readonly(ts_tags_readonly * self);

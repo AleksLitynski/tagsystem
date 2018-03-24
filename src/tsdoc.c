@@ -5,6 +5,7 @@
 #include "tsid.h"
 #include "tsdb.h"
 #include "tserror.h"
+#include "tstags.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -69,9 +70,41 @@ int ts_doc_close(ts_doc * self) {
 }
 
 int ts_doc_tag(ts_doc * self, sds tag) {
+
+  // load the tag or create it if it doesn't exist
+  ts_tags tags;
+  int found_tag = ts_tags_open(&tags, self->env, tag);
+
+  if(found_tag == TS_FAILURE) {
+    ts_tags_empty(&tags);
+  }
+
+  // insert the new item
+  ts_tags_insert(&tags, &(self->id));
+
+  // save the tag
+  ts_tags_write(&tags, self->env, tag);
+
+  ts_tags_close(&tags);
   return TS_SUCCESS;
 }
 
 int ts_doc_untag(ts_doc * self, sds tag) {
+
+  ts_tags tags;
+
+  // load the tag or exit it if it doesn't exist
+  int found_tag = ts_tags_open(&tags, self->env, tag);
+  if(found_tag == TS_FAILURE) {
+    return TS_SUCCESS;
+  }
+
+  // remove the new item
+  ts_tags_remove(&tags, &(self->id));
+
+  // save the tag
+  ts_tags_write(&tags, self->env, tag);
+
+  ts_tags_close(&tags);
   return TS_SUCCESS;
 }
