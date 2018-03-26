@@ -6,6 +6,7 @@
 
 
 #include <ftw.h>
+#include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
@@ -74,7 +75,7 @@ int ts_db_test(ts_db * self, sds db_name, sds key_name) {
     MDB_dbi dbi;
     MDB_val key, val;
 
-    key.mv_size = sdslen(key_name);
+    key.mv_size = strlen(key_name);
     key.mv_data = key_name;
 
     // iterate index
@@ -95,7 +96,7 @@ int ts_db_del(ts_db * self, sds db_name, sds key_name) {
     MDB_dbi dbi;
     MDB_val key, val;
 
-    key.mv_size = sdslen(key_name);
+    key.mv_size = strlen(key_name);
     key.mv_data = key_name;
 
     // iterate index
@@ -109,17 +110,17 @@ int ts_db_del(ts_db * self, sds db_name, sds key_name) {
     return TS_SUCCESS;
 }
 
-int ts_db_get(ts_db * self, sds db_name, sds key_name, MDB_val * val, MDB_txn * txn) {
+int ts_db_get(ts_db * self, sds db_name, sds key_name, MDB_val * val, MDB_txn ** txn) {
     MDB_dbi dbi;
     MDB_val key;
 
-    key.mv_size = sdslen(key_name);
+    key.mv_size = strlen(key_name);
     key.mv_data = key_name;
 
-    mdb_txn_begin(self->index, NULL, 0, &txn);
-    mdb_dbi_open(txn, db_name, MDB_CREATE, &dbi);
+    mdb_txn_begin(self->index, NULL, 0, txn);
+    mdb_dbi_open(*txn, db_name, MDB_CREATE, &dbi);
 
-    int res = mdb_get(txn, dbi, &key, val);
+    int res = mdb_get(*txn, dbi, &key, val);
 
     return res == MDB_NOTFOUND ? TS_KEY_NOT_FOUND : TS_SUCCESS;
 }
@@ -129,7 +130,7 @@ int ts_db_put(ts_db * self, sds db_name, sds key_name, MDB_val * val) {
     MDB_dbi dbi;
     MDB_val key;
 
-    key.mv_size = sdslen(key_name);
+    key.mv_size = strlen(key_name);
     key.mv_data = key_name;
 
     // iterate index

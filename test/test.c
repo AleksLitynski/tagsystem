@@ -62,8 +62,8 @@ int main(void) {
         // cmocka_unit_test(tag_remove_test),
         // cmocka_unit_test(tag_shuffle_test),
         // cmocka_unit_test(tag_double_ops_test),
-        cmocka_unit_test(tag_mdb_test),
-        // cmocka_unit_test(tag_mdb_readonly_test),
+        // cmocka_unit_test(tag_mdb_test),
+        cmocka_unit_test(tag_mdb_readonly_test),
 
         // cmocka_unit_test(search_test),
         // cmocka_unit_test(search_remove_test),

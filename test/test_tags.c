@@ -198,9 +198,11 @@ void tag_mdb_readonly_test(void ** state) {
     ts_doc doc;
     ts_doc_create(&doc, st->db);
 
+
     // create a tag
     ts_tags tags;
     ts_tags_empty(&tags);
+    ts_tags_insert(&tags, &doc.id);
 
     // write the tag
     ts_tags_write(&tags, st->db, "tag_name");
@@ -208,7 +210,7 @@ void tag_mdb_readonly_test(void ** state) {
     // read the tag
     ts_tags_readonly tags_read;
     MDB_txn * txn;
-    ts_tags_open_readonly(&tags_read, st->db, "tag_name", txn);    
+    ts_tags_open_readonly(&tags_read, st->db, "tag_name", &txn);    
 
     // confirm the content
     ts_search search;
