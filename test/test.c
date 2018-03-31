@@ -50,27 +50,27 @@ static int teardown(void **state) {
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        // cmocka_unit_test(id_value_test),
-        // cmocka_unit_test(id_to_str_test),
+        cmocka_unit_test(id_value_test),
+        cmocka_unit_test(id_to_str_test),
 
-        // cmocka_unit_test(doc_test),
-        // cmocka_unit_test(doc_unique_test),
+        cmocka_unit_test(doc_test),
+        cmocka_unit_test(doc_unique_test),
         
-        // cmocka_unit_test(tags_test),
-        // cmocka_unit_test(tag_empty_test),
-        // cmocka_unit_test(tag_insert_test),
-        // cmocka_unit_test(tag_remove_test),
-        // cmocka_unit_test(tag_shuffle_test),
-        // cmocka_unit_test(tag_double_ops_test),
-        // cmocka_unit_test(tag_mdb_test),
-        // Bcmocka_unit_test(tag_mdb_readonly_test),
+        cmocka_unit_test(tags_test),
+        cmocka_unit_test(tag_empty_test),
+        cmocka_unit_test(tag_insert_test),
+        cmocka_unit_test(tag_remove_test),
+        cmocka_unit_test(tag_shuffle_test),
+        cmocka_unit_test(tag_double_ops_test),
+        cmocka_unit_test(tag_mdb_test),
+        cmocka_unit_test(tag_mdb_readonly_test),
 
-        // cmocka_unit_test(search_test),
-        // cmocka_unit_test(search_remove_test),
-        // cmocka_unit_test(search_intersection_test),
+        cmocka_unit_test(search_test),
+        cmocka_unit_test(search_remove_test),
+        cmocka_unit_test(search_intersection_test),
 
-        // cmocka_unit_test(parse_tags_test),
-        // cmocka_unit_test(string_processing_test),
+        cmocka_unit_test(parse_tags_test),
+        cmocka_unit_test(string_processing_test),
         cmocka_unit_test(arg_parsing_test)
     };
 

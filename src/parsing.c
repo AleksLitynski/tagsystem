@@ -147,84 +147,94 @@ bool matches(char * arg_name, char * arg_input_value) {
 int args_create(arg_list * self, int size) {
     self->size = size;
     self->next = 0;
-    self->pending_string = false;
+    self->pending_value = false;
     self->args = malloc(sizeof(arg) * size);
     return TS_SUCCESS;
 }
 
-void * _args_add(arg_list * self, char * name, arg_type type) {
+void ** _args_add(arg_list * self, char * name, arg_type type) {
 
-    self->args[self->next]->type = type;
-    self->args[self->next]->name = name;
-    void * out = self->args[self->next]->value;
+    self->args[self->next].type = type;
+    self->args[self->next].name = name;
+    void ** out = &self->args[self->next].value;
 
     self->next++;
     return out;
 }
 
-bool * args_add_bool(arg_list * self, char * name) {
-    return (bool*)_args_add(self, name, ARG_TYPE_BOOL);
-}
-
-char * args_add_str(arg_list * self, char * name) {
-    return (char*)_args_add(self, name, ARG_TYPE_STR);
-}
-
 const bool _arg_true_const = true;
+const bool _arg_false_const = false;
+bool ** args_add_bool(arg_list * self, char * name) {
+    bool ** out = (bool**)_args_add(self, name, ARG_TYPE_BOOL);
+    *out = &_arg_false_const;
+    return out;
+}
+
+char ** args_add_str(arg_list * self, char * name) {
+    return (char**)_args_add(self, name, ARG_TYPE_STR);
+}
+
 bool _arg_set_param(arg_list * self, char * arg_input_value) {
     bool success = false;
-    sds next = sdsnew(arg_input_value);
-    sdstrim(next, "-");
 
     for(int j = 0; j < self->size; j++) {
-        if(matches(next, self->args[j]->name)) {
-            if(self->args[j]->type == ARG_TYPE_BOOL) {
-                self->args[j]->value = (void*)(&_arg_true_const);
-                self->pending_string = false;
+        if(matches(self->args[j].name, arg_input_value)) {
+            if(self->args[j].type == ARG_TYPE_BOOL) {
+                self->args[j].value = (void*)(&_arg_true_const);
+                self->pending_value = false;
                 success = true;
-            } else if(self->args[j]->type == ARG_TYPE_STR) {
-                self->pending_string = true;
+                break;
+            } else if(self->args[j].type == ARG_TYPE_STR) {
+                self->pending_value_addr = &self->args[j].value;
+                self->pending_value = true;
                 success = true;
+                break;
             }
         }
     }
 
-    sdsfree(next);
     return success;
 }
 
 int args_parse(arg_list * self, int argc, char * argv[]) {
 
-    char * pending_string_param;
-    self->pending_string = false;
+    self->pending_value = false;
 
     int i = 0;
     for(; i < argc; i++) {
         
-
-        // if it starts with '--'
         if(begins_with(argv[i], "--")) {
-            if(_arg_set_param(self, argv[i])) break;
+            sds next = sdsnew(argv[i]);
+            sdstrim(next, "-");
+            bool success = _arg_set_param(self, next);
+            sdsfree(next);
+
+            if(!success) {
+                // error parsing argument
+                break;
+            }
         }
 
-        // if it starts with '-'
         else if(begins_with(argv[i], "-")) {
-            // split apart grouped flags into single '-' items
 
-            int argv_len = strlen(argv[i]) - 1;
+            // arguments can be packed, so each char is a seperate arg
+            int argv_len = strlen(argv[i]);
             for(int j = 1; j < argv_len; j++) {
                 char next_char[2];
                 next_char[0] = argv[i][j];
                 next_char[1] = 0;
 
-                if(_arg_set_param(self, next_char)) break;
+                if(!_arg_set_param(self, next_char)) {
+                    // parsing error
+                    break;
+                }
             }
         }
 
         // if we're waiting for a string argument
-        else if(self->pending_string) {
-            char * pending_string_param = argv[i];
-            bool is_pending_string_param = false;
+        else if(self->pending_value) {
+            *self->pending_value_addr = argv[i];
+            self->pending_value = false;
 
         } 
         

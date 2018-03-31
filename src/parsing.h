@@ -24,8 +24,9 @@ typedef struct {
 typedef struct {
     int size;
     int next;
-    bool pending_string;
-    arg ** args;
+    bool pending_value;
+    void ** pending_value_addr;
+    arg * args;
 } arg_list;
 
 const bool _arg_true_const;
@@ -47,9 +48,9 @@ bool begins_with(char * src, char * prefix);
 bool matches(char * arg_name, char * arg_input_value);
 
 int args_create(arg_list * self, int size);
-bool * args_add_bool(arg_list * self, char * name);
-char * args_add_str(arg_list * self, char * name);
+bool ** args_add_bool(arg_list * self, char * name);
+char ** args_add_str(arg_list * self, char * name);
 int args_parse(arg_list * self, int argc, char * argv[]);
 int args_close(arg_list * self);
-void * _args_add(arg_list * self, char * name, arg_type type);
+void ** _args_add(arg_list * self, char * name, arg_type type);
 bool _arg_set_param(arg_list * self, char * arg_input_value);

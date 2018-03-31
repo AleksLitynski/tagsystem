@@ -6,9 +6,12 @@ void parse_tags_test(void ** state) {
     hash_t * tags = hash_new();
     tag_set(tags, "+a   b+basd~basd~~      r  a+nope");
 
-    hash_each(tags, {
-        LOG("%s", key);
-    })
+    // hash_each(tags, {
+    //     LOG("%s", key);
+    // })
+
+    assert_string_equal("r  a", (char *) hash_get(tags, "r  a"));
+    assert_string_equal("nope", (char *) hash_get(tags, "nope"));
 
     tag_set_free(tags);
 
@@ -40,21 +43,34 @@ void string_processing_test(void ** state) {
 void arg_parsing_test(void ** state) {
 
     arg_list args;
-    args_create(&args, 4);
+    args_create(&args, 5);
 
-    bool * a = args_add_bool(&args, "aaaa");
-    bool * b = args_add_bool(&args, "bbbb");
-    char * c = args_add_str(&args, "cccc");
-    char * d = args_add_str(&args, "dddd");
+    bool ** a = args_add_bool(&args, "aaaa");
+    bool ** b = args_add_bool(&args, "bbbb");
+    bool ** e = args_add_bool(&args, "ee");
+    char ** c = args_add_str(&args, "cccc");
+    char ** d = args_add_str(&args, "dddd");
+    bool ** force = args_add_bool(&args, "force");
 
+    char * chars[] = {
+        "--aaaa",
+        "-c",
+        "c_value",
+        "-eb",
+        "--ddd",
+        "d_value",
+        "__rest__",
+        "__rest__2"
+    };
+    int unused = args_parse(&args, sizeof(chars) / sizeof(char *), chars);
 
-    char * chars[4];
-    chars[0] = "a";
-    chars[1] = "b";
-    chars[2] = "c";
-    chars[3] = "d";
+    assert_true(**a);
+    assert_true(**b);
+    assert_true(**c);
+    assert_false(**force);
 
-    int last_taken = args_parse(&args, 4, chars);
+    assert_string_equal(*c, "c_value");
+    assert_string_equal(*d, "d_value");
 
 
     int args_close(arg_list * self);

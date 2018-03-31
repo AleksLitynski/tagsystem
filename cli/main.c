@@ -32,8 +32,8 @@ int list_cmd(int argc, char * argv[]) {
 
     arg_list args;
     args_create(&args, 2);
-    bool * show_id = args_add_bool(&args, "id");
-    bool * preview_path = args_add_bool(&args, "preview");
+    bool ** show_id = args_add_bool(&args, "id");
+    bool ** preview_path = args_add_bool(&args, "preview");
     args_parse(&args, argc, argv);
 
     // use show_id and preview_path
