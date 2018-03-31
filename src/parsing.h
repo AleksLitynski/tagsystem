@@ -37,6 +37,7 @@ const bool _arg_true_const;
 sds _push_tag(hash_t * tags, sds next_tag, char mode);
 int tag_set(hash_t * tags, sds tag_str);
 int tag_set_free(hash_t * tags);
+sds concat_string(sds str, int argc, char * argv[]);
 
 // string operations
 int to_lower(char * self);

@@ -83,6 +83,15 @@ int tag_set(hash_t * tags, sds tag_str) {
     return TS_SUCCESS;
 }
 
+sds concat_string(sds str, int argc, char * argv[]) {
+
+    for(int i = 0; i < argc; i++) {
+        str = sdscat(str, argv[i]);
+    }
+
+    return str;
+}
+
 int tag_set_free(hash_t * tags) {
     hash_each(tags, {
         free(val);

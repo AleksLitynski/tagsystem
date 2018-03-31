@@ -18,7 +18,8 @@
         "hash.h": "c",
         "type_traits": "c",
         "typeinfo": "c",
-        "sds.h": "c"
+        "sds.h": "c",
+        "errno.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

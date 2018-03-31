@@ -33,8 +33,6 @@ int ts_db_open(ts_db * self, char * path) {
     mdb_env_set_maxdbs(self->index, 100); // index, inverted index, metadata.
 
     int res = mdb_env_open(self->index, self->index_path, 0, 0664);
-    LOG("mdb_env_open: %s", mdb_strerror(res));
-
 
     return res == 0 ? TS_SUCCESS : TS_FAILURE;
 }
