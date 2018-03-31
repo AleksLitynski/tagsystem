@@ -63,11 +63,15 @@ int main(void) {
         // cmocka_unit_test(tag_shuffle_test),
         // cmocka_unit_test(tag_double_ops_test),
         // cmocka_unit_test(tag_mdb_test),
-        cmocka_unit_test(tag_mdb_readonly_test),
+        // Bcmocka_unit_test(tag_mdb_readonly_test),
 
         // cmocka_unit_test(search_test),
         // cmocka_unit_test(search_remove_test),
-        // cmocka_unit_test(search_intersection_test)
+        // cmocka_unit_test(search_intersection_test),
+
+        // cmocka_unit_test(parse_tags_test),
+        // cmocka_unit_test(string_processing_test),
+        cmocka_unit_test(arg_parsing_test)
     };
 
     return cmocka_run_group_tests_name("main tests", tests, setup, teardown);

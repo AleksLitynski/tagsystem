@@ -10,7 +10,15 @@
         "stdint.h": "c",
         "test.h": "c",
         "stdlib.h": "c",
-        "strings.h": "c"
+        "strings.h": "c",
+        "cstdlib": "c",
+        "initializer_list": "c",
+        "string_view": "c",
+        "stdio.h": "c",
+        "hash.h": "c",
+        "type_traits": "c",
+        "typeinfo": "c",
+        "sds.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

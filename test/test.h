@@ -11,12 +11,14 @@
 #include "cmocka.h"
 #include "sds.h"
 #include "fs.h"
+#include "hash.h"
 #include "tsdb.h"
 #include "tsid.h"
 #include "tsdoc.h"
 #include "tserror.h"
 #include "tstags.h"
 #include "tssearch.h"
+#include "parsing.h"
 
 // macros
 #define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
@@ -80,3 +82,8 @@ void id_to_str_test(void ** state);
 void search_test(void ** state);
 void search_remove_test(void ** state);
 void search_intersection_test(void ** state);
+
+// parsing
+void parse_tags_test(void ** state);
+void string_processing_test(void ** state);
+void arg_parsing_test(void ** state);
