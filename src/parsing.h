@@ -27,7 +27,14 @@ typedef struct {
     bool pending_value;
     void ** pending_value_addr;
     arg * args;
+    sds rest;
 } arg_list;
+
+typedef struct tag_list_item {
+    char operation;
+    char * name;
+    struct tag_list_item * next;
+} tag_list_item;
 
 const bool _arg_true_const;
 
@@ -37,13 +44,16 @@ const bool _arg_true_const;
 sds _push_tag(hash_t * tags, sds next_tag, char mode);
 int tag_set(hash_t * tags, sds tag_str);
 int tag_set_free(hash_t * tags);
-sds concat_string(sds str, int argc, char * argv[]);
+tag_list_item * tag_list_item_create(sds next_tag, char mode);
+tag_list_item * tag_list(sds tag_str);
+int tag_list_free(tag_list_item * head);
 
 // string operations
 int to_lower(char * self);
 bool is_vowel(char x);
 sds without_vowels(sds without, char * src);
 bool begins_with(char * src, char * prefix);
+sds concat_string(sds str, int argc, char * argv[]);
 
 // cli argument parsing
 bool matches(char * arg_name, char * arg_input_value);

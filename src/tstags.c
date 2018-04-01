@@ -423,7 +423,7 @@ int ts_tags_open(ts_tags * self, ts_db * db, sds tag) {
     ts_tags tags;
 
     // load the tag or create it if it doesn't exist
-    int found_tag = ts_db_get(db, "iindex", tag, &current, &txn);
+    int found_tag = ts_db_get(db, &ts_db_iindex, tag, &current, &txn);
     if(found_tag == TS_KEY_NOT_FOUND) {
         mdb_txn_commit(txn);
         return TS_FAILURE;
@@ -441,7 +441,7 @@ int ts_tags_open_readonly(ts_tags_readonly * self, ts_db * db, sds tag, MDB_txn 
     ts_tags tags;
 
     // load the tag or create it if it doesn't exist
-    int found_tag = ts_db_get(db, "iindex", tag, &current, txn);
+    int found_tag = ts_db_get(db, &ts_db_iindex, tag, &current, txn);
     if(found_tag == TS_KEY_NOT_FOUND) {
         return TS_FAILURE;
     }
@@ -463,7 +463,7 @@ int ts_tags_write(ts_tags * self, ts_db * db, sds tag) {
 
     MDB_val updated;
     ts_tags_to_mdb(self, &updated);
-    ts_db_put(db, "iindex", tag, &updated);
+    ts_db_put(db, &ts_db_iindex, tag, &updated);
     free(updated.mv_data);
 
     return TS_SUCCESS;

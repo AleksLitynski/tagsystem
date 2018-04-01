@@ -10,12 +10,18 @@
 #include "tssearch.h"
 #include "tsdoc.h"
 #include "tserror.h"
+#include "utils.h"
 
 int main(int argc, char * argv[]) {
 
-    if(argc <= 1) return help_cmd(argc, argv);
+    cli_ctx ctx = {
+        .db = get_db(),
+        .pws = get_working_set()
+    };
 
-    int (*op)(int, char**) = 
+    if(argc <= 1) return help_cmd(&ctx, argc, argv);
+
+    int (*op)(cli_ctx *, int, char**) = 
         matches("list", argv[1])        ? list_cmd:
         matches("make", argv[1])        ? make_cmd:
         matches("remove", argv[1])      ? remove_cmd:
@@ -29,119 +35,200 @@ int main(int argc, char * argv[]) {
         matches("--help", argv[1])      ? help_cmd:
                                           help_cmd;
     
-    return op(argc - 2, &argv[2]);
+
+
+    int out = op(&ctx, argc - 2, &argv[2]);
+
+    tag_set_free(ctx.pws);
+    ts_db_close(ctx.db);
+
+    return out;
 }
 
-ts_db * get_db() {
-    char * db_path = getenv("TSDBPATH");
-    if(db_path == 0) db_path = "~/.tsysdb";
-    ts_db * db = malloc(sizeof(ts_db));
-    ts_db_open(db, db_path);
-    return db;
-}
 
-int list_cmd(int argc, char * argv[]) {
+int list_cmd(cli_ctx * ctx, int argc, char * argv[]) {
 
     arg_list args;
     args_create(&args, 1);
     bool ** show_id = args_add_bool(&args, "id");
-    int last = args_parse(&args, argc, argv);
+    args_parse(&args, argc, argv);
 
-    sds new_set = concat_string(sdsempty(), argc - last, &argv[last]);
-    
-    char * current_set = getenv("TSPWS");
-    hash_t * set = hash_new();
-    if(current_set != 0) tag_set(set, current_set);
-    tag_set(set, new_set);
 
-    ts_db * db = get_db();
-
-    int tags_count = hash_size(set);
-    ts_tags_readonly * tags = malloc(sizeof(ts_tags) * tags_count);
-    int i = 0;
-    MDB_txn * txn;
-    hash_each(set, {
-        ts_tags_open_readonly(&tags[i], db, key, &txn);
-        i++;
-    })
-    mdb_txn_commit(txn);
-
-    // use show_id and preview_path
-    ts_search search;
-    ts_search_create(&search, tags->tags, tags_count);
+    tag_set(ctx->pws, args.rest);
+    ts_search * search = search_set(ctx->pws, ctx->db);
     
     ts_id id;
-    while(ts_search_next(&search, &id) != TS_SEARCH_DONE) {
-        // print the id or doc
-        if(**show_id) {
-            sds id_str = ts_id_string(&id, sdsempty());
-            printf("%s\n", &id_str);
-            sdsfree(id_str);
-        } else {
-            // make a doc, print the path
-            ts_doc doc;
-            ts_doc_open(&doc, db, id);
-            printf("%s\n", doc.path);
-            ts_doc_close(&doc);
-        }
+    while(ts_search_next(search, &id) != TS_SEARCH_DONE) {
+        print_id(&id, ctx->db, **show_id);
     }
 
-    ts_search_close(&search);
 
+    search_set_close(search);
+    args_close(&args);
+    return EXIT_SUCCESS;
+}
 
-    free(tags);
-    ts_db_close(db);
-    sdsfree(current_set);
-    tag_set_free(set);
+int make_cmd(cli_ctx * ctx, int argc, char * argv[]) {
+    arg_list args;
+    args_create(&args, 3);
+    bool ** show_id = args_add_bool(&args, "id"); //(show created document's id or path)
+    bool ** dont_change_pws = args_add_bool(&args, "preview"); // (change directory on creation, or just create)
+    bool ** dont_show_doc_name = args_add_bool(&args, "silent"); // (don't display document name after create)
+    args_parse(&args, argc, argv);
+    
+    tag_set(ctx->pws, args.rest);
+
+    ts_doc doc;
+    ts_doc_create(&doc, ctx->db);
+
+    hash_each(ctx->pws, {
+        ts_doc_tag(&doc, key);
+    })
+
+    if(!**dont_show_doc_name) {
+        print_id(&doc.id, ctx->db, **show_id);
+    }
+
+    if(!**dont_change_pws) {
+        save_pws(ctx->pws);
+    }
+
 
     args_close(&args);
     return EXIT_SUCCESS;
 }
 
-int make_cmd(int argc, char * argv[]) {
-    // id or path
-    printf("make called\n");
 
+int remove_cmd(cli_ctx * ctx, int argc, char * argv[]) {
 
+    arg_list args;
+    args_create(&args, 3);
+    bool ** show_id = args_add_bool(&args, "id"); // (show created document's id or path)
+    bool ** force = args_add_bool(&args, "force");// if deleting more than 1, confirm. -force to not confirm
+    bool ** silent = args_add_bool(&args, "silent"); // silent (don't display document names after deletion)
+    args_parse(&args, argc, argv);
+
+    if(!set_has_one_item(ctx) && !**force) {
+        // prompt before deleting
+        if(!confirm("Multiple documents will be deleted. Continue?")) {
+            args_close(&args);
+            return EXIT_SUCCESS;
+        }
+    }
+
+    ts_search * search = search_set(ctx);
+    bool has_one = true;
+    ts_id id;
+    while(ts_search_next(search, &id) != TS_SEARCH_DONE) {
+        ts_doc doc;
+        ts_doc_open(&doc, ctx->db, id);
+        ts_doc_delete(&doc);
+        ts_doc_close(&doc);
+        if(!**silent) {
+            print_id(&doc.id, ctx->db, **show_id);
+        }
+    }
+
+    search_set_close(search);
+    args_close(&args);
     return EXIT_SUCCESS;
 }
 
 
-int remove_cmd(int argc, char * argv[]) {
-    // id or path
-    // confirm delete many
+int tag_cmd(cli_ctx * ctx, int argc, char * argv[]) {
+    arg_list args;
+    args_create(&args, 1);
+    bool ** show_id = args_add_bool(&args, "id"); // (show created document's id or path)
+    bool ** force = args_add_bool(&args, "force"); // (if we should prompt before tagging multiple documents)
+    args_parse(&args, argc, argv);
 
+    // __rest__ will be the tags to apply
+    // stdin is the docs to apply tag to. May be either path or id format
+    int count = 0;
+    sds * paths = stdin_to_array(&count);
 
-    printf("rm called\n");
+    if(count > 1 && !**force) {
+        if(!confirm("Multiple documents will be tagged. Continue?")) {
+            sdsfreesplitres(paths, count);
+            args_close(&args);
+            return EXIT_SUCCESS;
+        }
+    }
+
+    ts_id * ids = malloc(sizeof(ts_id) * count);
+    ts_doc * docs = malloc(sizeof(ts_doc) * count);
+
+    tag_list_item * tags = tag_list(args.rest);
+    
+    for(int i = 0; i < count; i++) {
+        char * id_str = doc_path_id(paths[i]);
+        ts_id id;
+        ts_id_from_string(&id, id_str);
+        ts_doc doc;
+        ts_doc_open(&doc, ctx->db, id);
+        // apply all tags
+
+        tag_list_item * current_tag = tags;
+
+        while(current_tag != 0) {
+
+            switch(current_tag->operation) {
+                case TS_CTX_ADD_TAG: {
+                    ts_doc_tag(&doc, current_tag->name);
+                    break;   
+                }
+
+                case TS_CTX_DEL_TAG: {
+                    ts_doc_untag(&doc, current_tag->name);
+                    break;
+                }
+            }
+
+            current_tag = current_tag->next;
+        }
+        
+        ts_doc_close(&doc);
+        free(id_str);
+    }
+
+    
+    tag_list_free(tags);
+    free(ids);
+    free(docs);
+    sdsfreesplitres(paths, count);
+    args_close(&args);
     return EXIT_SUCCESS;
 }
 
+int changeset_cmd(cli_ctx * ctx, int argc, char * argv[]) {
+    arg_list args;
+    args_create(&args, 1);
+    bool ** silent = args_add_bool(&args, "silent"); // silent (don't display new set after cws)
+    args_parse(&args, argc, argv);
 
-int tag_cmd(int argc, char * argv[]) {
+    tag_set(ctx->pws, args.rest);
+    save_pws(ctx->pws);
+    if(!**silent) {
+        sds pws = print_pws(ctx);
+        printf("%s\n", pws);
+        sdsfree(pws);
+    }
 
-    // either docs to tag, and/or take docs from stdin
-
-    printf("tag called\n");
+    args_close(&args);
     return EXIT_SUCCESS;
 }
 
-int changeset_cmd(int argc, char * argv[]) {
+int presentset_cmd(cli_ctx * ctx, int argc, char * argv[]) {
 
-    // either docs to tag, and/or take docs from stdin
+    // prints the pws. No args
+    sds pws = print_pws(ctx);
+    printf("%s\n", pws);
+    sdsfree(pws);
 
-    printf("changeset called\n");
     return EXIT_SUCCESS;
 }
 
-int presentset_cmd(int argc, char * argv[]) {
-
-    // either docs to tag, and/or take docs from stdin
-
-    printf("presentset called\n");
-    return EXIT_SUCCESS;
-}
-
-int help_cmd(int argc, char * argv[]) {
+int help_cmd(cli_ctx * ctx, int argc, char * argv[]) {
     printf("Do it right next time\n");
     return EXIT_SUCCESS;
 }

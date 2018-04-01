@@ -43,10 +43,8 @@ void doc_test(void ** state) {
     ts_doc_delete(&doc2);
 
     // confirm the index was deleted
-    sds idx = sdsnew("index");
     sds val = ts_id_string(&doc_id, sdsempty());
-    bool delete_success = ts_db_test(st->db, idx, val) == TS_KEY_NOT_FOUND;
-    sdsfree(idx);
+    bool delete_success = ts_db_test(st->db, &ts_db_index, val) == TS_KEY_NOT_FOUND;
     sdsfree(val);
 
     // confirm the document had the correct text in it

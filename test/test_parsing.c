@@ -43,7 +43,7 @@ void string_processing_test(void ** state) {
 void arg_parsing_test(void ** state) {
 
     arg_list args;
-    args_create(&args, 5);
+    args_create(&args, 6);
 
     bool ** a = args_add_bool(&args, "aaaa");
     bool ** b = args_add_bool(&args, "bbbb");
@@ -62,6 +62,8 @@ void arg_parsing_test(void ** state) {
         "__rest__",
         "__rest__2"
     };
+
+
     int unused = args_parse(&args, sizeof(chars) / sizeof(char *), chars);
 
     assert_true(**a);
@@ -73,5 +75,5 @@ void arg_parsing_test(void ** state) {
     assert_string_equal(*d, "d_value");
 
 
-    int args_close(arg_list * self);
+    args_close(&args);
 }

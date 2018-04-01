@@ -6,37 +6,30 @@
 #include "tserror.h"
 #include "parsing.h"
 
-sds _push_tag(hash_t * tags, sds next_tag, char mode) {
-    if(sdslen(next_tag) != 0) {
-        sdstrim(next_tag, " ");
+tag_list_item * tag_list_item_create(sds next_tag, char mode) {
+    tag_list_item * item = malloc(sizeof(tag_list_item));
+    item->next = 0;
+    item->operation = 0;
+    sdstrim(next_tag, " ");
+    if(sdslen(next_tag) == 0) return 0;
 
-        switch(mode) {
-            case TS_CTX_ADD_TAG: {
-                char * key = malloc(strlen(next_tag));
-                strcpy(key, next_tag);
+    item->name = malloc(strlen(next_tag));
+    strcpy(item->name, next_tag);
 
-                hash_set(tags, key, key); 
-                break;
-            }
+    item->operation = mode;
+    
+    sdsfree(next_tag);
+    next_tag = sdsempty();
 
-            case TS_CTX_DEL_TAG: {
-                char * val = hash_get(tags, next_tag);
-                if(val != NULL) {
-                    hash_del(tags, next_tag); 
-                    free(val);
-                }
-
-                break;
-            }
-        }
-        sdsfree(next_tag);
-        next_tag = sdsempty();
-    }
-
-    return next_tag;
+    return item;
 }
 
-int tag_set(hash_t * tags, sds tag_str) {
+tag_list_item * tag_list(sds tag_str) {
+    tag_list_item * head = malloc(sizeof(tag_list_item);
+    head->operation = ' ';
+    head->next = 0;
+    tag_list_item * next = head;
+
 
     int tag_str_len = strlen(tag_str);
 
@@ -56,12 +49,22 @@ int tag_set(hash_t * tags, sds tag_str) {
         else if(next == TS_CTX_DEL_TAG) {
             // if the previous character is '-' (just check at i-1), remove all items from hash
             if(i > 0 && tag_str[i-1] == TS_CTX_DEL_TAG) {
-                hash_clear(tags);
+                tag_list_free(head);
+                head = malloc(sizeof(tag_list_item);
+                head->operation = ' ';
+                head->next = 0;
+                next = head;
+                
                 mode = TS_CTX_ADD_TAG;
             }
 
             else {
-                next_tag = _push_tag(tags, next_tag, mode);
+                tag_list_item * new_item = tag_list_item_create(next_tag, mode);
+                if(new_item != 0) {
+                    next->next = new_item;
+                    next = new_item;
+                }
+
                 mode = TS_CTX_DEL_TAG;
             }
 
@@ -69,7 +72,12 @@ int tag_set(hash_t * tags, sds tag_str) {
 
         else if(next == TS_CTX_ADD_TAG) {
             // add current item and set to '+' for next item
-            next_tag = _push_tag(tags, next_tag, mode);
+            tag_list_item * new_item = tag_list_item_create(next_tag, mode);
+            if(new_item != 0) {
+                next->next = new_item;
+                next = new_item;
+            }
+
             mode = TS_CTX_ADD_TAG;
         }
 
@@ -79,7 +87,50 @@ int tag_set(hash_t * tags, sds tag_str) {
         }
     }
 
-    next_tag = _push_tag(tags, next_tag, mode);
+    next->next = tag_list_item_create(next_tag, mode);
+    return head;
+
+}
+
+int tag_list_free(tag_list_item * head) {
+    if(head->next != 0) tag_list_item_free(head->next);
+    free(head->name);
+    free(head);
+    return TS_SUCCESS;
+}
+
+int tag_set(hash_t * tags, sds tag_str) {
+    tag_list_item * head = tag_list(tag_str);
+    tag_list_item * current = head;
+
+    do {
+
+        switch(current->operation) {
+            case TS_CTX_ADD_TAG: {
+                char * key = malloc(strlen(current->name));
+                strcpy(key, current->name);
+
+                hash_set(tags, key, key); 
+                break;
+            }
+
+            case TS_CTX_DEL_TAG: {
+                char * val = hash_get(tags, current->name);
+                if(val != NULL) {
+                    hash_del(tags, current->name); 
+                    free(val);
+                }
+
+                break;
+            }
+        }
+
+        current = current->next;
+
+    } while(current != 0);
+
+
+    tag_list_free(head);
     return TS_SUCCESS;
 }
 
@@ -253,11 +304,14 @@ int args_parse(arg_list * self, int argc, char * argv[]) {
         }
     }
 
-    // return what the last parsed item was. The rest of the items can be packed into a path or similar
-    return i;
+    // concat remaining values into a single 'rest' string
+    self->rest = concat_string(sdsempty(), argc - i, &argv[i]);
+
+    return TS_SUCCESS;
 }
 
 int args_close(arg_list * self) {
+    sdsfree(self->rest);
     free(self->args);
     return TS_SUCCESS;
 }
