@@ -19,7 +19,14 @@
         "type_traits": "c",
         "typeinfo": "c",
         "sds.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "tserror.h": "c",
+        "utils.h": "c",
+        "array": "c",
+        "utility": "c",
+        "ctype.h": "c",
+        "tsargs.h": "c",
+        "system_error": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

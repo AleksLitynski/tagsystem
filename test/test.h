@@ -18,7 +18,15 @@
 #include "tserror.h"
 #include "tstags.h"
 #include "tssearch.h"
-#include "parsing.h"
+
+// utils
+#include "tsargs.h"
+#include "tscli.h"
+#include "tscliutils.h"
+#include "tssearchset.h"
+#include "tsstr.h"
+#include "tstaglist.h"
+#include "tstagset.h"
 
 // macros
 #define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)

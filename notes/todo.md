@@ -1,8 +1,21 @@
 DOING:
 - debug core operations
 
-TODO:
+TODO 0.0.1:
 - provide update db function and error if db is out of date
+- add --help option to all commands
+    - env vars:
+        - current db dir
+        - current working set
+- test on windows
+- publish 0.0.1
+    - upload to github
+    - upload 'release'
+    - write readme
+    - comment everything
+
+
+TODO 0.0.2:
 - implement proj/sync logic
     - proj
         - force to overwrite directory
@@ -10,26 +23,14 @@ TODO:
     - sync
         - pull first or push first
         - all file deletion
-- add --help option to all commands
-    - env vars:
-        - current db dir
-        - current working set
-- a way for users to see what tags a document has (other than project)
+- a way for users to see what tags a document has (other than proj)
+
+TODO 0.0.X:
+- language bindings (gdscript, javascript probably)
+- gui client (electron, probably)
 - allow all lmdb operations to take a MDB_txn object so this shit is actually transactional
-- clean up parsing and utils files 
-
-
-WON'T DO:
-- parameter handling
-    - check how arguments are packed from the cli
-        - Check how bash reserved chars are handled
-        - Check how spaces are handled 
-        - Check how quotes are handled
-    - pack quoted strings
-    - allow for string args with spaces
-
-
 
 
 DONE:
 - implement tagging from stdin (check if each item is an id or a path and support both)
+- clean up parsing and utils files
