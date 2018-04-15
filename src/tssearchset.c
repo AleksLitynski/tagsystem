@@ -10,20 +10,20 @@
 #include "tsdoc.h"
 #include "tserror.h"
 
-ts_search * ts_searchset_create(ts_cli_ctx * ctx) {
+ts_search * ts_searchset_create(ts_cli_ctx * ctx, hash_t * pws) {
 
-    ts_tags_readonly * tags = malloc(sizeof(ts_tags) * hash_size(ctx->pws));
+    ts_tags * tags = malloc(sizeof(ts_tags) * hash_size(pws));
 
-    MDB_txn * txn;
     int i = 0;
-    hash_each(ctx->pws, {
-        ts_tags_open_readonly(&tags[i], ctx->db, key, &txn);
+    hash_each(pws, {
+        // printf("%s\n", key);
+        ts_tags_open(&tags[i], ctx->db, key);
+        // ts_tags_log(&tags[i]);
         i++;
     })
-    mdb_txn_commit(txn);
 
-    ts_search * search = malloc(sizeof(search));
-    ts_search_create(search, tags->tags, hash_size(ctx->pws));
+    ts_search * search = malloc(sizeof(ts_search));
+    ts_search_create(search, tags, hash_size(pws));
 
     return search;
 }
@@ -38,8 +38,8 @@ void ts_searchset_close(ts_search * search) {
 }
 
 
-bool ts_searchset_has_one(ts_cli_ctx * ctx) {
-    ts_search * search = ts_searchset_create(ctx);
+bool ts_searchset_has_one(ts_cli_ctx * ctx, hash_t * pws) {
+    ts_search * search = ts_searchset_create(ctx, pws);
     bool has_one = true;
     ts_id id;
     if(ts_search_next(search, &id) != TS_SEARCH_DONE

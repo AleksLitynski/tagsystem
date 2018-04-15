@@ -87,7 +87,7 @@ ts_taglist * ts_taglist_create(sds tag_str) {
 
         else {
             // append next character to next_tag
-            next_tag = sdscatlen(next_tag, &next, 1);
+            next_tag = sdscatlen(next_tag, &next_char, 1);
         }
     }
 
@@ -98,7 +98,7 @@ ts_taglist * ts_taglist_create(sds tag_str) {
 
 int ts_taglist_close(ts_taglist * head) {
     if(head->next != 0) ts_taglist_close(head->next);
-    free(head->name);
+    if(head->operation != ' ') free(head->name);
     free(head);
     return TS_SUCCESS;
 }

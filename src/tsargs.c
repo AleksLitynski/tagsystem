@@ -7,8 +7,8 @@
 #include "tsargs.h"
 #include "tsstr.h"
 
-const bool _ts_cli_args_true = true;
-const bool _ts_cli_args_false = false;
+const bool _ts_args_true = true;
+const bool _ts_args_false = false;
 
 bool ts_args_matches(char * arg_name, char * arg_input_value) {
 
@@ -29,28 +29,34 @@ bool ts_args_matches(char * arg_name, char * arg_input_value) {
     return success;
 }
 
-int ts_args_create(ts_args * self, int size) {
-    self->size = size;
-    self->next = 0;
+int ts_args_create(ts_args * self) {
     self->pending_value = false;
-    self->args = malloc(sizeof(ts_arg) * size);
+    self->latest_arg = 0;
+    self->args = 0;
     return TS_SUCCESS;
 }
 
 void ** _ts_args_add(ts_args * self, char * name, ts_arg_type type) {
 
-    self->args[self->next].type = type;
-    self->args[self->next].name = name;
-    void ** out = &self->args[self->next].value;
+    ts_arg * arg = calloc(sizeof(ts_arg), 1);
 
-    self->next++;
-    return out;
+    if(self->args != 0) {
+        self->latest_arg->next = arg;
+        self->latest_arg = arg;
+    } else {
+        self->args = arg;
+        self->latest_arg = arg;
+    }
+
+    self->latest_arg->type = type;
+    self->latest_arg->name = name;
+    
+    return &self->latest_arg->value;
 }
-
 
 bool ** ts_args_add_bool(ts_args * self, char * name) {
     bool ** out = (bool**)_ts_args_add(self, name, ARG_TYPE_BOOL);
-    *out = &_ts_cli_args_false;
+    *out = &_ts_args_false;
     return out;
 }
 
@@ -61,20 +67,24 @@ char ** ts_args_add_str(ts_args * self, char * name) {
 bool _ts_args_set_param(ts_args * self, char * arg_input_value) {
     bool success = false;
 
-    for(int j = 0; j < self->size; j++) {
-        if(ts_args_matches(self->args[j].name, arg_input_value)) {
-            if(self->args[j].type == ARG_TYPE_BOOL) {
-                self->args[j].value = (void*)(&_ts_args_true);
+    ts_arg * arg = self->args;
+
+    while(arg != 0) {
+        if(ts_args_matches(arg->name, arg_input_value)) {
+            if(arg->type == ARG_TYPE_BOOL) {
+                arg->value = (void*)(&_ts_args_true);
                 self->pending_value = false;
                 success = true;
                 break;
-            } else if(self->args[j].type == ARG_TYPE_STR) {
-                self->pending_value_addr = &self->args[j].value;
+            } else if(arg->type == ARG_TYPE_STR) {
+                self->pending_value_addr = &arg->value;
                 self->pending_value = true;
                 success = true;
                 break;
             }
         }
+
+        arg = arg->next; 
     }
 
     return success;
@@ -134,8 +144,14 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
     return TS_SUCCESS;
 }
 
+int _ts_arg_close(ts_arg * arg) {
+    if(arg->next != 0) _ts_arg_close(arg->next);
+    free(arg);
+    return TS_SUCCESS;
+}
+
 int ts_args_close(ts_args * self) {
     sdsfree(self->rest);
-    free(self->args);
+    _ts_arg_close(self->args);
     return TS_SUCCESS;
 }

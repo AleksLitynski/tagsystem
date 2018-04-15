@@ -68,6 +68,7 @@ bool _ts_search_test(ts_search * self, int branch) {
 }
 
 int ts_search_step(ts_search * self, ts_id * id) {
+    if(self->walk_count == 0) return TS_SEARCH_DONE;
 
     int branch = self->current_id[self->index];
     // LOG("%i.%i", self->index, branch);

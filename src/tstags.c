@@ -357,6 +357,11 @@ sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds print
 
 sds ts_tags_print(ts_tags * self, sds printed) {
 
+    if(self->data == 0) {
+        printed = sdscatprintf(printed, "\n%s\n", "Tree Is Empty");
+        return printed;
+    }
+
     // print size, occupied, and all 'next' values
     printed = sdscatprintf(printed, "\nsize: %i\n", self->size);
     printed = sdscatprintf(printed, "occupied: %i\n", self->occupied);
@@ -392,17 +397,7 @@ void ts_tags_log(ts_tags * tags) {
 
 int ts_tags_from_mdb(ts_tags * self, MDB_val * val) {
     memcpy(self, val->mv_data, sizeof(ts_tags));
-    memcpy(self->data, val->mv_data + sizeof(ts_tags), self->size);
-    return TS_SUCCESS;
-}
-
-int ts_tags_from_mdb_readonly(ts_tags_readonly * self, MDB_val * val) {
-
-    self->tags = malloc(sizeof(ts_tags));
-    self->val = val;
-
-    memcpy(self->tags, val->mv_data, sizeof(ts_tags));
-    self->tags->data = val->mv_data + sizeof(ts_tags);
+    memcpy(self->data, val->mv_data + sizeof(ts_tags), sizeof(ts_tag_node) * self->size);
     return TS_SUCCESS;
 }
 
@@ -426,34 +421,12 @@ int ts_tags_open(ts_tags * self, ts_db * db, sds tag) {
     int found_tag = ts_db_get(db, &ts_db_iindex, tag, &current, &txn);
     if(found_tag == TS_KEY_NOT_FOUND) {
         mdb_txn_commit(txn);
+        ts_tags_empty(self);
         return TS_FAILURE;
     }
 
     ts_tags_from_mdb(self, &current);
     mdb_txn_commit(txn);
-
-    return TS_SUCCESS;
-}
-
-int ts_tags_open_readonly(ts_tags_readonly * self, ts_db * db, sds tag, MDB_txn ** txn) {
-
-    MDB_val current;
-    ts_tags tags;
-
-    // load the tag or create it if it doesn't exist
-    int found_tag = ts_db_get(db, &ts_db_iindex, tag, &current, txn);
-    if(found_tag == TS_KEY_NOT_FOUND) {
-        return TS_FAILURE;
-    }
-
-    ts_tags_from_mdb_readonly(self, &current);
-
-    return TS_SUCCESS;
-}
-
-int ts_tags_close_readonly(ts_tags_readonly * self) {
-
-    free(self->tags);
 
     return TS_SUCCESS;
 }

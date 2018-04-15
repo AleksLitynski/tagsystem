@@ -10,6 +10,11 @@
 #include "tscliutils.h"
 
 // macros
+// a helpful way to make cli calls programatically
+#define CLI(ctx, op, ...) {                        \
+    char * args[] = { __VA_ARGS__ };               \
+    op(ctx, sizeof(args) / sizeof(char *), args);  \
+}
 
 // types
 

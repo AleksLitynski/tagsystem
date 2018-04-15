@@ -58,6 +58,10 @@
 // types
 typedef struct {
     ts_db * db;
+    ts_cli_ctx * ctx;
+    void * io_buffers;
+    FILE * write_input;
+    FILE * read_output;
 } test_state;
 
 // functions
@@ -80,7 +84,6 @@ void tag_remove_test(void ** state);
 void tag_shuffle_test(void ** state);
 void tag_double_ops_test(void ** state);
 void tag_mdb_test(void ** state);
-void tag_mdb_readonly_test(void ** state);
 
 // ids
 void id_value_test(void ** state);
@@ -95,3 +98,8 @@ void search_intersection_test(void ** state);
 void parse_tags_test(void ** state);
 void string_processing_test(void ** state);
 void arg_parsing_test(void ** state);
+
+// cli command tests
+void cli_makeremove_test(void ** state);
+void cli_changeset_test(void ** state);
+void cli_help_test(void ** state);

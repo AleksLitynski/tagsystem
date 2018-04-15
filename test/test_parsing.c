@@ -4,7 +4,7 @@
 void parse_tags_test(void ** state) {
 
     hash_t * tags = hash_new();
-    ts_tagset_create(tags, "+a   b+basd~basd~~      r  a+nope");
+    ts_tagset_append(tags, "+a   b+basd~basd~~      r  a+nope");
 
     // hash_each(tags, {
     //     LOG("%s", key);
@@ -43,7 +43,7 @@ void string_processing_test(void ** state) {
 void arg_parsing_test(void ** state) {
 
     ts_args args;
-    ts_args_create(&args, 6);
+    ts_args_create(&args);
 
     bool ** a = ts_args_add_bool(&args, "aaaa");
     bool ** b = ts_args_add_bool(&args, "bbbb");

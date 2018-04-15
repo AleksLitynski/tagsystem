@@ -66,6 +66,9 @@ int ts_walk_pop(ts_walk * self) {
 
 bool ts_walk_test(ts_walk * self, int branch) {
 
+    // if the tree is empty, we cannot continue
+    if(self->source->data == 0) return false;
+
     // if leaf node and the current index isn't the same as the desired branch, return false
     if(self->history->current->type == TS_TAG_NODE_LEAF 
     && ts_id_get_bit(&(self->history->current->value.leaf), self->index) != branch) {

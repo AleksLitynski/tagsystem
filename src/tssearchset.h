@@ -14,6 +14,6 @@
 // types
 
 // functions
-ts_search * ts_searchset_create(ts_cli_ctx * ctx);
+ts_search * ts_searchset_create(ts_cli_ctx * ctx, hash_t * pws);
 void ts_searchset_close(ts_search * search);
-bool ts_searchset_has_one(ts_cli_ctx * ctx);
+bool ts_searchset_has_one(ts_cli_ctx * ctx, hash_t * pws);
