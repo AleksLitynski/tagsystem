@@ -75,8 +75,11 @@ void search_intersection_test(void ** state) {
     //     ts_tags_insert(&tags[1], &id);
     // }
 
+    LOGTAGS(&tags[0]);
     ts_tags_insert(&tags[0], &id_10001011);
+    LOGTAGS(&tags[0]);
     ts_tags_insert(&tags[0], &id_10001110);
+    LOGTAGS(&tags[0]);
     ts_tags_insert(&tags[1], &id_00101010);
     ts_tags_insert(&tags[1], &id_10001110);
 
