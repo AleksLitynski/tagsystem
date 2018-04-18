@@ -19,7 +19,7 @@ int ts_cli_list(ts_cli_ctx * ctx, int argc, char * argv[]) {
     bool ** show_id = ts_args_add_bool(&args, "id");
     ts_args_parse(&args, argc, argv);
 
-    hash_t * pws = ts_tagset_load();
+    hash_t * pws = ts_tagset_load(ctx);
     ts_tagset_append(pws, args.rest);
     ts_search * search = ts_searchset_create(ctx, pws);
     
@@ -42,7 +42,7 @@ int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
     bool ** dont_show_doc_name = ts_args_add_bool(&args, "silent"); // (don't display document name after create)
     ts_args_parse(&args, argc, argv);
     
-    hash_t * pws = ts_tagset_load();
+    hash_t * pws = ts_tagset_load(ctx);
     ts_tagset_append(pws, args.rest);
 
     ts_doc doc;
@@ -57,7 +57,7 @@ int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
     }
 
     if(!**dont_change_pws) {
-        ts_tagset_save(pws);
+        ts_tagset_save(ctx, pws);
     }
 
 
@@ -76,7 +76,7 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
     bool ** silent = ts_args_add_bool(&args, "silent"); // silent (don't display document names after deletion)
     ts_args_parse(&args, argc, argv);
 
-    hash_t * pws = ts_tagset_load();
+    hash_t * pws = ts_tagset_load(ctx);
 
     if(!ts_searchset_has_one(ctx, pws) && !**force) {
         // prompt before deleting
@@ -176,9 +176,9 @@ int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
     bool ** silent = ts_args_add_bool(&args, "silent"); // silent (don't display new set after cws)
     ts_args_parse(&args, argc, argv);
 
-    hash_t * pws = ts_tagset_load();
+    hash_t * pws = ts_tagset_load(ctx);
     ts_tagset_append(pws, args.rest);
-    ts_tagset_save(pws);
+    ts_tagset_save(ctx, pws);
     if(!**silent) {
         sds pws_str = ts_tagset_print(pws);
         fprintf(ctx->out, "%s\n", pws_str);
@@ -193,7 +193,7 @@ int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
 int ts_cli_presentset(ts_cli_ctx * ctx, int argc, char * argv[]) {
 
     // prints the pws. No args
-    hash_t * pws = ts_tagset_load();
+    hash_t * pws = ts_tagset_load(ctx);
     sds pws_str = ts_tagset_print(pws);
     fprintf(ctx->out, "%s\n", pws_str);
     sdsfree(pws_str);

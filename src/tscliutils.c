@@ -2,7 +2,6 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include <unistd.h>
-#include <pwd.h>
 #include <stdbool.h>
 #include <libgen.h>
 #include "hash.h"
@@ -15,33 +14,15 @@
 #include "tserror.h"
 #include "tstagset.h"
 #include "tsargs.h"
+#include "ts_dbpath.h"
 
 
 ts_cli_ctx * ts_cli_ctx_open() {
     ts_cli_ctx * self = malloc(sizeof(ts_cli_ctx));
 
-    char * tsdbpath = getenv("TSDBPATH");
-    if(tsdbpath == 0) tsdbpath = "";
-    char * xdghome = getenv("XDG_CONFIG_HOME");
-    if(xdghome == 0) xdghome = "";
-    char * homepath = getenv("HOME");
-    if(homepath == 0) homepath = "";
-
-
-    sds db_path = sdscat(sdsempty(), tsdbpath);
-    if(sdslen(db_path) == 0) {
-        sds home = sdscat(sdsempty(), xdghome);
-        if(sdslen(home) == 0) home = sdscat(home, homepath);
-        if(sdslen(home) == 0) {
-            struct passwd * pswd = getpwuid(geteuid());
-            home = sdscat(home, pswd->pw_dir);
-        }
-        db_path = sdscatsds(db_path, home);
-        db_path = sdscat(db_path, "/.tsysdb");
-        sdsfree(home);
-    }
-
     self->db = malloc(sizeof(ts_db));
+    
+    sds db_path = ts_dbpath_get();
     ts_db_open(self->db, db_path);
 
     self->in = stdin;

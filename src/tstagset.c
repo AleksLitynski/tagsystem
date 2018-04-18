@@ -47,16 +47,27 @@ int ts_tagset_append(hash_t * tags, sds tag_str) {
     return TS_SUCCESS;
 }
 
-hash_t * ts_tagset_load() {
+hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     hash_t * t = hash_new();
-    char * pws_str = getenv("TSPWS");
+    MDB_txn * txn;
+    MDB_val val;
+    ts_db_get(ctx->db, &ts_db_meta, "TSPWS", &val, &txn);
+    char * pws_str = val.mv_data;
+
     if(pws_str != 0) ts_tagset_append(t, pws_str);
+
+    mdb_txn_commit(txn);
     return t;
 }
 
-void ts_tagset_save(hash_t * tags) {
+void ts_tagset_save(ts_cli_ctx * ctx, hash_t * tags) {
     sds pws_str = ts_tagset_print(tags);
-    setenv("TSPWS", pws_str, true);
+    MDB_val val = {
+        .mv_data = pws_str,
+        .mv_size = sdslen(pws_str)
+    };
+    ts_db_put(ctx->db, &ts_db_meta, "TSPWS", &val);
+
     sdsfree(pws_str);
 }
 

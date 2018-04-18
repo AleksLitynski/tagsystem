@@ -17,14 +17,14 @@
 
 void read_output(test_state * st, char * out, int max_size) {
     fflush(st->ctx->out);
-    fgets(out, 1000, st->read_output);
-    fflush(st->read_output);
+    fgets(out, 1000, st->ctx->out);
+    fflush(st->ctx->out);
 }
 
 void write_input(test_state * st, char * in) {
     fflush(st->ctx->in);
-    fprintf(st->write_input, "%s", in);
-    fflush(st->write_input);
+    fprintf(st->ctx->in, "%s", in);
+    fflush(st->ctx->in);
 }
 
 void cli_makeremove_test(void ** state) {
@@ -61,7 +61,6 @@ void cli_makeremove_test(void ** state) {
 
     // confirm removed_id is empty
     assert_string_equal("", removed_id);
-
 
 }
 

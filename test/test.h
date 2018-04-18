@@ -1,5 +1,6 @@
 #pragma once
 
+
 // includes
 #include <stdlib.h>
 #include <string.h>
@@ -59,9 +60,6 @@
 typedef struct {
     ts_db * db;
     ts_cli_ctx * ctx;
-    void * io_buffers;
-    FILE * write_input;
-    FILE * read_output;
 } test_state;
 
 // functions

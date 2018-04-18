@@ -37,13 +37,9 @@ static int setup(void **state) {
 
     st->ctx = malloc(sizeof(ts_cli_ctx));
     st->ctx->db = st->db;
-    st->io_buffers = malloc(2000);
 
-    st->ctx->in = fmemopen(st->io_buffers, 1000, "r");
-    st->write_input = fmemopen(st->io_buffers, 1000, "w");
-    
-    st->ctx->out = fmemopen(st->io_buffers + 1000, 1000, "w");
-    st->read_output = fmemopen(st->io_buffers + 1000, 1000, "r");
+    st->ctx->in = fopen("test_db/io_in", "w+");
+    st->ctx->out = fopen("test_db/io_out", "w+");
 
     *state = st;
     return 0;
@@ -54,10 +50,7 @@ static int teardown(void **state) {
 
     fclose(st->ctx->in);
     fclose(st->ctx->out);
-    fclose(st->write_input);
-    fclose(st->read_output);
     free(st->ctx);
-    free(st->io_buffers);
 
     // ts_db_close(st->db);
     ts_db_DESTROY(st->db);
