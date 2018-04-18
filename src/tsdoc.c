@@ -5,12 +5,14 @@
 #include "tsid.h"
 #include "tsdb.h"
 #include "tserror.h"
+#include "tstags.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 
 int ts_doc_create(ts_doc * self, ts_db * db) {
     self->env = db;
@@ -31,16 +33,29 @@ int ts_doc_create(ts_doc * self, ts_db * db) {
 
     // add entry to 'index' table
     MDB_val empty = {.mv_size = 0, .mv_data = ""};
-    ts_db_put(db, "index", self->id_str, &empty);
+    ts_db_put(db, &ts_db_index, self->id_str, &empty);
 
     return TS_SUCCESS;
 }
 
 int ts_doc_delete(ts_doc * self) {
 
+  // delete doc
   unlink(self->path);
+  // delete folder if needed
   fs_rmdir(self->dir);
-  ts_db_del(self->env, "index", self->id_str);
+
+  // remove all tags
+  ts_db_iter iter;
+  ts_db_iter_open(&iter, self->env, &ts_db_index, self->id_str);
+  MDB_val next;
+  while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
+    ts_doc_untag(self, next.mv_data);
+  }
+  ts_db_iter_close(&iter);
+
+  // remove list of tags
+  ts_db_del(self->env, &ts_db_index, self->id_str, NULL);
 
   return TS_SUCCESS;
 }
@@ -66,4 +81,50 @@ int ts_doc_close(ts_doc * self) {
   sdsfree(self->dir);
   sdsfree(self->path);
   sdsfree(self->id_str);
+}
+
+int ts_doc_tag(ts_doc * self, char * tag) {
+
+  // load the tag or create it if it doesn't exist
+  ts_tags tags;
+  int found_tag = ts_tags_open(&tags, self->env, tag);
+
+  if(found_tag == TS_FAILURE) {
+    ts_tags_empty(&tags);
+  }
+
+  // insert the new item
+  ts_tags_insert(&tags, &(self->id));
+
+  // save the tag
+  ts_tags_write(&tags, self->env, tag);
+
+  ts_tags_close(&tags);
+
+  MDB_val new_tag = { .mv_size = strlen(tag), .mv_data = tag};
+  ts_db_put(self->env, &ts_db_index, self->id_str, &new_tag);
+
+  return TS_SUCCESS;
+}
+
+int ts_doc_untag(ts_doc * self, char * tag) {
+
+  ts_tags tags;
+
+  ts_db_del(self->env, &ts_db_index, self->id_str, tag);
+
+  // load the tag or exit it if it doesn't exist
+  int found_tag = ts_tags_open(&tags, self->env, tag);
+  if(found_tag == TS_FAILURE) {
+    return TS_SUCCESS;
+  }
+
+  // remove the new item
+  ts_tags_remove(&tags, &(self->id));
+
+  // save the tag
+  ts_tags_write(&tags, self->env, tag);
+
+  ts_tags_close(&tags);
+  return TS_SUCCESS;
 }

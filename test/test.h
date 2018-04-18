@@ -11,12 +11,22 @@
 #include "cmocka.h"
 #include "sds.h"
 #include "fs.h"
+#include "hash.h"
 #include "tsdb.h"
 #include "tsid.h"
 #include "tsdoc.h"
 #include "tserror.h"
 #include "tstags.h"
 #include "tssearch.h"
+
+// utils
+#include "tsargs.h"
+#include "tscli.h"
+#include "tscliutils.h"
+#include "tssearchset.h"
+#include "tsstr.h"
+#include "tstaglist.h"
+#include "tstagset.h"
 
 // macros
 #define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
@@ -48,6 +58,10 @@
 // types
 typedef struct {
     ts_db * db;
+    ts_cli_ctx * ctx;
+    void * io_buffers;
+    FILE * write_input;
+    FILE * read_output;
 } test_state;
 
 // functions
@@ -60,6 +74,7 @@ void id_from_binary_string_tail(char * source, ts_id * id);
 
 // docs
 void doc_test(void ** state);
+void doc_unique_test(void ** state);
 
 // tags
 void tags_test(void ** state);
@@ -68,12 +83,23 @@ void tag_insert_test(void ** state);
 void tag_remove_test(void ** state);
 void tag_shuffle_test(void ** state);
 void tag_double_ops_test(void ** state);
+void tag_mdb_test(void ** state);
 
 // ids
-void id_test(void ** state);
 void id_value_test(void ** state);
 void id_to_str_test(void ** state);
 
 // search
 void search_test(void ** state);
+void search_remove_test(void ** state);
 void search_intersection_test(void ** state);
+
+// parsing
+void parse_tags_test(void ** state);
+void string_processing_test(void ** state);
+void arg_parsing_test(void ** state);
+
+// cli command tests
+void cli_makeremove_test(void ** state);
+void cli_changeset_test(void ** state);
+void cli_help_test(void ** state);

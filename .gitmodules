@@ -10,3 +10,6 @@
 [submodule "lib/cmocka"]
 	path = lib/cmocka
 	url = git://git.cryptomilk.org/projects/cmocka.git
+[submodule "lib/hash"]
+	path = lib/hash
+	url = https://github.com/clibs/hash

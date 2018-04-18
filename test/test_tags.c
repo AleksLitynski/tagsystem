@@ -4,33 +4,23 @@
 void tags_test(void ** state) {
     test_state * st = (test_state*)*state;
     
+    // create an empty tag tree
     clock_t begin = clock();
     ts_tags tags;
     ts_tags_empty(&tags);
-    // ts_tags_empty(&tags);
-    LOG1("Created empty tag tree");
-
     
-    ts_id id;
-    // 1mil inserts ~10s
+    ts_doc doc;
     for(int i = 0; i < 10; i++) {
-        ts_id_generate(&id, st->db);
-        ts_tags_insert(&tags, &id);
+        ts_doc_create(&doc, st->db);
+        ts_tags_insert(&tags, &doc.id);
     }                       
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC; 
 
-    // LOGTAGS(&tags);
-    LOG("Time to insert elems: %f", time_spent);
-    LOG("size: %i", tags.size); 
-    LOG("occupied: %i", tags.occupied);  
-    // LOGTAGS(&tags); 
-    assert_in_range(tags.size, 0, 64); // seems like we always end up w/ 32 size. Possibly we could exceed the block, but i'm not doing the math ;)
-    
-    // ts_tags_remove(&tags, &id);
-    LOG1("Removed id from tag tree");
-    // LOGTAGS(&tags);
+    // Shouldn't take more than 64 nodes to fit 10 elements. This is a shitty test
+    assert_in_range(tags.size, 0, 64); 
 
+    ts_doc_close(&doc);
     ts_tags_close(&tags);
 }
 
@@ -82,8 +72,6 @@ void tag_insert_test(void ** state) {
 
 }
 
-
-int ts_tags_remove(ts_tags * self, ts_id * id);
 void tag_remove_test(void ** state) {
     test_state * st = (test_state*)*state;
 
@@ -108,8 +96,8 @@ void tag_remove_test(void ** state) {
     ts_tags_insert(&tags, &id_0111);
 
     ts_tags_remove(&tags, &id_0110);
-    // LOGTAGS(&tags);
 
+    // should be able to insert then remove some items without erroring out
     ts_tags_close(&tags);
     
 }
@@ -119,29 +107,33 @@ void tag_shuffle_test(void ** state) {
 
     int items = 10;
 
-    ts_id ids[items];
+    ts_doc docs[items];
     ts_tags tags;
     ts_tags_empty(&tags);
-
-    LOG("Inserted %i random ids", items);
+    
+    // insert x random ids
     for(int i = 0; i < items; i++) {
-        ts_id_generate(&ids[i], st->db);
-        ts_tags_insert(&tags, &ids[i]);
+        ts_doc_create(&docs[i], st->db);
+        ts_tags_insert(&tags, &docs[i].id);
     }
 
-    LOG("Removed %i random ids", items / 3);
+    // remove 1/3 of x random ids
     for(int i = 0; i < items / 3; i++) {
-        ts_tags_remove(&tags, &ids[i]);
+        ts_tags_remove(&tags, &docs[i].id);
     }
     
-    LOG("Inserted %i more random ids", items);
+    // insert another x random ids
     for(int i = 0; i < items; i++) {
-        ts_id id;
-        ts_id_generate(&id, st->db);
-        ts_tags_insert(&tags, &id);
+        ts_doc doc;
+        ts_doc_create(&doc, st->db);
+        ts_tags_insert(&tags, &doc.id);
     }
 
-    LOGTAGS(&tags);
+    for(int i = 0; i < items; i++) {
+        ts_doc_close(&docs[i]);
+    }
+
+    // as long as none of these errored out, we're good
     ts_tags_close(&tags);
 }
 
@@ -153,17 +145,48 @@ void tag_double_ops_test(void ** state) {
 
     ID(01);
 
-    LOG1("Insert A");
+    // shouldn't error when inserting twice
     ts_tags_insert(&tags, &id_01);
-    LOG1("Insert B");
     ts_tags_insert(&tags, &id_01);
 
-    LOG1("Remove A");
+    // shouldn't error when removing twice
     ts_tags_remove(&tags, &id_01);
-    LOG1("Remove B");
     ts_tags_remove(&tags, &id_01);
 
-
-    LOGTAGS(&tags);
     ts_tags_close(&tags);
+}
+
+void tag_mdb_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    // create a document
+    ts_doc doc;
+    ts_doc_create(&doc, st->db);
+
+    // create a tag
+    ts_tags tags;
+    ts_tags_empty(&tags);
+    ts_tags_insert(&tags, &doc.id);
+
+    // write the tag
+    ts_tags_write(&tags, st->db, "tag_name");
+
+    // read the tag
+    ts_tags tags_read;
+    ts_tags_open(&tags_read, st->db, "tag_name");    
+
+    // confirm the content
+    ts_search search;
+    ts_search_create(&search, &tags_read, 1);
+
+    ts_id id;
+    while(ts_search_next(&search, &id) != TS_SEARCH_DONE);
+
+    assert_true(ts_id_eq(&doc.id, &id));
+
+    ts_doc_close(&doc);
+    ts_tags_close(&tags);
+    ts_tags_close(&tags_read);
+    ts_search_close(&search);
+
 }

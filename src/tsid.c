@@ -24,11 +24,9 @@ int ts_id_generate(ts_id * self, ts_db * db) {
     bool is_taken = true;
     while(is_taken) {
         // check if id is available, if it is, re-gen,
-        sds idx = sdsnew("index");
         sds key = ts_id_string(self, sdsempty());
-        is_taken = ts_db_test(db, idx, key) != TS_KEY_NOT_FOUND;
+        is_taken = ts_db_test(db, &ts_db_index, key) != TS_KEY_NOT_FOUND;
         if(is_taken) ts_id_generate_weak(self);
-        sdsfree(idx);
         sdsfree(key);
     }
 

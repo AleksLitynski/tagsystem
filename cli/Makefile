@@ -5,20 +5,17 @@ else
     detected_os := $(shell uname -s)
 endif
 
-SOURCE = $(shell echo *.c) $(shell ls ../lib/cmocka/src/cmocka.c)
+SOURCE = $(shell echo *.c)
 HEADER = $(shell echo *.h)
-HEADER += $(shell ls ../lib/cmocka/include/cmocka.h)
 HEADER += $(shell echo ../lib/sds/*.h)
 HEADER += $(shell echo ../lib/hash/*.h)
 HEADER += $(shell echo ../lib/lmdb/libraries/liblmdb/*.h)
 HEADER += ../lib/fs.fs.h
 HEADER += $(shell echo ../src/*.h)
 OBJECT = $(SOURCE:.c=.o)
-TARGET = test
+TARGET = tsys
 
 CC = gcc
-CFLAGS = $(CMOCKADEFS)
-CFLAGS += -I ../lib/cmocka/include
 CFLAGS += -I ../lib/fs.c
 CFLAGS += -I ../lib/lmdb/libraries/liblmdb
 CFLAGS += -I ../lib/sds
@@ -34,13 +31,11 @@ CFLAGS += -Wno-discarded-qualifiers
 
 LINKED = ../src/libts.a
 ifeq ($(detected_os),Windows)
-	CFLAGS += -imacros ./cmocka.win.def.h
 	LINKED += -lntdll
 	LDLIBS = -lntdll 
 	SOLIBS = -lntdll
 endif
 ifeq ($(detected_os),Linux)
-	CFLAGS += -imacros ./cmocka.unix.def.h
 	LINKED += -lpthread
 endif
 
@@ -56,4 +51,4 @@ $(TARGET): $(OBJECT)
 
 
 run: $(TARGET)
-	./test
+	./tsys

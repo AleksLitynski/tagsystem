@@ -6,8 +6,8 @@
 #include "tsdb.h"
 
 // macros
-#define TS_ID_BYTES 1
-#define TS_ID_BITS TS_ID_BYTES * 8
+#define TS_ID_BYTES 20 // Set to 1 for easier debugging
+#define TS_ID_BITS TS_ID_BYTES * 8 
 
 // types
 typedef uint8_t ts_id[TS_ID_BYTES];
