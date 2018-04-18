@@ -306,45 +306,57 @@ int ts_tags_close(ts_tags * self) {
     free(self->data);
 }
 
+// prints the tag tree 'self' into an sds string 'printed'
+// recursive function, 'node_addr' should start at 0
 sds _ts_tags_print_node(ts_tags * self, size_t node_addr, sds padding, sds printed) {
+    
     /*
+        printed should resemble this structure:
             . 
-            ├── 0
-            │   ├── abc123
-            |   └── abc124
-            └── 1
+            |── 0
+            │   |── abc123
+            |   +── abc124
+            +── 1
     */
 
+   // get a reference to the current node
     ts_tag_node * current = self->data + node_addr;
 
+    // if we're at a leaf node, print the value of the node
     if(current->type == TS_TAG_NODE_LEAF) {
         sds id_str = ts_id_nbit_string(&(current->value.leaf), sdsempty(), 8);
-        printed = sdscatprintf(printed, "%s+-- %s\n", padding, id_str); // sdscatprintf(printed, "%s└── %s\n", padding, id_str);
+        printed = sdscatprintf(printed, "%s+-- %s\n", padding, id_str);
         sdsfree(id_str);
     }
 
+    // if we're at an inner node...
     if(current->type == TS_TAG_NODE_INNER) {
-
+        
+        // the indentation before the next layer of the tree may or may not need a '|' before it,
+        // so prepare both indentations
         sds extendedpadding = sdscatprintf(sdsempty(), "%s|   ", padding);
         sds emptypadding = sdscatprintf(sdsempty(), "%s    ", padding);
+
+        // if the first branch of the tree has a value
         if(current->value.inner[0] != 0) {
-            // print first when second exists
-            char * tee = "|"; // "├";
+            char * tee = "|";
             sds currentpadding = extendedpadding;
-            // print when second doesn't exist
+            
+            // if there is no second branch, print a cap after the first branch
             if(current->value.inner[1] == 0) {
-                tee = "+"; // "└";
+                tee = "+";
                 currentpadding = emptypadding;
             }
             
-            printed = sdscatprintf(printed, "%s%s-- 0\n", padding, tee); // sdscatprintf(printed, "%s%s── 0\n", padding, tee);
+            // recurse to follow the branch
+            printed = sdscatprintf(printed, "%s%s-- 0\n", padding, tee);
             printed = _ts_tags_print_node(self, current->value.inner[0], currentpadding, printed);
             
         }
 
-        // print second
+        // print second branch
         if(current->value.inner[1] != 0) {
-            printed = sdscatprintf(printed, "%s+-- 1\n", padding); // sdscatprintf(printed, "%s└── 1\n", padding);
+            printed = sdscatprintf(printed, "%s+-- 1\n", padding);
             printed = _ts_tags_print_node(self, current->value.inner[1], emptypadding, printed);
         }
 

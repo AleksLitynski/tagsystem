@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <sys/types.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <pwd.h>
 #include <stdbool.h>
 #include <libgen.h>
 #include "hash.h"
@@ -17,16 +20,35 @@
 ts_cli_ctx * ts_cli_ctx_open() {
     ts_cli_ctx * self = malloc(sizeof(ts_cli_ctx));
 
-    char * db_path = getenv("TSDBPATH");
-    if(db_path == 0) db_path = "~/.tsysdb";
+    char * tsdbpath = getenv("TSDBPATH");
+    if(tsdbpath == 0) tsdbpath = "";
+    char * xdghome = getenv("XDG_CONFIG_HOME");
+    if(xdghome == 0) xdghome = "";
+    char * homepath = getenv("HOME");
+    if(homepath == 0) homepath = "";
+
+
+    sds db_path = sdscat(sdsempty(), tsdbpath);
+    if(sdslen(db_path) == 0) {
+        sds home = sdscat(sdsempty(), xdghome);
+        if(sdslen(home) == 0) home = sdscat(home, homepath);
+        if(sdslen(home) == 0) {
+            struct passwd * pswd = getpwuid(geteuid());
+            home = sdscat(home, pswd->pw_dir);
+        }
+        db_path = sdscatsds(db_path, home);
+        db_path = sdscat(db_path, "/.tsysdb");
+        sdsfree(home);
+    }
+
     self->db = malloc(sizeof(ts_db));
     ts_db_open(self->db, db_path);
 
     self->in = stdin;
     self->out = stdout;
+    sdsfree(db_path);
 
     return self;
-
 }
 
 int ts_cli_ctx_close(ts_cli_ctx * self) {

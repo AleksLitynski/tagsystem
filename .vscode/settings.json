@@ -26,7 +26,17 @@
         "utility": "c",
         "ctype.h": "c",
         "tsargs.h": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "tstaglist.h": "c",
+        "tuple": "c",
+        "istream": "c",
+        "optional": "c",
+        "ostream": "c",
+        "tssearch.h": "c",
+        "*.ipp": "cpp",
+        "thread": "c",
+        "tstagset.h": "c",
+        "tsdoc.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

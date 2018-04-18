@@ -27,12 +27,16 @@ void write_input(test_state * st, char * in) {
     fflush(st->write_input);
 }
 
-
 void cli_makeremove_test(void ** state) {
     test_state * st = (test_state*)*state;
+
+    // ts_cli_ctx * ctx2 = ts_cli_ctx_open();
+    // ts_cli_ctx_close(ctx2);
     
     // // create doc and read id
-    CLI(st->ctx, ts_cli_make, "-pi", "tag_name");
+    // CLI(st->ctx, ts_cli_make, "-pi", "tag_name");
+    CLI(st->ctx, ts_cli_make, "tag_name");
+    CLI(st->ctx, ts_cli_make, "tag_name");
 
     char new_id[1000];
     read_output(st, new_id, 1000);
@@ -57,6 +61,7 @@ void cli_makeremove_test(void ** state) {
 
     // confirm removed_id is empty
     assert_string_equal("", removed_id);
+
 
 }
 
