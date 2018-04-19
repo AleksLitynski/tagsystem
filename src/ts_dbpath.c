@@ -3,7 +3,9 @@
 #ifdef _WIN32
 #include <stdlib.h>
 #else
+#include <stdlib.h>
 #include <pwd.h>
+#include <unistd.h>
 #endif
 
 
@@ -17,7 +19,6 @@ sds ts_dbpath_get() {
     sds db_path = sdscat(sdsempty(), appdata);
     db_path = sdscat(db_path, "/tsys/.tsysdb");
     return db_path;
-
 
 #else
 

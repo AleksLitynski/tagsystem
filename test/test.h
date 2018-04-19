@@ -60,6 +60,8 @@
 typedef struct {
     ts_db * db;
     ts_cli_ctx * ctx;
+    FILE * write_input;
+    FILE * read_output;
 } test_state;
 
 // functions

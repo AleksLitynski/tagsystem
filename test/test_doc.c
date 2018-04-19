@@ -33,7 +33,7 @@ void doc_test(void ** state) {
     // create a document and write some text to it
     ts_doc_create(&doc, st->db);
     ts_id_dup(&doc.id, &doc_id);
-    fs_write (doc.path, contents);
+    fs_write(doc.path, contents);
     // close the document
     ts_doc_close(&doc);
 

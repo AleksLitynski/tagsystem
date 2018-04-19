@@ -51,9 +51,10 @@ hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     hash_t * t = hash_new();
     MDB_txn * txn;
     MDB_val val;
-    ts_db_get(ctx->db, &ts_db_meta, "TSPWS", &val, &txn);
-    char * pws_str = val.mv_data;
-
+    int res = ts_db_get(ctx->db, &ts_db_meta, "TSPWS", &val, &txn);
+    
+    char * pws_str = 0;
+    if(res == TS_SUCCESS) pws_str = val.mv_data;
     if(pws_str != 0) ts_tagset_append(t, pws_str);
 
     mdb_txn_commit(txn);

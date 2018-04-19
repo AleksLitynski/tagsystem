@@ -38,8 +38,11 @@ static int setup(void **state) {
     st->ctx = malloc(sizeof(ts_cli_ctx));
     st->ctx->db = st->db;
 
-    st->ctx->in = fopen("test_db/io_in", "w+");
-    st->ctx->out = fopen("test_db/io_out", "w+");
+    st->write_input = fopen("test_db/io_in", "w");
+    st->ctx->in = fopen("test_db/io_in", "r");
+
+    st->ctx->out = fopen("test_db/io_out", "w");
+    st->read_output = fopen("test_db/io_out", "r");
 
     *state = st;
     return 0;
@@ -50,6 +53,8 @@ static int teardown(void **state) {
 
     fclose(st->ctx->in);
     fclose(st->ctx->out);
+    fclose(st->write_input);
+    fclose(st->read_output);
     free(st->ctx);
 
     // ts_db_close(st->db);
@@ -64,34 +69,34 @@ static int teardown(void **state) {
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        // cmocka_unit_test(id_value_test),
-        // cmocka_unit_test(id_to_str_test),
+        cmocka_unit_test(id_value_test),
+        cmocka_unit_test(id_to_str_test),
 
-        // cmocka_unit_test(doc_test),
-        // cmocka_unit_test(doc_unique_test),
+        cmocka_unit_test(doc_test),
+        cmocka_unit_test(doc_unique_test),
         
-        // cmocka_unit_test(tags_test),
-        // cmocka_unit_test(tag_empty_test),
-        // cmocka_unit_test(tag_insert_test),
-        // cmocka_unit_test(tag_remove_test),
-        // cmocka_unit_test(tag_shuffle_test),
-        // cmocka_unit_test(tag_double_ops_test),
-        // cmocka_unit_test(tag_mdb_test),
+        cmocka_unit_test(tags_test),
+        cmocka_unit_test(tag_empty_test),
+        cmocka_unit_test(tag_insert_test),
+        cmocka_unit_test(tag_remove_test),
+        cmocka_unit_test(tag_shuffle_test),
+        cmocka_unit_test(tag_double_ops_test),
+        cmocka_unit_test(tag_mdb_test),
 
-        // cmocka_unit_test(search_test),
-        // cmocka_unit_test(search_remove_test),
-        // cmocka_unit_test(search_intersection_test),
+        cmocka_unit_test(search_test),
+        cmocka_unit_test(search_remove_test),
+        cmocka_unit_test(search_intersection_test),
 
-        // cmocka_unit_test(parse_tags_test),
-        // cmocka_unit_test(string_processing_test),
-        // cmocka_unit_test(arg_parsing_test),
+        cmocka_unit_test(parse_tags_test),
+        cmocka_unit_test(string_processing_test),
+        cmocka_unit_test(arg_parsing_test),
 
         cmocka_unit_test(cli_makeremove_test),
-        // cmocka_unit_test(cli_changeset_test),
-        // cmocka_unit_test(cli_help_test)
+        cmocka_unit_test(cli_changeset_test),
+        cmocka_unit_test(cli_help_test)
 
     };
 
-    return cmocka_run_group_tests_name("main tests", tests, setup, teardown);
+    return cmocka_run_group_tests_name("all tests", tests, setup, teardown);
 
 }
