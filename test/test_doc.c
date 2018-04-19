@@ -34,10 +34,9 @@ void doc_test(void ** state) {
     ts_doc_create(&doc, st->db);
     ts_id_dup(&doc.id, &doc_id);
     fs_write(doc.path, contents);
-    // close the document
     ts_doc_close(&doc);
 
-    // reopen the document and read the text
+    // // reopen the document and read the text
     ts_doc_open(&doc2, st->db, doc_id);
     read = read_file(doc2.path);
     ts_doc_delete(&doc2);

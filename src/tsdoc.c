@@ -48,9 +48,10 @@ int ts_doc_delete(ts_doc * self) {
   // remove all tags
   ts_db_iter iter;
   ts_db_iter_open(&iter, self->env, &ts_db_index, self->id_str);
-  MDB_val next;
+
+  MDB_val next = { .mv_size = 0, .mv_data = 0};
   while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
-    ts_doc_untag(self, next.mv_data);
+    if(next.mv_size != 0) ts_doc_untag(self, next.mv_data);
   }
   ts_db_iter_close(&iter);
 

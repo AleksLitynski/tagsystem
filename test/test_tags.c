@@ -169,11 +169,11 @@ void tag_mdb_test(void ** state) {
     ts_tags_insert(&tags, &doc.id);
 
     // write the tag
-    ts_tags_write(&tags, st->db, "tag_name");
+    ts_tags_write(&tags, st->db, "tag_name_mdb_test");
 
     // read the tag
     ts_tags tags_read;
-    ts_tags_open(&tags_read, st->db, "tag_name");    
+    ts_tags_open(&tags_read, st->db, "tag_name_mdb_test");    
 
     // confirm the content
     ts_search search;

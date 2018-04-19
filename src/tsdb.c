@@ -168,12 +168,10 @@ int ts_db_iter_open(ts_db_iter * self, ts_db *  db, ts_db_table * table, char * 
 }
 
 int ts_db_iter_next(ts_db_iter * self, MDB_val * next) {
-    int out = mdb_cursor_get(self->cursor, &self->key, next, MDB_CURRENT);
+    mdb_cursor_get(self->cursor, &self->key, next, MDB_GET_CURRENT);
 
     MDB_val empty;
-    mdb_cursor_get(self->cursor, &self->key, &empty, MDB_NEXT);
-
-    return out;
+    return mdb_cursor_get(self->cursor, &self->key, &empty, MDB_NEXT);
 }
 
 int ts_db_iter_close(ts_db_iter * self) {

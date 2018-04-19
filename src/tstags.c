@@ -409,7 +409,11 @@ void ts_tags_log(ts_tags * tags) {
 
 int ts_tags_from_mdb(ts_tags * self, MDB_val * val) {
     memcpy(self, val->mv_data, sizeof(ts_tags));
-    memcpy(self->data, val->mv_data + sizeof(ts_tags), sizeof(ts_tag_node) * self->size);
+
+    int data_size = sizeof(ts_tag_node) * self->size;
+    self->data = malloc(data_size);
+    memcpy(self->data, val->mv_data + sizeof(ts_tags), data_size);
+    
     return TS_SUCCESS;
 }
 

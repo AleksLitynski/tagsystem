@@ -106,20 +106,21 @@ void search_intersection_test(void ** state) {
     ts_tags_empty(&tags[1]);
 
     for(int i = 0; i < id_count; i++) {
-        ts_doc doc;
-        ts_doc_create(&doc, st->db);    // 1/3 go in set 0
-        ts_tags_insert(&tags[0], &doc.id);
-        ts_doc_close(&doc);
+        ts_doc doc_0;
+        ts_doc_create(&doc_0, st->db);    // 1/3 go in set 0
+        ts_tags_insert(&tags[0], &doc_0.id);
+        ts_doc_close(&doc_0);
 
-        ts_doc_create(&doc, st->db);    // 1/3 go in set 1
-        ts_tags_insert(&tags[1], &doc.id);
-        ts_doc_close(&doc);
+        ts_doc doc_1;
+        ts_doc_create(&doc_1, st->db);    // 1/3 go in set 1
+        ts_tags_insert(&tags[1], &doc_1.id);
+        ts_doc_close(&doc_1);
         
-        ts_doc_create(&doc, st->db);    // 1/3 of tags go in set 0 and 1
-        ts_tags_insert(&tags[0], &doc.id);
-        ts_tags_insert(&tags[1], &doc.id);
-
-        ts_doc_close(&doc);
+        ts_doc doc_01;
+        ts_doc_create(&doc_01, st->db);    // 1/3 of tags go in set 0 and 1
+        ts_tags_insert(&tags[0], &doc_01.id);
+        ts_tags_insert(&tags[1], &doc_01.id);
+        ts_doc_close(&doc_01);
     }
 
     ts_search search;
