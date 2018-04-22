@@ -34,10 +34,21 @@ bool ts_str_is_vowel(char x) {
     return false;
 }
 
-sds ts_str_without_vowels(sds without,char * src) {
+sds ts_str_without_vowels(sds without, char * src) {
     int len = strlen(src);
     for(int i = 0; i < len; i++) {
         if(!ts_str_is_vowel(src[i])) {
+            without = sdscatlen(without, &src[i], 1);
+        }
+    }
+
+    return without;
+}
+
+sds ts_str_without_spaces(sds without, char * src) {
+    int len = strlen(src);
+    for(int i = 0; i < len; i++) {
+        if(!isspace(src[i])) {
             without = sdscatlen(without, &src[i], 1);
         }
     }

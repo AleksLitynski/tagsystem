@@ -51,9 +51,35 @@ void cli_makeremove_test(void ** state) {
 void cli_changeset_test(void ** state) {
     test_state * st = (test_state*)*state;
 
+    char current_set[1000] = {0};
+
     // can't write to stdin, so nothing's really being tagged
-    CLI(st->ctx, ts_cli_changeset, "+added_to_set ~removed_from_set");
+    CLI(st->ctx, ts_cli_changeset, "-s", "~~");
     CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("\n", current_set);
+
+    CLI(st->ctx, ts_cli_changeset, "-s", "+a");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("+a\n", current_set);
+
+    CLI(st->ctx, ts_cli_changeset, "-s", "~a");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("\n", current_set);
+
+
+    CLI(st->ctx, ts_cli_changeset, "-s", "+a +b");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("+a+b\n", current_set);
+
+    CLI(st->ctx, ts_cli_changeset, "-s", "~~");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("\n", current_set);
+
 }
 
 void cli_help_test(void ** state) {

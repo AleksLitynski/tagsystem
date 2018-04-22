@@ -14,7 +14,7 @@
 #include "tserror.h"
 #include "tstagset.h"
 #include "tsargs.h"
-#include "ts_dbpath.h"
+#include "tsdbpath.h"
 
 
 ts_cli_ctx * ts_cli_ctx_open() {

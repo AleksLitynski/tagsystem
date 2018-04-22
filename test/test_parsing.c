@@ -4,7 +4,7 @@
 void parse_tags_test(void ** state) {
 
     hash_t * tags = hash_new();
-    ts_tagset_append(tags, "+a   b+basd~basd~~      r  a+nope");
+    ts_tagset_append(&tags, "+a   b+basd~basd~~      r  a+nope");
 
     // hash_each(tags, {
     //     LOG("%s", key);

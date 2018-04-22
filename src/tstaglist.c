@@ -10,20 +10,20 @@
 #include "tsdoc.h"
 #include "tserror.h"
 
-ts_taglist * _ts_taglist_next(sds next_tag, char mode) {
+ts_taglist * _ts_taglist_next(sds * next_tag, char mode) {
     ts_taglist * item = malloc(sizeof(ts_taglist));
     item->next = 0;
     item->operation = 0;
-    sdstrim(next_tag, " ");
-    if(sdslen(next_tag) == 0) return 0;
+    sdstrim(*next_tag, " ");
+    if(sdslen(*next_tag) == 0) return 0;
 
-    item->name = malloc(strlen(next_tag));
-    strcpy(item->name, next_tag);
+    item->name = malloc(strlen(*next_tag));
+    strcpy(item->name, *next_tag);
 
     item->operation = mode;
     
-    sdsfree(next_tag);
-    next_tag = sdsempty();
+    sdsfree(*next_tag);
+    *next_tag = sdsempty();
 
     return item;
 }
@@ -63,7 +63,7 @@ ts_taglist * ts_taglist_create(sds tag_str) {
             }
 
             else {
-                ts_taglist * new_item = _ts_taglist_next(next_tag, mode);
+                ts_taglist * new_item = _ts_taglist_next(&next_tag, mode);
                 if(new_item != 0) {
                     next->next = new_item;
                     next = new_item;
@@ -76,7 +76,7 @@ ts_taglist * ts_taglist_create(sds tag_str) {
 
         else if(next_char == TS_TAGLIST_ADD_TAG) {
             // add current item and set to '+' for next item
-            ts_taglist * new_item = _ts_taglist_next(next_tag, mode);
+            ts_taglist * new_item = _ts_taglist_next(&next_tag, mode);
             if(new_item != 0) {
                 next->next = new_item;
                 next = new_item;
@@ -91,7 +91,7 @@ ts_taglist * ts_taglist_create(sds tag_str) {
         }
     }
 
-    next->next = _ts_taglist_next(next_tag, mode);
+    next->next = _ts_taglist_next(&next_tag, mode);
     return head;
 
 }

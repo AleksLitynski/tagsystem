@@ -12,8 +12,15 @@
 #include "tsdoc.h"
 #include "tserror.h"
 
-int ts_tagset_append(hash_t * tags, sds tag_str) {
-    ts_taglist * head = ts_taglist_create(tag_str);
+int ts_tagset_append(hash_t ** tags, sds tag_str) {
+
+    sds tag_str_dup = sdsnew(tag_str);
+    tag_str_dup = sdscatsds(ts_tagset_print(*tags), tag_str_dup);
+    ts_taglist * head = ts_taglist_create(tag_str_dup);
+
+    ts_tagset_close(*tags);
+    *tags = hash_new();
+
     ts_taglist * current = head;
 
     do {
@@ -23,14 +30,14 @@ int ts_tagset_append(hash_t * tags, sds tag_str) {
                 char * key = malloc(strlen(current->name));
                 strcpy(key, current->name);
 
-                hash_set(tags, key, key); 
+                hash_set(*tags, key, key); 
                 break;
             }
 
             case TS_TAGLIST_DEL_TAG: {
-                char * val = hash_get(tags, current->name);
+                char * val = hash_get(*tags, current->name);
                 if(val != NULL) {
-                    hash_del(tags, current->name); 
+                    hash_del(*tags, current->name); 
                     free(val);
                 }
 
@@ -43,6 +50,7 @@ int ts_tagset_append(hash_t * tags, sds tag_str) {
     } while(current != 0);
 
 
+    sdsfree(tag_str_dup);
     ts_taglist_close(head);
     return TS_SUCCESS;
 }
@@ -55,7 +63,7 @@ hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     
     char * pws_str = 0;
     if(res == TS_SUCCESS) pws_str = val.mv_data;
-    if(pws_str != 0) ts_tagset_append(t, pws_str);
+    if(pws_str != 0) ts_tagset_append(&t, pws_str);
 
     mdb_txn_commit(txn);
     return t;

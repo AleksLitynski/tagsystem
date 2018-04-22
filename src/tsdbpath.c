@@ -1,4 +1,4 @@
-#include "ts_dbpath.h"
+#include "tsdbpath.h"
 
 #ifdef _WIN32
 #include <stdlib.h>

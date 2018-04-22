@@ -17,7 +17,7 @@ typedef struct ts_cli_tag {
 } ts_taglist;
 
 // functions
-ts_taglist * _ts_taglist_next(sds next_tag, char mode);
+ts_taglist * _ts_taglist_next(sds * next_tag, char mode);
 
 ts_taglist * ts_taglist_create(sds tag_str);
 int ts_taglist_close(ts_taglist * head);

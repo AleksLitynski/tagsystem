@@ -20,7 +20,7 @@ int ts_cli_list(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args_parse(&args, argc, argv);
 
     hash_t * pws = ts_tagset_load(ctx);
-    ts_tagset_append(pws, args.rest);
+    ts_tagset_append(&pws, args.rest);
     ts_search * search = ts_searchset_create(ctx, pws);
     
     ts_id id;
@@ -43,7 +43,7 @@ int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args_parse(&args, argc, argv);
     
     hash_t * pws = ts_tagset_load(ctx);
-    ts_tagset_append(pws, args.rest);
+    ts_tagset_append(&pws, args.rest);
 
     ts_doc doc;
     ts_doc_create(&doc, ctx->db);
@@ -177,7 +177,7 @@ int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args_parse(&args, argc, argv);
 
     hash_t * pws = ts_tagset_load(ctx);
-    ts_tagset_append(pws, args.rest);
+    ts_tagset_append(&pws, args.rest);
     ts_tagset_save(ctx, pws);
     if(!**silent) {
         sds pws_str = ts_tagset_print(pws);
