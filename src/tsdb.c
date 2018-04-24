@@ -59,7 +59,7 @@ int ts_db_begin_txn(ts_db * self) {
         self->current_txn = txn;
     } else {
         txn->parent = self->current_txn;
-        success = mdb_txn_begin(self->index, self->current_txn->txn, 0, &txn->txn);
+        success = mdb_txn_begin(self->index, txn->txn, 0, &txn->txn);
         self->current_txn = txn;
     }
 
@@ -190,7 +190,10 @@ int ts_db_iter_next(ts_db_iter * self, MDB_val * next) {
     int x = mdb_cursor_get(self->cursor, &self->key, next, MDB_GET_CURRENT);
 
     MDB_val empty;
-    return mdb_cursor_get(self->cursor, &self->key, &empty, MDB_NEXT);
+    int res = mdb_cursor_get(self->cursor, &self->key, &empty, MDB_NEXT);
+    if(res == MDB_NOTFOUND) return res;
+    if(next->mv_size == 0) return ts_db_iter_next(self, next);
+    return res;
 }
 
 int ts_db_iter_close(ts_db_iter * self) {

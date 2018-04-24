@@ -78,7 +78,11 @@ void ts_tagset_save(ts_cli_ctx * ctx, hash_t * tags) {
     };
 
     ts_db_begin_txn(ctx->db);
-    ts_db_put(ctx->db, "meta", "TSPWS", &val);
+    ts_db_del(ctx->db, "meta", "TSPWS", NULL);
+    if(val.mv_size != 0) {
+        ts_db_put(ctx->db, "meta", "TSPWS", &val);
+    }
+
     ts_db_commit_txn(ctx->db);
     sdsfree(pws_str);
 }

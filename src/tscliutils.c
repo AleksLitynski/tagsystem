@@ -33,8 +33,8 @@ ts_cli_ctx * ts_cli_ctx_open() {
 }
 
 int ts_cli_ctx_close(ts_cli_ctx * self) {
-    free(self);
     free(self->db);
+    free(self);
 }
 
 void ts_cli_print_id(ts_cli_ctx * ctx, ts_id * id, bool show_id) {
