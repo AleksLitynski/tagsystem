@@ -55,11 +55,11 @@ void ts_cli_print_id(ts_cli_ctx * ctx, ts_id * id, bool show_id) {
 void ts_cli_print_tags(ts_cli_ctx * ctx, ts_id * id) {
     
     ts_db_iter iter;
-    ts_db_iter_open(&iter, ctx->db, &ts_db_index, *id);
+    ts_db_iter_open(&iter, ctx->db, "index", *id);
 
     MDB_val next = { .mv_size = 0, .mv_data = 0};
     // int nct = ts_db_iter_next(&iter, &next);
-    while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND && next.mv_size > 0) {
+    while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
         fprintf(ctx->out, "+%s ", next.mv_data);
     }
     ts_db_iter_close(&iter);

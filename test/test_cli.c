@@ -26,14 +26,15 @@ void cli_makeremove_test(void ** state) {
     // apply tag
     write_input(st, new_id);
     CLI(st->ctx, ts_cli_tag, "new_tag_name");
-    CLI(st->ctx, ts_cli_list, "--id", "--tags", "tag_name");
+    CLI(st->ctx, ts_cli_list, "--id", "tag_name");
 
     char tagged_id[1000] = {0};
     read_output(st, tagged_id, 1000);
 
+
     // delete the new doc
     CLI(st->ctx, ts_cli_remove, "-f", "-s", "new_tag_name");
-    CLI(st->ctx, ts_cli_list, "--id", "--tags", "new_tag_name + tag_name");
+    CLI(st->ctx, ts_cli_list, "--id", "-t", "new_tag_name + tag_name");
 
     char removed_id[1000] = {0};
     read_output(st, removed_id, 1000);

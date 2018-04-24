@@ -35,7 +35,7 @@ int ts_doc_create(ts_doc * self, ts_db * db) {
 
     // add entry to 'index' table
     MDB_val empty = {.mv_size = 0, .mv_data = ""};
-    ts_db_put(db, &ts_db_index, self->id_str, &empty);
+    ts_db_put(db, "index", self->id_str, &empty);
 
     return TS_SUCCESS;
 }
@@ -49,17 +49,17 @@ int ts_doc_delete(ts_doc * self) {
 
   // remove all tags
   ts_db_iter iter;
-  ts_db_iter_open(&iter, self->env, &ts_db_index, self->id_str);
+  ts_db_iter_open(&iter, self->env, "index", self->id_str);
 
   MDB_val next = { .mv_size = 0, .mv_data = 0};
   // int nct = ts_db_iter_next(&iter, &next);
-  while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND && next.mv_size > 0) {
+  while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
     ts_doc_untag(self, next.mv_data);
   }
   ts_db_iter_close(&iter);
 
   // remove list of tags
-  ts_db_del(self->env, &ts_db_index, self->id_str, NULL);
+  ts_db_del(self->env, "index", self->id_str, NULL);
 
   return TS_SUCCESS;
 }
@@ -108,7 +108,7 @@ int ts_doc_tag(ts_doc * self, char * tag) {
   ts_tags_close(&tags);
 
   MDB_val new_tag = { .mv_size = strlen(tag), .mv_data = tag};
-  ts_db_put(self->env, &ts_db_index, self->id_str, &new_tag);
+  ts_db_put(self->env, "index", self->id_str, &new_tag);
 
   return TS_SUCCESS;
 }
@@ -117,7 +117,7 @@ int ts_doc_untag(ts_doc * self, char * tag) {
 
   ts_tags tags;
 
-  ts_db_del(self->env, &ts_db_index, self->id_str, tag);
+  ts_db_del(self->env, "index", self->id_str, tag);
 
   // load the tag or exit it if it doesn't exist
   int found_tag = ts_tags_open(&tags, self->env, tag);

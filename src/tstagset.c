@@ -59,12 +59,14 @@ int ts_tagset_append(hash_t ** tags, sds tag_str) {
 hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     hash_t * t = hash_new();
     MDB_val val;
-    int res = ts_db_get(ctx->db, &ts_db_meta, "TSPWS", &val);
+    ts_db_begin_txn(ctx->db);
+    int res = ts_db_get(ctx->db, "meta", "TSPWS", &val);
     
     char * pws_str = 0;
     if(res == TS_SUCCESS) pws_str = val.mv_data;
     if(pws_str != 0) ts_tagset_append(&t, pws_str);
 
+    ts_db_commit_txn(ctx->db);
     return t;
 }
 
@@ -74,8 +76,10 @@ void ts_tagset_save(ts_cli_ctx * ctx, hash_t * tags) {
         .mv_data = pws_str,
         .mv_size = sdslen(pws_str)
     };
-    ts_db_put(ctx->db, &ts_db_meta, "TSPWS", &val);
 
+    ts_db_begin_txn(ctx->db);
+    ts_db_put(ctx->db, "meta", "TSPWS", &val);
+    ts_db_commit_txn(ctx->db);
     sdsfree(pws_str);
 }
 
