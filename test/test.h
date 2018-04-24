@@ -28,6 +28,7 @@
 #include "tsstr.h"
 #include "tstaglist.h"
 #include "tstagset.h"
+#include "tsclihelp.h"
 
 // macros
 #define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)

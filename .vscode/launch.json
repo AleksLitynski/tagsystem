@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/cli/tsys",
-            "args": ["ls"],
+            "args": ["cs", "-rhino"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

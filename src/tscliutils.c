@@ -33,8 +33,8 @@ ts_cli_ctx * ts_cli_ctx_open() {
 }
 
 int ts_cli_ctx_close(ts_cli_ctx * self) {
-    free(self->db);
     free(self);
+    free(self->db);
 }
 
 void ts_cli_print_id(ts_cli_ctx * ctx, ts_id * id, bool show_id) {
@@ -50,6 +50,19 @@ void ts_cli_print_id(ts_cli_ctx * ctx, ts_id * id, bool show_id) {
         fprintf(ctx->out, "%s\n", doc.path);
         ts_doc_close(&doc);
     }
+}
+
+void ts_cli_print_tags(ts_cli_ctx * ctx, ts_id * id) {
+    
+    ts_db_iter iter;
+    ts_db_iter_open(&iter, ctx->db, &ts_db_index, *id);
+
+    MDB_val next = { .mv_size = 0, .mv_data = 0};
+    // int nct = ts_db_iter_next(&iter, &next);
+    while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND && next.mv_size > 0) {
+        fprintf(ctx->out, "+%s ", next.mv_data);
+    }
+    ts_db_iter_close(&iter);
 }
 
 bool ts_cli_confirm(ts_cli_ctx * ctx, char * message) {
@@ -74,9 +87,17 @@ sds * ts_cli_stdin_to_array(ts_cli_ctx * ctx, int * count) {
 }
 
 char * ts_cli_doc_path_id(sds doc_path) {
+
+    int count;
     char * doc_path_dup = strdup(doc_path);
-    char * doc_name_temp = basename(doc_path_dup);
+    sds * doc_path_segs = sdssplitlen(doc_path_dup, strlen(doc_path_dup), " ", 1, &count);
+    sds final_doc_path = doc_path_segs[count - 1];
+
+    char * doc_name_temp = basename(final_doc_path);
     char * doc_name = strdup(doc_name_temp);
+
+    sdsfreesplitres(doc_path_segs, count);
     free(doc_path_dup);
+
     return doc_name;
 }

@@ -429,20 +429,17 @@ int ts_tags_to_mdb(ts_tags * self, MDB_val * val) {
 
 int ts_tags_open(ts_tags * self, ts_db * db, sds tag) {
 
-    MDB_txn * txn;
     MDB_val current;
     ts_tags tags;
 
     // load the tag or create it if it doesn't exist
-    int found_tag = ts_db_get(db, &ts_db_iindex, tag, &current, &txn);
+    int found_tag = ts_db_get(db, &ts_db_iindex, tag, &current);
     if(found_tag == TS_KEY_NOT_FOUND) {
-        mdb_txn_commit(txn);
         ts_tags_empty(self);
         return TS_FAILURE;
     }
 
     ts_tags_from_mdb(self, &current);
-    mdb_txn_commit(txn);
 
     return TS_SUCCESS;
 }

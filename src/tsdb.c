@@ -40,6 +40,8 @@ int ts_db_open(ts_db * self, char * path) {
 
     int res = mdb_env_open(self->index, self->index_path, 0, 0664);
 
+    self->current_txn = 0;
+
     return res == 0 ? TS_SUCCESS : TS_FAILURE;
 }
 
@@ -50,6 +52,38 @@ int ts_db_close(ts_db * self) {
     mdb_env_close(self->index);
 
     return TS_SUCCESS;
+}
+
+int ts_db_begin_txn(ts_db * self) {
+
+    ts_db_txn * txn = calloc(sizeof(ts_db_txn), 1);
+
+    int success = 0;
+    if(self->current_txn == 0) {
+        success = mdb_txn_begin(self->index, NULL, 0, &txn->txn);
+        self->current_txn = txn;
+    } else {
+        txn->parent = self->current_txn;
+        success = mdb_txn_begin(self->index, self->current_txn->txn, 0, &txn->txn);
+        self->current_txn = txn;
+    }
+
+    return success;
+}
+
+int ts_db_commit_txn(ts_db * self) {
+
+    int success = 0;
+    ts_db_txn * current = self->current_txn;
+    if(self->current_txn != 0) {
+        success = mdb_txn_commit(self->current_txn->txn);
+        if(self->current_txn->parent != 0) {
+            self->current_txn = self->current_txn->parent;
+        }
+    }
+    free(current);
+
+    return success;
 }
 
 int _ts_db_delete_fs_item(const char * fpath, const struct stat * sb, int tflag, struct FTW * ftwbuf) {
@@ -75,7 +109,6 @@ int ts_db_DESTROY(ts_db * self) {
 
 int ts_db_test(ts_db * self, ts_db_table * table, char * key_name) {
 
-    MDB_txn * txn;
     MDB_dbi dbi;
     MDB_val key, val;
 
@@ -83,11 +116,8 @@ int ts_db_test(ts_db * self, ts_db_table * table, char * key_name) {
     key.mv_data = key_name;
 
     // iterate index
-    mdb_txn_begin(self->index, NULL, 0, &txn);
-    mdb_dbi_open(txn, table->name, table->flags, &dbi);
-
-    int res = mdb_get(txn, dbi, &key, &val);
-    mdb_txn_commit(txn);
+    mdb_dbi_open(self->current_txn->txn, table->name, table->flags, &dbi);
+    int res = mdb_get(self->current_txn->txn, dbi, &key, &val);
 
     // return 3 for no value found
     return res == MDB_NOTFOUND ? TS_KEY_NOT_FOUND : TS_FAILURE;
@@ -96,7 +126,6 @@ int ts_db_test(ts_db * self, ts_db_table * table, char * key_name) {
 
 int ts_db_del(ts_db * self, ts_db_table * table, char * key_name, char * value) {
 
-    MDB_txn * txn;
     MDB_dbi dbi;
     MDB_val key, val;
 
@@ -104,38 +133,34 @@ int ts_db_del(ts_db * self, ts_db_table * table, char * key_name, char * value) 
     key.mv_data = key_name;
 
     // iterate index
-    mdb_txn_begin(self->index, NULL, 0, &txn);
-    mdb_dbi_open(txn, table->name, table->flags, &dbi);
+    mdb_dbi_open(self->current_txn->txn, table->name, table->flags, &dbi);
 
     MDB_val to_del;
     if(value != NULL) {
         to_del.mv_size = strlen(value);
         to_del.mv_data = value;
     }
-    int res = mdb_del(txn, dbi, &key, value == NULL ? NULL : &to_del);
-    mdb_txn_commit(txn);
+    int res = mdb_del(self->current_txn->txn, dbi, &key, value == NULL ? NULL : &to_del);
 
     // return 3 for no value found
     return TS_SUCCESS;
 }
 
-int ts_db_get(ts_db * self, ts_db_table * table, char * key_name, MDB_val * val, MDB_txn ** txn) {
+int ts_db_get(ts_db * self, ts_db_table * table, char * key_name, MDB_val * val) {
     MDB_dbi dbi;
     MDB_val key;
 
     key.mv_size = strlen(key_name);
     key.mv_data = key_name;
 
-    mdb_txn_begin(self->index, NULL, 0, txn);
-    mdb_dbi_open(*txn, table->name, table->flags, &dbi);
+    mdb_dbi_open(self->current_txn->txn, table->name, table->flags, &dbi);
 
-    int res = mdb_get(*txn, dbi, &key, val);
+    int res = mdb_get(self->current_txn->txn, dbi, &key, val);
 
     return res == MDB_NOTFOUND ? TS_KEY_NOT_FOUND : TS_SUCCESS;
 }
 
 int ts_db_put(ts_db * self, ts_db_table * table, char * key_name, MDB_val * val) {
-    MDB_txn * txn;
     MDB_dbi dbi;
     MDB_val key;
 
@@ -143,11 +168,10 @@ int ts_db_put(ts_db * self, ts_db_table * table, char * key_name, MDB_val * val)
     key.mv_data = key_name;
 
     // iterate index
-    mdb_txn_begin(self->index, NULL, 0, &txn);
-    mdb_dbi_open(txn, table->name, table->flags, &dbi);
+    mdb_dbi_open(self->current_txn->txn, table->name, table->flags, &dbi);
 
-    int res = mdb_put(txn, dbi, &key, val, 0);
-    mdb_txn_commit(txn);
+    int res = 1;
+    res = mdb_put(self->current_txn->txn, dbi, &key, val, 0);
 
     return res == 0 ? TS_SUCCESS : TS_FAILURE;
 }
@@ -157,9 +181,8 @@ int ts_db_iter_open(ts_db_iter * self, ts_db *  db, ts_db_table * table, char * 
 
     self->key.mv_size = strlen(name);
     self->key.mv_data = name;
-    mdb_txn_begin(db->index, NULL, 0, &self->txn);
-    mdb_dbi_open(self->txn, table->name, table->flags, &self->dbi);
-    mdb_cursor_open(self->txn, self->dbi, &self->cursor);
+    mdb_dbi_open(db->current_txn->txn, table->name, table->flags, &self->dbi);
+    mdb_cursor_open(db->current_txn->txn, self->dbi, &self->cursor);
 
     MDB_val empty;
     mdb_cursor_get(self->cursor, &self->key, &empty, MDB_FIRST);
@@ -176,6 +199,5 @@ int ts_db_iter_next(ts_db_iter * self, MDB_val * next) {
 
 int ts_db_iter_close(ts_db_iter * self) {
     mdb_cursor_close(self->cursor);
-    mdb_txn_commit(self->txn);
     return TS_SUCCESS;
 }

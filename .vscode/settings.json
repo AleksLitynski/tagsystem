@@ -36,7 +36,8 @@
         "*.ipp": "cpp",
         "thread": "c",
         "tstagset.h": "c",
-        "tsdoc.h": "c"
+        "tsdoc.h": "c",
+        "chrono": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

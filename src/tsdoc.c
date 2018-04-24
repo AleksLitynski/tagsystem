@@ -17,6 +17,8 @@
 int ts_doc_create(ts_doc * self, ts_db * db) {
     self->env = db;
 
+    ts_db_begin_txn(self->env);
+
     // get an id
     ts_id_generate(&self->id, db);
     self->id_str = ts_id_string(&(self->id), sdsempty());
@@ -50,8 +52,9 @@ int ts_doc_delete(ts_doc * self) {
   ts_db_iter_open(&iter, self->env, &ts_db_index, self->id_str);
 
   MDB_val next = { .mv_size = 0, .mv_data = 0};
-  while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
-    if(next.mv_size != 0) ts_doc_untag(self, next.mv_data);
+  // int nct = ts_db_iter_next(&iter, &next);
+  while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND && next.mv_size > 0) {
+    ts_doc_untag(self, next.mv_data);
   }
   ts_db_iter_close(&iter);
 
@@ -82,6 +85,8 @@ int ts_doc_close(ts_doc * self) {
   sdsfree(self->dir);
   sdsfree(self->path);
   sdsfree(self->id_str);
+
+  ts_db_begin_txn(self->env);
 }
 
 int ts_doc_tag(ts_doc * self, char * tag) {

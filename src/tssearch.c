@@ -10,6 +10,7 @@
 
 // functions
 int ts_search_create(ts_search * self, ts_tags * tags, int tag_count) {
+
     self->index = 0;
     
     for(int i = 0; i < TS_ID_BITS; i++) {

@@ -99,12 +99,11 @@ int ts_id_set_bit(ts_id * self, int index, int bit) {
     return TS_SUCCESS;
 }
 
-
 int ts_id_from_string(ts_id * self, sds str) {
+    int byte_index = 0;
     for(int i = 0; i < TS_ID_BYTES; i++) {
-        sds str_i = sdsdup(str);
-        sdsrange(str_i, i * 3, (i * 3) + 2);
-        (*self)[i] = atoi(str_i);
-        sdsfree(str_i);
+        char next[3] = { str[byte_index], str[byte_index + 1], str[byte_index + 2] };
+        (*self)[i] = atoi(next);
+        byte_index += 3;
     }
 }

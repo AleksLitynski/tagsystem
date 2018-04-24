@@ -16,10 +16,8 @@ void write_input(test_state * st, char * in) {
 void cli_makeremove_test(void ** state) {
     test_state * st = (test_state*)*state;
 
-    // ts_cli_ctx * ctx2 = ts_cli_ctx_open();
-    // ts_cli_ctx_close(ctx2);
     
-    // // create doc and read id
+    // create doc and read id
     CLI(st->ctx, ts_cli_make, "-pi", "tag_name");
 
     char new_id[1000] = {0};
@@ -28,14 +26,14 @@ void cli_makeremove_test(void ** state) {
     // apply tag
     write_input(st, new_id);
     CLI(st->ctx, ts_cli_tag, "new_tag_name");
-    CLI(st->ctx, ts_cli_list, "--id", "tag_name");
+    CLI(st->ctx, ts_cli_list, "--id", "--tags", "tag_name");
 
     char tagged_id[1000] = {0};
     read_output(st, tagged_id, 1000);
 
     // delete the new doc
-    CLI(st->ctx, ts_cli_remove, "-f", "new_tag_name");
-    CLI(st->ctx, ts_cli_list, "--id", "new_tag_name + tag_name");
+    CLI(st->ctx, ts_cli_remove, "-f", "-s", "new_tag_name");
+    CLI(st->ctx, ts_cli_list, "--id", "--tags", "new_tag_name + tag_name");
 
     char removed_id[1000] = {0};
     read_output(st, removed_id, 1000);
@@ -76,6 +74,21 @@ void cli_changeset_test(void ** state) {
     assert_string_equal("+a+b\n", current_set);
 
     CLI(st->ctx, ts_cli_changeset, "-s", "~~");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("\n", current_set);
+
+    CLI(st->ctx, ts_cli_changeset, "-s", "+b");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("+b\n", current_set);
+
+    CLI(st->ctx, ts_cli_changeset, "-s", "zebra");
+    CLI(st->ctx, ts_cli_presentset, "");
+    read_output(st, current_set, 1000);
+    assert_string_equal("+b+zebra\n", current_set);
+
+    CLI(st->ctx, ts_cli_changeset, "~~");
     CLI(st->ctx, ts_cli_presentset, "");
     read_output(st, current_set, 1000);
     assert_string_equal("\n", current_set);

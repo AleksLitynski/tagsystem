@@ -8,6 +8,7 @@
 #include "tsdoc.h"
 #include "tserror.h"
 #include "tscliutils.h"
+#include "tsclihelp.h"
 
 // macros
 // a helpful way to make cli calls programatically
@@ -25,4 +26,3 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]);
 int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]);
 int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]);
 int ts_cli_presentset(ts_cli_ctx * ctx, int argc, char * argv[]);
-int ts_cli_help(ts_cli_ctx * ctx, int argc, char * argv[]);

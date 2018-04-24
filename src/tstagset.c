@@ -14,9 +14,10 @@
 
 int ts_tagset_append(hash_t ** tags, sds tag_str) {
 
-    sds tag_str_dup = sdsnew(tag_str);
-    tag_str_dup = sdscatsds(ts_tagset_print(*tags), tag_str_dup);
-    ts_taglist * head = ts_taglist_create(tag_str_dup);
+    sds full_tag_str = ts_tagset_print(*tags);
+    full_tag_str = sdscat(full_tag_str, "+");
+    full_tag_str = sdscat(full_tag_str, tag_str);
+    ts_taglist * head = ts_taglist_create(full_tag_str);
 
     ts_tagset_close(*tags);
     *tags = hash_new();
@@ -50,22 +51,20 @@ int ts_tagset_append(hash_t ** tags, sds tag_str) {
     } while(current != 0);
 
 
-    sdsfree(tag_str_dup);
+    sdsfree(full_tag_str);
     ts_taglist_close(head);
     return TS_SUCCESS;
 }
 
 hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     hash_t * t = hash_new();
-    MDB_txn * txn;
     MDB_val val;
-    int res = ts_db_get(ctx->db, &ts_db_meta, "TSPWS", &val, &txn);
+    int res = ts_db_get(ctx->db, &ts_db_meta, "TSPWS", &val);
     
     char * pws_str = 0;
     if(res == TS_SUCCESS) pws_str = val.mv_data;
     if(pws_str != 0) ts_tagset_append(&t, pws_str);
 
-    mdb_txn_commit(txn);
     return t;
 }
 

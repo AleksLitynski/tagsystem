@@ -1,12 +1,9 @@
 DOING:
-- debug core operations
-
-TODO 0.0.1:
-- provide update db function and error if db is out of date
 - add --help option to all commands
     - env vars:
         - current db dir
-        - current working set
+
+TODO 0.0.1:
 - test on windows
 - publish 0.0.1
     - upload to github
@@ -16,6 +13,9 @@ TODO 0.0.1:
 
 
 TODO 0.0.2:
+- clean up header references and compile headers into a single file to simplify import
+- clean up CLI macro/provide C library that simplifies using the DB similar to the CLI api
+- provide update db function and error if db is out of date
 - implement proj/sync logic
     - proj
         - force to overwrite directory
@@ -34,3 +34,7 @@ TODO 0.0.X:
 DONE:
 - implement tagging from stdin (check if each item is an id or a path and support both)
 - clean up parsing and utils files
+- debug core operations
+- env var: current working set
+    - because env variables are set in the child process and not the parent process (the spawning shell) setting the working dir as an env variable is useless.
+    - instead, I am setting the env variable as a property in the meta db table. It ends up shared across all db users, but the db is single user, so it doesn't matter, really
