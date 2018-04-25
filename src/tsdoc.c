@@ -70,6 +70,8 @@ int ts_doc_open(ts_doc * self, ts_db * db, ts_id id) {
     self->id[i] = id[i];
   }
 
+  ts_db_begin_txn(self->env);
+
   self->id_str = ts_id_string(&(self->id), sdsempty());
 
   self->dir = sdsdup(self->id_str);
@@ -86,7 +88,7 @@ int ts_doc_close(ts_doc * self) {
   sdsfree(self->path);
   sdsfree(self->id_str);
 
-  ts_db_begin_txn(self->env);
+  ts_db_commit_txn(self->env);
 }
 
 int ts_doc_tag(ts_doc * self, char * tag) {

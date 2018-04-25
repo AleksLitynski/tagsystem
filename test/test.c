@@ -93,6 +93,7 @@ int main(void) {
 
         cmocka_unit_test(cli_makeremove_test),
         cmocka_unit_test(cli_changeset_test),
+        cmocka_unit_test(cli_doubleinsert_test),
         cmocka_unit_test(cli_help_test)
 
     };

@@ -9,10 +9,11 @@ void tags_test(void ** state) {
     ts_tags tags;
     ts_tags_empty(&tags);
     
-    ts_doc doc;
     for(int i = 0; i < 10; i++) {
+        ts_doc doc;
         ts_doc_create(&doc, st->db);
         ts_tags_insert(&tags, &doc.id);
+        ts_doc_close(&doc);
     }                       
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC; 
@@ -20,7 +21,6 @@ void tags_test(void ** state) {
     // Shouldn't take more than 64 nodes to fit 10 elements. This is a shitty test
     assert_in_range(tags.size, 0, 64); 
 
-    ts_doc_close(&doc);
     ts_tags_close(&tags);
 }
 
@@ -107,19 +107,20 @@ void tag_shuffle_test(void ** state) {
 
     int items = 10;
 
-    ts_doc docs[items];
     ts_tags tags;
     ts_tags_empty(&tags);
     
     // insert x random ids
     for(int i = 0; i < items; i++) {
-        ts_doc_create(&docs[i], st->db);
-        ts_tags_insert(&tags, &docs[i].id);
-    }
+        ts_doc doc;
+        ts_doc_create(&doc, st->db);
+        ts_tags_insert(&tags, &doc.id);
 
-    // remove 1/3 of x random ids
-    for(int i = 0; i < items / 3; i++) {
-        ts_tags_remove(&tags, &docs[i].id);
+        if(i < items / 3) {
+            ts_tags_remove(&tags, &doc.id);
+        }
+
+        ts_doc_close(&doc);
     }
     
     // insert another x random ids
@@ -127,10 +128,7 @@ void tag_shuffle_test(void ** state) {
         ts_doc doc;
         ts_doc_create(&doc, st->db);
         ts_tags_insert(&tags, &doc.id);
-    }
-
-    for(int i = 0; i < items; i++) {
-        ts_doc_close(&docs[i]);
+        ts_doc_close(&doc);
     }
 
     // as long as none of these errored out, we're good

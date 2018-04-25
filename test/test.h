@@ -103,4 +103,5 @@ void arg_parsing_test(void ** state);
 // cli command tests
 void cli_makeremove_test(void ** state);
 void cli_changeset_test(void ** state);
+void cli_doubleinsert_test(void ** state);
 void cli_help_test(void ** state);

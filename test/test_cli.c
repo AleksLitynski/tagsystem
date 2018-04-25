@@ -31,7 +31,6 @@ void cli_makeremove_test(void ** state) {
     char tagged_id[1000] = {0};
     read_output(st, tagged_id, 1000);
 
-
     // delete the new doc
     CLI(st->ctx, ts_cli_remove, "-f", "-s", "new_tag_name");
     CLI(st->ctx, ts_cli_list, "--id", "-t", "new_tag_name + tag_name");
@@ -93,6 +92,15 @@ void cli_changeset_test(void ** state) {
     CLI(st->ctx, ts_cli_presentset, "");
     read_output(st, current_set, 1000);
     assert_string_equal("\n", current_set);
+
+}
+
+void cli_doubleinsert_test(void ** state) {
+    test_state * st = (test_state*)*state;
+
+    CLI(st->ctx, ts_cli_changeset, "+aa +b");
+    CLI(st->ctx, ts_cli_changeset, "+b");
+
 
 }
 

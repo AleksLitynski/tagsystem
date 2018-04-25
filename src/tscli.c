@@ -79,7 +79,7 @@ int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
         ts_tagset_save(ctx, pws);
     }
 
-
+    ts_doc_close(&doc);
     ts_args_close(&args);
     ts_tagset_close(pws);
     return EXIT_SUCCESS;
@@ -161,15 +161,13 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
         }
     }
 
-    ts_id * ids = malloc(sizeof(ts_id) * doc_count);
-    ts_doc * docs = malloc(sizeof(ts_doc) * doc_count);
-
     ts_taglist * tags = ts_taglist_create(args.rest);
     
     for(int i = 0; i < doc_count; i++) {
         char * id_str = ts_cli_doc_path_id(paths[i]);
         ts_id id;
         ts_id_from_string(&id, id_str);
+
         ts_doc doc;
         ts_doc_open(&doc, ctx->db, id);
         // apply all tags
@@ -198,8 +196,6 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
     }
 
     ts_taglist_close(tags);
-    free(ids);
-    free(docs);
     sdsfreesplitres(paths, count);
     ts_args_close(&args);
     return EXIT_SUCCESS;

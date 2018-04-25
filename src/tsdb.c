@@ -58,8 +58,8 @@ int ts_db_begin_txn(ts_db * self) {
         success = mdb_txn_begin(self->index, NULL, 0, &txn->txn);
         self->current_txn = txn;
     } else {
+        success = mdb_txn_begin(self->index, self->current_txn->txn, 0, &txn->txn);
         txn->parent = self->current_txn;
-        success = mdb_txn_begin(self->index, txn->txn, 0, &txn->txn);
         self->current_txn = txn;
     }
 
@@ -78,6 +78,8 @@ int ts_db_commit_txn(ts_db * self) {
         success = mdb_txn_commit(self->current_txn->txn);
         if(self->current_txn->parent != 0) {
             self->current_txn = self->current_txn->parent;
+        } else {
+            self->current_txn = 0;
         }
     }
     free(current);

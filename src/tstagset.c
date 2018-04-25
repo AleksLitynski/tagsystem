@@ -62,11 +62,20 @@ hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     ts_db_begin_txn(ctx->db);
     int res = ts_db_get(ctx->db, "meta", "TSPWS", &val);
     
-    char * pws_str = 0;
-    if(res == TS_SUCCESS) pws_str = val.mv_data;
-    if(pws_str != 0) ts_tagset_append(&t, pws_str);
+    if(res == TS_SUCCESS) {
+        char * pws_str = calloc(val.mv_size + 1, 1);
+        strcpy(pws_str, val.mv_data);
+        pws_str[val.mv_size] = '\0';
+        
+        if(val.mv_size != 0) {
+            ts_tagset_append(&t, pws_str);
+        }
+        free(pws_str);
+
+    }
 
     ts_db_commit_txn(ctx->db);
+
     return t;
 }
 
