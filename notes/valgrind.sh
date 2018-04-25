@@ -1,1 +1,0 @@
-valgrind --leak-check=full -v ./test/test

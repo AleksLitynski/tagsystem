@@ -50,6 +50,7 @@ all: $(TARGET)
 
 clean:
 	rm -f $(OBJECT) $(TARGET)
+	rm -rf test_db
 
 $(TARGET): $(OBJECT)
 	$(CC) $(CFLAGS) -o $@ $(OBJECT) $(LINKED)

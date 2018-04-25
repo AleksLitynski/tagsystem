@@ -59,19 +59,175 @@ src (see the header for the exact functions)
 
 test - test.c is the important one. The other ones are one-offs I used for debugging.. stuff
 
-```graphviz
+-----------------------------------------------------------
+
+git submodule init
+git submodule update --recursive
+
+-----------------------------------------------------------
 
 
-digraph {
-    inner_a [label=""] 
-    inner_b [label=""] 
-    inner_c [label=""] 
-    inner_a -> inner_b
-    inner_a -> inner_c
-    inner_b -> leaf_a
-    inner_b -> leaf_b
-    inner_c -> leaf_d
-    # inner_c -> leaf_e
-}
+    # Proj commands -
+    #     proj
+    #         - force to overwrite directory
+    #         - don't map names to name: and type: tags
+    #     sync
+    #         - pull first or push first
+    #         - all file deletion
 
-```
+
+
+# Tagsystem - a file system with tags instead of files!
+
+# In some scenarios, folders don't make a lot of sense. 
+# Does a song belong in the artist's folder or the album's folder?
+# Does an enemy in a game belong in the level 3 folder or the flying enemies folder?
+# Does a javascript file belong in the scripts foldeer or the login page folder?
+
+# More empowering than any of those scenerios, working with tags is about working with sets.
+# At a the intersection of a given set of tags will be one or more documents. 
+# Finding related documents is the root of modern software development. The last 20 years of 
+# web develpment have seen websites go from serving single documents to sets of relevents documents (a feed of tweets, posts, or search results)
+
+# Tagsystem provides a simple, performant, cross platform tool to tag and search for documents.
+# Tagsystem tries to play nice with your existing tool chain. 
+# Working with tags in your shell, ide, or graphical file explorer is not be more complicated than working with typical files.
+
+
+# Lets take a look at the tagsystem shell commands!
+
+
+# Each user has a dedicated tag database. 
+# Your database defaults to ~/.tsys/, but can be overwitten by setting the environment variable TSYS_DB.
+
+# When you're exploring the filesystem, you always have a working directory.
+# You can see what your working directory is:
+
+pwd # ==> /home/username
+
+#  Similarly, tagsystem also has a present working set. We'll get into the path syntax in a moment.
+tsys pws # ==> +username
+
+# You can change your present working directory via 'change directory'
+cd Project
+pwd # ==> /home/username/Projects
+
+# Similarly, you can change your pws via 'change set'
+tsys cs Projects
+tsys pws # ==> +username +Projects
+
+# Going up a directory in bash looks like
+cd ..
+
+# Tags are unordered, so tsys cs .. makes no sense.
+# Instead, we need to choose which tag to remove from our pws
+tsys cs ~username
+tsys pws # ==> +Projects
+
+# Lets make a new tag and put some documents into it!
+# Tagsystem assume we're adding a tag to the pws if ~ or + is not specified
+tsys cs example_project
+
+# When making a document, you can add more tags to the new document without changing your pws
+# You will be able to uniquely identify this document by 'doc_1' until someone makes another document 'doc_1'
+tsys mk +doc_1
+tsys mk doc_2
+
+# Documents don't need to have a unique tag. This document will be created with just the tags in the pws, +Projects +example_projects
+tsys mk
+
+# Output all the tags in our pws (+Projects +example_project)
+# These documents don't have pretty names. There's ways to work around that that we can discuss later
+tsys ls 
+    # ==> /home/users/.tsys/docs/00/00000000
+    # ==> /home/users/.tsys/docs/00/00000001
+    # ==> /home/users/.tsys/docs/00/00000002
+
+# Editing the documents in a set
+tsys ls | vim
+
+# Lets delete a document
+tsys rm doc_1
+
+# Lets add a tag to a document
+tsys ls doc_2 | tsys tag +project_files
+
+# Actually, lets remove some tags
+tsys ls doc_2 | tsys tag ~project_files ~doc_2
+
+# Lets get into the syntax of a tag set a bit more
+# '+' means add a tag to a set.
+# '~' means remove a tag from a set (I would use minus, but that gets counfusing when you have tsys rm -f, for example).
+# '~~' is the equivalent of 'cd /'. It will remove all documents from the set.
+ts cs +Project +username_2 ~username
+# In a tag set description, whitespace will be ignored except within tag names. A tag can have spaces, but leading and traiting witespace will be trimmed.
+# If no operation is provided '+' is assumed
+ts cs Projects 
+
+
+# That covers all the core tagsystem commands. Beyond the core commands, we have two commands that help to integrate the tagsystem with the filesystem. 
+# They are 'project' and 'synchronize'.
+
+
+
+
+
+
+
+# Questions raised!
+#   how do I add a tag to a non-unique document? 
+#       autotag with id
+#       provide a tool for set differences (bleh)
+#       honestly, tools for most set operations (unions, differnces, etc) would be really helpful pretty quickly
+#   Should I provide an explicit properties construct? It's useful to me, and might empower queries. Shruggg.
+
+-----------------------------------------------------------
+
+valgrind --leak-check=full -v ./test/test
+
+-----------------------------------------------------------
+
+/var/tagsystem/
+    index
+    documents
+        01/
+            01010101
+            01010101
+
+
+
+Tagsystem will create a single, central database on install at /var/tagsystem. The central database will contain a folder called 'documents' and a folder called 'index'
+Documents will contains hardlinks to all tracked files in a document-id[0:2]/document-id[2:40] format. That's just to keep folders from getting too big. Copied from git.
+Index will contain an lmdb database used to track document tags and other metadata.
+
+
+In userspace, there will be one or more 'projections' of the tagged files. These will be folders full of hard linked files to the tagsystem/documents folder.
+There will also be a .tags folder in each of the projections containing a file matching each file in the projections. The .tags file contents will be the tags 
+on the document. 
+
+
+
+
+* Syncing from projections
+* Adding/removing/renaming files without sync
+* default tags (`name:filename`, `extension:fileextension`, `owner:fileowner`)
+* Ignoring folders
+* Tracking where projections are and knowing their origional state/not losing files/default tag to append to all files in projection
+    Basically, you can either use the cli to directly manipulate documents+tags, or you can set up a projection manually and sync it with the database
+
+    Open questions is
+        - How does syncing work exactly (eg, if there's a tag but no file or file w/out tag. Does a )
+        
+
+/*
+/var/tagsystem/
+    tags/
+        lmdb db
+            forward index
+            inverted index
+            
+    docs/
+        ab/...
+*/
+
+-----------------------------------------------------------
