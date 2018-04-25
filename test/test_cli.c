@@ -2,12 +2,14 @@
 
 
 void read_output(test_state * st, char * out, int max_size) {
+    // utility function to read from simulated stdout
     fflush(st->ctx->out);
     fgets(out, 1000, st->read_output);
     fflush(st->read_output);
 }
 
 void write_input(test_state * st, char * in) {
+    // utility function to write to simulated stdin
     fflush(st->ctx->in);
     fprintf(st->write_input, "%s", in);
     fflush(st->write_input);

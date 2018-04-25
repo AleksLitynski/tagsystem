@@ -1,5 +1,10 @@
 #pragma once
 
+/*
+    All files in the test directory share this header file
+    test.c is responsible for running the tests.
+    test_*.c are responsible for testing certain sections of the tagsystem
+*/
 
 // includes
 #include <stdlib.h>

@@ -1,7 +1,7 @@
 #include "test.h"
 
 
-
+// utilities for working with ids
 void set_id(ts_id * id, uint8_t value) {
     for(int i = 0; i < TS_ID_BYTES; i++) {
         (*id)[i] = value;
@@ -27,17 +27,21 @@ void id_from_binary_string_tail(char * source, ts_id * id) {
 }
 
 static int setup(void **state) {
+
+    // when the test suite starts, a new database is created
     test_state * st = malloc(sizeof(test_state));
     st->db = malloc(sizeof(ts_db));
 
     ts_db_open(st->db, "test_db");
-    // wipe old db
+    // wipe the old db
     ts_db_DESTROY(st->db);
     ts_db_open(st->db, "test_db");
 
     st->ctx = malloc(sizeof(ts_cli_ctx));
     st->ctx->db = st->db;
 
+    // create files to represent stdin and stdout
+    // helpful when testing cli functions
     st->write_input = fopen("test_db/io_in", "w");
     st->ctx->in = fopen("test_db/io_in", "r");
 

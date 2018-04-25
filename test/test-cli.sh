@@ -1,5 +1,8 @@
 BASEDIR=$(dirname "$0")
 
+# This script can be run to spot-check the cli exe.
+# It is not part of the test suite and does not validate it's results
+
 # cleanup db
 export TSDBPATH="$BASEDIR/test_db"
 echo "tsdbpath: $TSDBPATH"

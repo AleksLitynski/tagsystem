@@ -57,6 +57,7 @@ void doc_test(void ** state) {
 
 
 void doc_unique_test(void ** state) {
+    // generate 25 random docs and confirm no duplicates. Really robust test.
     test_state * st = (test_state*)*state;
 
     int items = 25;

@@ -14,3 +14,5 @@ test/test.exe
 *.so
 *.a
 test/test_db/*
+cli/tsys 
+cli/tsys.exe
