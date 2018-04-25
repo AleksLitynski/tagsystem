@@ -1,5 +1,7 @@
 DOING:
-- fix issue with remove where tags aren't removed
+- add --help option to all commands
+    - env vars:
+        - current db dir
 
 TODO 0.0.1:
 - test on windows
@@ -8,10 +10,8 @@ TODO 0.0.1:
     - upload 'release'
     - write readme
     - comment everything
-- add --help option to all commands
-    - env vars:
-        - current db dir
-- find and fix bug in cs/pws parsing that sometimes appends an 'a' to tag and generally sometimes borks
+
+
 
 
 TODO 0.0.2:
@@ -39,3 +39,5 @@ DONE:
     - because env variables are set in the child process and not the parent process (the spawning shell) setting the working dir as an env variable is useless.
     - instead, I am setting the env variable as a property in the meta db table. It ends up shared across all db users, but the db is single user, so it doesn't matter, really
 - allow all lmdb operations to take a MDB_txn object so this shit is actually transactional
+- fix issue with remove where tags aren't removed
+- find and fix bug in cs/pws parsing that sometimes appends an 'a' to tag and generally sometimes borks

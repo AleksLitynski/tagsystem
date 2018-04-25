@@ -138,6 +138,7 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args_create(&args);
     bool ** show_id = ts_args_add_bool(&args, "id"); // (show created document's id or path)
     bool ** force = ts_args_add_bool(&args, "force"); // (if we should prompt before tagging multiple documents)
+    bool ** silent = ts_args_add_bool(&args, "silent");
     bool ** show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
@@ -191,6 +192,10 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
             current_tag = current_tag->next;
         }
         
+        if(!**silent) {
+            ts_cli_print_id(ctx, &doc.id, **show_id);
+        }
+
         ts_doc_close(&doc);
         free(id_str);
     }

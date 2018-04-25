@@ -25,7 +25,7 @@ void cli_makeremove_test(void ** state) {
 
     // apply tag
     write_input(st, new_id);
-    CLI(st->ctx, ts_cli_tag, "new_tag_name");
+    CLI(st->ctx, ts_cli_tag, "--silent", "new_tag_name");
     CLI(st->ctx, ts_cli_list, "--id", "tag_name");
 
     char tagged_id[1000] = {0};
