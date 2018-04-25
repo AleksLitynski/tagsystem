@@ -27,10 +27,12 @@ int ts_cli_list(ts_cli_ctx * ctx, int argc, char * argv[]) {
         return TS_SUCCESS;
     }
 
+    // append new tagset to existing tagset
     hash_t * pws = ts_tagset_load(ctx);
     ts_tagset_append(&pws, args.rest);
     ts_search * search = ts_searchset_create(ctx, pws);
     
+    // iterate through each found tag and print as specified
     ts_id id;
     while(ts_search_next(search, &id) != TS_SEARCH_DONE) {
         if(**show_tags) {
@@ -75,6 +77,7 @@ int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
         ts_cli_print_id(ctx, &doc.id, **show_id);
     }
 
+    // don't update the pws if --preview was set
     if(!**dont_change_pws) {
         ts_tagset_save(ctx, pws);
     }
@@ -106,7 +109,7 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_tagset_append(&pws, args.rest);
 
     if(!ts_searchset_has_one(ctx, pws) && !**force) {
-        // prompt before deleting
+        // prompt before deleting multiple docs
         if(!ts_cli_confirm(ctx, "Multiple documents will be deleted. Continue?")) {
             ts_args_close(&args);
             return EXIT_SUCCESS;
@@ -117,6 +120,7 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
     bool has_one = true;
     ts_id id;
     while(ts_search_next(search, &id) != TS_SEARCH_DONE) {
+        // delete each doc one transaction at a time
         ts_doc doc;
         ts_doc_open(&doc, ctx->db, id);
         ts_doc_delete(&doc);
@@ -162,9 +166,14 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
         }
     }
 
+    // unlike most commands, the tags passed to tag are parsed into a
+    // taglist instead of a tagset. This lets us loop through the tags
+    // and apply each add/remove to the target docs instead of to the pws
     ts_taglist * tags = ts_taglist_create(args.rest);
     
     for(int i = 0; i < doc_count; i++) {
+        // tsys ls can produce output in several formats
+        // this parses the doc id out of any of them
         char * id_str = ts_cli_doc_path_id(paths[i]);
         ts_id id;
         ts_id_from_string(&id, id_str);
@@ -176,7 +185,7 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
         ts_taglist * current_tag = tags;
 
         while(current_tag != 0) {
-
+            // tag and untag as specified from the cli args
             switch(current_tag->operation) {
                 case TS_TAGLIST_ADD_TAG: {
                     ts_doc_tag(&doc, current_tag->name);
@@ -219,9 +228,12 @@ int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
         return TS_SUCCESS;
     }
 
+    // apply the provided set to the pws and save the pws
     hash_t * pws = ts_tagset_load(ctx);
     ts_tagset_append(&pws, args.rest);
     ts_tagset_save(ctx, pws);
+
+    // print the new pws if nessessary
     if(!**silent) {
         sds pws_str = ts_tagset_print(pws);
         fprintf(ctx->out, "%s\n", pws_str);

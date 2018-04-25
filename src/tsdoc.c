@@ -15,8 +15,12 @@
 #include <string.h>
 
 int ts_doc_create(ts_doc * self, ts_db * db) {
+
+    // create a new document with a random id
     self->env = db;
 
+    // creating a document means some operations will be
+    // performed on the document, so start a transaction
     ts_db_begin_txn(self->env);
 
     // get an id
@@ -33,7 +37,7 @@ int ts_doc_create(ts_doc * self, ts_db * db) {
     fs_mkdir(self->dir, 0700);
     fs_open(self->path, "ab+");
 
-    // add entry to 'index' table
+    // add entry to 'index' table for the new doc
     MDB_val empty = {.mv_size = 0, .mv_data = ""};
     ts_db_put(db, "index", self->id_str, &empty);
 
@@ -44,7 +48,7 @@ int ts_doc_delete(ts_doc * self) {
 
   // delete doc
   unlink(self->path);
-  // delete folder if needed
+  // delete folder if empty
   fs_rmdir(self->dir);
 
   // remove all tags
@@ -52,7 +56,6 @@ int ts_doc_delete(ts_doc * self) {
   ts_db_iter_open(&iter, self->env, "index", self->id_str);
 
   MDB_val next = { .mv_size = 0, .mv_data = 0};
-  // int nct = ts_db_iter_next(&iter, &next);
   while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
     ts_doc_untag(self, next.mv_data);
   }
@@ -65,11 +68,14 @@ int ts_doc_delete(ts_doc * self) {
 }
 
 int ts_doc_open(ts_doc * self, ts_db * db, ts_id id) {
+
+  // get reference to existing document
   self->env = db;
   for(int i = 0; i < TS_ID_BYTES; i++) {
     self->id[i] = id[i];
   }
 
+  // using a document almost always means db operations, so open a txn
   ts_db_begin_txn(self->env);
 
   self->id_str = ts_id_string(&(self->id), sdsempty());
@@ -88,6 +94,7 @@ int ts_doc_close(ts_doc * self) {
   sdsfree(self->path);
   sdsfree(self->id_str);
 
+  // close doc's transaction
   ts_db_commit_txn(self->env);
 }
 

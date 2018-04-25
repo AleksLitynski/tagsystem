@@ -37,7 +37,8 @@
         "thread": "c",
         "tstagset.h": "c",
         "tsdoc.h": "c",
-        "chrono": "c"
+        "chrono": "c",
+        "tscli.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

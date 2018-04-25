@@ -6,6 +6,7 @@
 #include "tsdb.h"
 
 // macros
+// an id defaults to 20 bytes long
 #define TS_ID_BYTES 20 // Set to 1 for easier debugging
 #define TS_ID_BITS TS_ID_BYTES * 8 
 

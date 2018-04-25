@@ -23,6 +23,7 @@ int ts_search_step(ts_search * self, ts_id * id); // no item, found item, or don
 int ts_search_next(ts_search * self, ts_id * id); // same as ts_search_step, but automatically skops 'TS_SEARCH_NONE' results
 int ts_search_close(ts_search * self);
 
+// private functions. Implementation details of walking a collection of tag trees
 int _ts_search_push(ts_search * self, int branch);
 int _ts_search_pop(ts_search * self);
 bool _ts_search_test(ts_search * self, int branch);

@@ -8,15 +8,22 @@
 #include "tserror.h"
 
 
-// functions
 int ts_search_create(ts_search * self, ts_tags * tags, int tag_count) {
-
+    /*
+        a search object is used to iterate through a collection
+        of tags and find all documents which are shared by the tags.
+    */
     self->index = 0;
     
+    /* we will iterate through every possible id from 000 - 111
+    and cull possible ids when one of the tag trees does not contain
+    the id. */
     for(int i = 0; i < TS_ID_BITS; i++) {
         self->current_id[i] = 0;
     }
     
+    // each individual tree is traversed via a 'walk'.
+    // the search coordinates a collection of walks.
     self->walk_count = tag_count;
     self->walks = calloc(sizeof(ts_walk), tag_count);
 
@@ -61,7 +68,7 @@ int _ts_search_push(ts_search * self, int branch) {
 }
 
 bool _ts_search_test(ts_search * self, int branch) {
-
+    // check if all walks will be able to proceed down a given branch
     for(int i = 0; i < self->walk_count; i++) {
         if(ts_walk_test(self->walks + i, branch) == false) return false;
     }
@@ -72,7 +79,6 @@ int ts_search_step(ts_search * self, ts_id * id) {
     if(self->walk_count == 0) return TS_SEARCH_DONE;
 
     int branch = self->current_id[self->index];
-    // LOG("%i.%i", self->index, branch);
 
     // If we tried both branches, pop up a layer
     // if we pop beyond layer 0, we're done
@@ -117,6 +123,8 @@ int ts_search_step(ts_search * self, ts_id * id) {
 }
 
 int ts_search_next(ts_search * self, ts_id * id) {
+    // continue to walk through the tree until the next valid document is found
+    // then, yeild to caller code and wait for the search to be continued
     while(true) {
         int next = ts_search_step(self, id);
         if(next == TS_SEARCH_NONE) continue;

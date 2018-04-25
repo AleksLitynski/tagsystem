@@ -7,10 +7,13 @@
 
 // macros
 #define TS_TAGLIST_ADD_TAG '+'
+// '-' is used to set cli flags, 
+// so ~ is used to indicate an item should be removed from the tagset
 #define TS_TAGLIST_DEL_TAG '~'
 
 // types
 typedef struct ts_cli_tag {
+    // a linked list of tags and either an 'add' or 'remove' operation
     char operation;
     char * name;
     struct ts_cli_tag * next;

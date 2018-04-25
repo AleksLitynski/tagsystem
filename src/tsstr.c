@@ -10,6 +10,9 @@
 #include "tsdoc.h"
 #include "tserror.h"
 
+/*
+    Various string operations to augment sds.
+*/
 
 sds ts_str_concat_string(sds str, int argc, char * argv[]) {
 

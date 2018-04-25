@@ -8,6 +8,9 @@
 
 
 int ts_walk_create(ts_walk * self, ts_tags * tags) {
+    // a walk lets you traverse all tags in a single tag tree
+    // can be used in conjunction with tssearch to find all documents
+    // shared amoungst multiple tag trees
     self->source = tags;
     self->index = 0;
     self->history_depth = 0;
@@ -84,22 +87,3 @@ bool ts_walk_test(ts_walk * self, int branch) {
     // the leaf or inner node pointed to a valid next item
     return true;
 }
-
-
-
-/*
-[ INFO     ] .
-[ INFO     ] └── 1
-[ INFO     ]     └── 0
-[ INFO     ]         └── 0
-[ INFO     ]             └── 0
-[ INFO     ]                 └── 0
-[ INFO     ]                     ├── 0
-[ INFO     ]                     |   └── 10001011
-[ INFO     ]                     └── 1
-[ INFO     ]                         └── 10001110
-
-
-insert appears to be broken. There's one too many inner nodes :(
-
-*/

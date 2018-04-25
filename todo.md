@@ -34,6 +34,7 @@ TODO 0.0.X:
     1. Wrap tsys in a bash/csh/zsh/fish/batch/powershell function that sets the env variable. Shell functions don't spawn in a seperate process.
     2. Get the parent uuid (process id + start time) and store a row in the database for it. Garbage collect the db when it's too big by checking what processes are stopped. Store the pws for that parent in the database. This may lead to un-expected consequences, but IDK what they're going to be yet :). Get Parent process id from $PPID. Get start time from 
     3. Just store a single variable for the current path in the db. Let it be shared across processes
+- replace _get_dbi with a token/switch based solution to avoid string compares
 
 
 DONE:

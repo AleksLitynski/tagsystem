@@ -7,10 +7,18 @@
 #include "tsargs.h"
 #include "tsstr.h"
 
+// boolean arguments will be set to pointers to one of these values
 const bool _ts_args_true = true;
 const bool _ts_args_false = false;
 
+
 bool ts_args_matches(char * arg_name, char * arg_input_value) {
+    /*
+        checks if an argument matches a given input following certain rules:
+        1. case is ignored
+        2. an input can only be the first few letters of an argument (ie lis will match list)
+        3. vowels will be ignored (ie ls will match list)
+    */
 
     bool success = false;
 
@@ -30,6 +38,7 @@ bool ts_args_matches(char * arg_name, char * arg_input_value) {
 }
 
 int ts_args_create(ts_args * self) {
+    // create an argument parsing object
     self->pending_value = false;
     self->latest_arg = 0;
     self->args = 0;
@@ -37,6 +46,8 @@ int ts_args_create(ts_args * self) {
 }
 
 void ** _ts_args_add(ts_args * self, char * name, ts_arg_type type) {
+    /* add an argument to the 'self' argument parsing object
+    arguments are stored as a singly linked list */
 
     ts_arg * arg = calloc(sizeof(ts_arg), 1);
 
@@ -65,6 +76,10 @@ char ** ts_args_add_str(ts_args * self, char * name) {
 }
 
 bool _ts_args_set_param(ts_args * self, char * arg_input_value) {
+    /* once an argument has been found, this function sets the value
+    or flags that we are waiting for a string value to bind to the
+    argument name */
+
     bool success = false;
 
     ts_arg * arg = self->args;
@@ -91,6 +106,8 @@ bool _ts_args_set_param(ts_args * self, char * arg_input_value) {
 }
 
 int ts_args_parse(ts_args * self, int argc, char * argv[]) {
+    /* Go through each provided argument and bind it to 
+    the argument variable that corosponds to its name */
 
     self->pending_value = false;
 
@@ -145,6 +162,7 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
 }
 
 int _ts_arg_close(ts_arg * arg) {
+    // unwind the linked list of arguments
     if(arg->next != 0) _ts_arg_close(arg->next);
     free(arg);
     return TS_SUCCESS;

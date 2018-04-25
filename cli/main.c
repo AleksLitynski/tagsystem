@@ -12,12 +12,15 @@
 #include "tscli.h"
 #include "tsargs.h"
 
+// this is the entry point for the cli version of tagsystem
 int main(int argc, char * argv[]) {
 
     ts_cli_ctx * ctx = ts_cli_ctx_open();
 
     if(argc <= 1) return ts_cli_help(ctx, argc, argv);
 
+    // most subcommands are shortened automatically (list, li, ls), but some can't be,
+    // so there are multiple entries for 'presentset' and 'pws'
     int (*op)(ts_cli_ctx *, int, char**) = 
         ts_args_matches("list", argv[1])        ? ts_cli_list:
         ts_args_matches("make", argv[1])        ? ts_cli_make:
@@ -32,7 +35,6 @@ int main(int argc, char * argv[]) {
         ts_args_matches("--help", argv[1])      ? ts_cli_help:
                                                   ts_cli_help;
     
-
     int out = op(ctx, argc - 2, &argv[2]);
 
     ts_cli_ctx_close(ctx);

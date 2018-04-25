@@ -12,6 +12,8 @@
 
 // macros
 // a helpful way to make cli calls programatically
+// this is used mostly in testing, but could be useful in client applications
+// ex 'CLI(ctx, ts_cli_list, "--silent", "--id");'
 #define CLI(ctx, op, ...) {                        \
     char * args[] = { __VA_ARGS__ };               \
     op(ctx, sizeof(args) / sizeof(char *), args);  \

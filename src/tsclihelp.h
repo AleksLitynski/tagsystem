@@ -9,8 +9,10 @@
 // types
 
 // functions
+// help text for the main cli program
 int ts_cli_help(ts_cli_ctx * ctx, int argc, char * argv[]);
 
+// help text for the cli subcommands
 int ts_cli_list_help(ts_cli_ctx * ctx);
 int ts_cli_make_help(ts_cli_ctx * ctx);
 int ts_cli_remove_help(ts_cli_ctx * ctx);

@@ -1,5 +1,8 @@
 #include "tsclihelp.h"
 
+/*
+    The help text for all cli commands.
+*/
 
 int ts_cli_help(ts_cli_ctx * ctx, int argc, char * argv[]) {
 
@@ -8,7 +11,7 @@ int ts_cli_help(ts_cli_ctx * ctx, int argc, char * argv[]) {
 "The tagsystem allows you to create, tag, and search for files.     \n"
 "                                                                   \n"
 "Subcommands:                                                       \n"
-" list [--id] [--tags] [--help]                                     \n"
+" list [--id] [--tags] [--help] <tagset>                            \n"
 " make [--id] [--preview] [--silent] [--help] <tagset>              \n"
 " remove [--id] [--force] [--silent] [--help] <tagset>              \n"
 " tag [--id] [--force] [--silent] [--help] <tagset>                 \n"
@@ -51,12 +54,13 @@ int ts_cli_help(ts_cli_ctx * ctx, int argc, char * argv[]) {
 int ts_cli_list_help(ts_cli_ctx * ctx) {
     fprintf(ctx->out, 
 
-"List all files in the present working set                          \n"
+"List all files in the present working set and the provided tagset  \n"
 "                                                                   \n"
 "Flags:                                                             \n"
 " --id      Print the file ids instead of the file names            \n"
 " --tags    Print the file tags alongside the file names            \n"
 " --help    Print this help text                                    \n"
+" <tagset>  The set of tags to search in adition to pws             \n"
 "                                                                   \n"
 
     );
