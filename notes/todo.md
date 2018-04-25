@@ -10,6 +10,7 @@ TODO 0.0.1:
     - upload 'release'
     - write readme
     - comment everything
+    - delete old notes (can recover via git history)
 
 
 
