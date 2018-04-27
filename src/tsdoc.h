@@ -27,3 +27,5 @@ int ts_doc_close(ts_doc * self);
 
 int ts_doc_tag(ts_doc * self, char * tag);
 int ts_doc_untag(ts_doc * self, char * tag);
+
+int _ts_doc_has_tag(ts_doc * self, char * tag);

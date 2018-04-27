@@ -64,7 +64,9 @@ void ts_cli_print_tags(ts_cli_ctx * ctx, ts_id * id) {
     MDB_val next = { .mv_size = 0, .mv_data = 0};
     // int nct = ts_db_iter_next(&iter, &next);
     while(ts_db_iter_next(&iter, &next) != MDB_NOTFOUND) {
-        fprintf(ctx->out, "+%s ", next.mv_data);
+        sds tag_str = sdscatlen(sdsempty(), next.mv_data, next.mv_size);
+        fprintf(ctx->out, "+%s ", tag_str);
+        sdsfree(tag_str);
     }
     ts_db_iter_close(&iter);
 }

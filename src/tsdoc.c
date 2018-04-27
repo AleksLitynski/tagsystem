@@ -98,6 +98,27 @@ int ts_doc_close(ts_doc * self) {
   ts_db_commit_txn(self->env);
 }
 
+int _ts_doc_has_tag(ts_doc * self, char * tag) {
+  bool already_tagged = false;
+  MDB_val next;
+  ts_db_iter index_iter;
+
+  // go through each tag on the document
+  ts_db_iter_open(&index_iter, self->env, "index", self->id_str);
+  while(ts_db_iter_next(&index_iter, &next) != MDB_NOTFOUND) {
+    sds val = sdscatlen(sdsempty(), next.mv_data, next.mv_size);
+
+    // if the tag already exists, set flag
+    if(!strcmp(val, tag)) {
+      already_tagged = true;
+    }
+    sdsfree(val);
+  }
+  ts_db_iter_close(&index_iter);
+  
+  return already_tagged;
+}
+
 int ts_doc_tag(ts_doc * self, char * tag) {
 
   // load the tag or create it if it doesn't exist
@@ -117,7 +138,11 @@ int ts_doc_tag(ts_doc * self, char * tag) {
   ts_tags_close(&tags);
 
   MDB_val new_tag = { .mv_size = strlen(tag), .mv_data = tag};
-  ts_db_put(self->env, "index", self->id_str, &new_tag);
+  
+  // only add tag to document if it doesn't already have the tag
+  if(!_ts_doc_has_tag(self, tag)) {
+    ts_db_put(self->env, "index", self->id_str, &new_tag);
+  }
 
   return TS_SUCCESS;
 }
