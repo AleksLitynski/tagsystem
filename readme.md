@@ -3,29 +3,25 @@
 # Tagsystem
 
 ## What is tagsystem?
-Tagsystem lets you organize files with tags instead of with directories. 
-Instead of creating files in directories, you create files and apply tags to them. 
-When you want to retrieve your files later, you request all files 
-in a tag set; an intersection of tags that defines a collection of files.
+Tagsystem lets you organize files using tags instead of directories.
 
-Tagsystem exists because sometimes folders don't make a lot of sense.
-Does a song belong in the artist's folder or the album's folder?
-Does an enemy in a game belong in the level 3 folder or the flying enemies folder?
+Sometimes directories don't make a lot of sense.
+Does a song belong in its artist's folder or its album's folder?
+Does an npc belong in the level 3 folder or the flying enemies folder?
 Does a javascript file belong in the scripts folder or the login page folder?
 
-More empowering than those scenarios, working with tags is about working with sets 
-of documents. End users no longer go to web pages, they browse feeds. Facebook,
-twitter, even google search results all present a user a collection of related
-documents instead of a singular file.
+In a more abstract sense, the way people use computers is changing. End users no longer 
+go to discrete web pages, they browse feeds. Facebook, twitter, and even google search 
+results all present users a collection of related documents instead of a singular file.
 
 Tagsystem provides a simple, performant, cross platform tool to tag and search for documents.
 Tagsystem tries to play nicely with your existing tool chain. Eventually, you will be able to work 
-with tags in your shell, ide, graphical file explorer, or via bindings to your programming language
+with tags in your shell, ide, graphical file explorer, and via bindings to your programming language
 of choice.
 
 Currently, tagsystem exposes only two interfaces, a C library and a command line interface.
 
-## Installing tagsystem
+## Install
 You can download a compiled version of the command line application from [the release page](...).
 
 On unix systems, you just need to place the executable on your path and set the executable bit.
@@ -41,7 +37,7 @@ choco install msys2
 ```
 
 ## Using the CLI
-The tagsystem CLI application is called tsys. Tsys can create a database of tagged documents
+The tagsystem CLI is called tsys. Tsys can create a database of tagged documents
 and perform operations on those documents.
 
 Tsys will create a database automatically if no database is detected. In order, tsys will attempt
@@ -101,17 +97,17 @@ Each subcommand has a `--help` flag that provides details on use of that command
 > vi `tsys ls`
 
 # add a tag 'cat' to our file
-> ts ls | ts tag +cat
+> tsys ls | tsys tag +cat
 
 # check what our pws is
-> ts pws
+> tsys pws
 +poems+fluffy+cat
 
 # delete all files tagged 'fluffy cat poems' without output 
-> ts rm --silent
+> tsys rm --silent
 ```
 
-## Cloning tagsystem
+## Cloning the repo
 Dependencies are included as git submodules. To clone with submodules, run `git clone --recursive https://github.com/tavoe/tagsystem.git`.
 
 If you cloned the repo without submodules, you can clone them later with:
@@ -122,7 +118,7 @@ git submodule update --recursive
 ```
 
 ## Building tagsystem
-1. Install make and gcc.
+1. Install make and gcc
 2. `make all` to build
 3. `make runtest` to run unit tests 
 
@@ -173,9 +169,7 @@ To find all documents in a single tag tree, we make a depth first traversal of t
 To find all documents in a set of tag tree, we traverse several tree simultaniously. If a
 branch is unavailable in any tag tree, we know the document does not exist in the tag set.
 
-## Roadmap
-
-### Near Term
+## Near Term Roadmap
 * Clean up include statements.
 * Compile headers into a single ts.h file.
 * Provide a simple, high level C API to work with the tagsystem.
@@ -189,7 +183,7 @@ branch is unavailable in any tag tree, we know the document does not exist in th
     * It should be possible to safely re-project a new set of files into the same directory, to change which files are being viewed.
     * Together, I expect proj/sync to make it far easier to use tagged files as part of day-to-day workflows.
 
-### Long Term
+## Long Term Rpadmap
 * Provide binding to popular languages.
 * Provide a GUI client, likely written in electron.
 * Provide a REST wrapper around tagsystem. Currently, tagsystem is written to be expressly a single user application. There's no telling what happens if two processes interact with tsys simultaniously. A http server multiplexing requests would be the ideal way to provide parallel access to a tagsystem database.
