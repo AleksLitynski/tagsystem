@@ -22,7 +22,7 @@ of choice.
 Currently, tagsystem exposes only two interfaces, a C library and a command line interface.
 
 ## Install
-You can download a compiled version of the command line application from [the release page](...).
+You can download a compiled version of the command line application from [the release page](https://github.com/tavoe/tagsystem/releases).
 
 On unix systems, you just need to place the executable on your path and set the executable bit.
 
