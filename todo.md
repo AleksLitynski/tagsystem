@@ -1,16 +1,10 @@
 DOING:
-- comment everything
-
+- test on windows
 
 TODO 0.0.1:
-- test on windows
 - publish 0.0.1
     - upload to github
     - upload 'release'
-    - write readme
-        - env vars:
-            - current db dir
-    - delete old notes (can recover via git history)
 
 
 TODO 0.0.2:
@@ -35,6 +29,8 @@ TODO 0.0.X:
     2. Get the parent uuid (process id + start time) and store a row in the database for it. Garbage collect the db when it's too big by checking what processes are stopped. Store the pws for that parent in the database. This may lead to un-expected consequences, but IDK what they're going to be yet :). Get Parent process id from $PPID. Get start time from 
     3. Just store a single variable for the current path in the db. Let it be shared across processes
 - replace _get_dbi with a token/switch based solution to avoid string compares
+- support set difference in addition to set intersection
+- provide key/value store to associate values with files
 
 
 DONE:
@@ -49,3 +45,6 @@ DONE:
 - find and fix bug in cs/pws parsing that sometimes appends an 'a' to tag and generally sometimes borks
 - add --help option to all commands
 - a way for users to see what tags a document has (other than proj) (--tags flag added to list command)
+- comment everything
+- delete old notes (can recover via git history) (tagged last commit with notes in git history)
+- write readme
