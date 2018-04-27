@@ -20,7 +20,7 @@ ts_taglist * _ts_taglist_next(sds * next_tag, char mode) {
     sdstrim(*next_tag, " ");
     if(sdslen(*next_tag) == 0) return 0;
 
-    item->name = malloc(strlen(*next_tag));
+    item->name = malloc(strlen(*next_tag) + 1);
     strcpy(item->name, *next_tag);
 
     item->operation = mode;

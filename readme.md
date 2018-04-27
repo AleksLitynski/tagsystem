@@ -51,7 +51,7 @@ to create a database in these locations:
 2. At `$XDG_CONFIG_HOME/.tsysdb`
 3. At `/<user>/home/.tsysdb`
 
-On windows, the database will be created at `%APPDATA%/tsys/.tsysdb`.
+On windows, the database will be created at `%APPDATA%/.tsysdb`.
 
 The database has two parts, an lmdb database containing all tag metadata, 
 and a directory containing all documents.

@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "cli",
             "type": "cppdbg",
@@ -53,6 +54,26 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "C:/tools/mingw64/bin/gdb.exe"
+        },
+        {
+            "name": "win_cli",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/cli/tsys",
+            "args": ["pws"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/cli",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

@@ -36,7 +36,7 @@ int ts_tagset_append(hash_t ** tags, sds tag_str) {
 
         switch(current->operation) {
             case TS_TAGLIST_ADD_TAG: {
-                char * key = malloc(strlen(current->name));
+                char * key = malloc(strlen(current->name) + 1);
                 strcpy(key, current->name);
 
                 hash_set(*tags, key, key); 
@@ -75,14 +75,12 @@ hash_t * ts_tagset_load(ts_cli_ctx * ctx) {
     int res = ts_db_get(ctx->db, "meta", "TSPWS", &val);
     
     if(res == TS_SUCCESS) {
-        char * pws_str = calloc(val.mv_size + 1, 1);
-        strcpy(pws_str, val.mv_data);
-        pws_str[val.mv_size] = '\0';
-        
+        sds pws_str = sdscatlen(sdsempty(), val.mv_data, val.mv_size);
+
         if(val.mv_size != 0) {
             ts_tagset_append(&t, pws_str);
         }
-        free(pws_str);
+        sdsfree(pws_str);
 
     }
 

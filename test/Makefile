@@ -57,4 +57,5 @@ $(TARGET): $(OBJECT)
 
 
 run: $(TARGET)
+	rm -rf test_db
 	./test

@@ -56,11 +56,12 @@
     ts_id id_ ## binary = {0}; \
     id_from_binary_string(#binary, &id_ ## binary);
 
-// replace memory allocation functions with test functions that log on forgotten frees and memory 'coruption'va
+// replace memory allocation functions with test functions that log on forgotten frees and memory 'coruption'
 #define calloc(a, b) test_calloc(a, b)
 #define free(a) test_free(a);
 #define malloc(a) test_malloc(a)
 #define realloc(a, b) test_realloc(a, b)
+
 
 // types
 typedef struct {

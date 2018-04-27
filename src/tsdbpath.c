@@ -12,7 +12,7 @@
 sds ts_dbpath_get() {
 /*
     Find the database directory.
-    On windows, always places the db in '%APPDATA%/tsys/.tsysdb'
+    On windows, always places the db in '%APPDATA%/.tsysdb'
     On *nix, falls back through a series of possiblities:
     1. Wherever $TSDBPATH points to
     2. $XDG_CONFIG_HOME/.tsysdb
@@ -24,7 +24,7 @@ sds ts_dbpath_get() {
     char * appdata = getenv("APPDATA");
     if(appdata == 0) appdata = "";
     sds db_path = sdscat(sdsempty(), appdata);
-    db_path = sdscat(db_path, "/tsys/.tsysdb");
+    db_path = sdscat(db_path, "/.tsysdb");
     return db_path;
 
 #else
