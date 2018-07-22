@@ -13,12 +13,14 @@ install:
     git submodule init
     git submodule update --recursive
 - powershell: >-
-  choco install make
-  choco install gcc
+    choco install make
+    choco install gcc
 build_script:
 - sh: make all
+- powershell: make all
 test_script:
 - sh: make runtest
+- powershell: make runtest
 artifacts:
 - path: src/libts.a
   name: libts.a
