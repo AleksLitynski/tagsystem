@@ -1,0 +1,28 @@
+version: 0.0.2-{build}-{branch}
+image: 
+  - Ubuntu
+  - Visual Studio 2017
+install:
+- sh: >-
+    # Install GCC-8. Still builds w/o gcc8, but in case we need
+    # it in the future, this is how.
+    # sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    # sudo apt-get -y update
+    # sudo apt-get install -y gcc-8 gcc
+    # alias gcc='gcc-8'
+    git submodule init
+    git submodule update --recursive
+- powershell: >-
+  choco install make
+  choco install gcc
+build_script:
+- sh: make all
+test_script:
+- sh: make runtest
+artifacts:
+- path: src/libts.a
+  name: libts.a
+- path: src/libts.so
+  name: libts.so
+- path: src/libts.dll
+  name: libts.dll
