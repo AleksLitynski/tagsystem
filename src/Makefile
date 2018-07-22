@@ -40,7 +40,7 @@ endif
 all: $(TARGET) $(SHAREDTARGET)
 
 clean:
-	rm -f $(OBJECT) $(TARGET)
+	rm -f $(OBJECT) $(TARGET) $(SHAREDTARGET)
 
 $(TARGET): $(OBJECT)
 	# check archive contents with `ar -t libts.a`

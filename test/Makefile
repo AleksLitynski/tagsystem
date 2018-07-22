@@ -46,7 +46,7 @@ pwd: $(pwd)
 all: $(TARGET) $(SHAREDTARGET)
 
 clean:
-	rm -f $(OBJECT) $(TARGET)
+	rm -f $(OBJECT) $(TARGET) $(SHAREDTARGET)
 	rm -rf test_db
 
 $(TARGET): $(OBJECT)
