@@ -6,8 +6,7 @@ image:
 for:
   -
     image: 
-      only:
-        - Ubuntu
+      only: Ubuntu
     install:
     - sh: >-
         # Install GCC-8. Still builds w/o gcc8, but in case we need
@@ -24,16 +23,15 @@ for:
     - sh: make runtest
   -
     image:
-      only:
-        - Visual Studio 2017
-      install:
-      - powershell: >-
-          choco install make
-          choco install gcc
-      build_script:
-      - powershell: make all
-      test_script:
-      - powershell: make runtest
+      only: Visual Studio 2017
+    install:
+    - powershell: >-
+        choco install make
+        choco install gcc
+    build_script:
+    - powershell: make all
+    test_script:
+    - powershell: make runtest
 
 artifacts:
 - path: src/libts.a
