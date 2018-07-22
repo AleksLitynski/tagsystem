@@ -28,7 +28,14 @@ for:
       git submodule init
       git submodule update --recursive
   build_script:
-  - cmd: make all
+  - cmd: |
+      cd src
+      dir
+      cd ..
+      make all
+      cd src
+      dir
+      cd ..
   test_script:
   - cmd: make runtest
 
