@@ -61,35 +61,21 @@ void arg_parsing_test(void ** state) {
         "__rest__2"
     };
 
-
-    LOG("Before Parse a: %d", *a);
-    LOG("Before Parse b: %d", *b);
-    LOG("Before Parse e: %d", *e);
-    LOG("Before Parse c: %s", *c);
-    LOG("Before Parse d: %s", *d);
-    LOG("Before Parse force: %d", *force);
-
     int unused = ts_args_parse(&args, sizeof(chars) / sizeof(char *), chars);
 
-    ts_arg * current = args.args;
-    LOG1("Discovered Args (from test_parsing):");
-    while(current != 0) {
-        if(current->type == ARG_TYPE_BOOL) {
-            LOG("   %s -> %d", current->name, (bool)current->value);
 
-        } else if(current->type == ARG_TYPE_STR) {
-            LOG("   %s -> %s", current->name, (char *)current->value);
-        }
+    // ts_arg * current = self->args;
+    // LOG1("Discovered Args:");
+    // while(current != 0) {
+    //     if(current->type == ARG_TYPE_BOOL) {
+    //         LOG("   %s -> %d", current->name, (bool)current->value);
+
+    //     } else if(current->type == ARG_TYPE_STR) {
+    //         LOG("   %s -> %s", current->name, (char *)current->value);
+    //     }
         
-        current = current->next;
-    }
-
-    LOG("After Parse a: %d", *a);
-    LOG("After Parse b: %d", *b);
-    LOG("After Parse e: %d", *e);
-    LOG("After Parse c: %s", *c);
-    LOG("After Parse d: %s", *d);
-    LOG("After Parse force: %d", *force);
+    //     current = current->next;
+    // }
 
     assert_true(*a);
     assert_true(*b);

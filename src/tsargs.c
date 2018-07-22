@@ -80,23 +80,18 @@ bool _ts_args_set_param(ts_args * self, char * arg_input_value) {
     or flags that we are waiting for a string value to bind to the
     argument name */
 
-    LOG("Matching arg: %s", arg_input_value);
-
     bool success = false;
 
     ts_arg * arg = self->args;
 
     while(arg != 0) {
-        LOG("Matching against: %s", arg_input_value);
         if(ts_args_matches(arg->name, arg_input_value)) {
             if(arg->type == ARG_TYPE_BOOL) {
-                LOG1("Matched as bool");
                 arg->value = (void *)(_ts_args_true);
                 self->pending_value = false;
                 success = true;
                 break;
             } else if(arg->type == ARG_TYPE_STR) {
-                LOG1("Matched as str");
                 self->pending_value_addr = &arg->value;
                 self->pending_value = true;
                 success = true;
@@ -116,14 +111,10 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
 
     self->pending_value = false;
 
-    LOG1("Entered ts_args_parse");
-
     int i = 0;
     for(; i < argc; i++) {
-        LOG("Now parsing arg: %s", argv[i]);
         
         if(ts_str_begins_with(argv[i], "--")) {
-            LOG1("Found --");
             sds next = sdsnew(argv[i]);
             sdstrim(next, "-");
             bool success = _ts_args_set_param(self, next);
@@ -136,7 +127,6 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
         }
 
         else if(ts_str_begins_with(argv[i], "-")) {
-            LOG1("Found -");
 
             // arguments can be packed, so each char is a seperate arg
             int argv_len = strlen(argv[i]);
@@ -154,7 +144,6 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
 
         // if we're waiting for a string argument
         else if(self->pending_value) {
-            LOG1("Found other");
             *self->pending_value_addr = argv[i];
             self->pending_value = false;
 
@@ -168,20 +157,6 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
 
     // concat remaining values into a single 'rest' string
     self->rest = ts_str_concat_string(sdsempty(), argc - i, &argv[i]);
-
-
-    ts_arg * current = self->args;
-    LOG1("Discovered Args:");
-    while(current != 0) {
-        if(current->type == ARG_TYPE_BOOL) {
-            LOG("   %s -> %d", current->name, (bool)current->value);
-
-        } else if(current->type == ARG_TYPE_STR) {
-            LOG("   %s -> %s", current->name, (char *)current->value);
-        }
-        
-        current = current->next;
-    }
 
 
     return TS_SUCCESS;
