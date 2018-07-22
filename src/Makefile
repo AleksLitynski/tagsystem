@@ -26,6 +26,7 @@ CFLAGS += -Werror
 CFLAGS += -Wfatal-errors
 CFLAGS += -Wno-error=discarded-qualifiers
 CFLAGS += -Wno-discarded-qualifiers
+CFLAGS += -Wno-format-extra-args
 CFLAGS += -fpic
 CFLAGS += -I $(LMDBDIR)
 CFLAGS += -I ../lib/fs.c
