@@ -10,6 +10,8 @@ cmake-build-debug/
 
 test/test
 test/test.exe
+test/testshared
+test/testshared.exe
 *.o
 *.so
 *.a

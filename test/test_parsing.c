@@ -63,12 +63,26 @@ void arg_parsing_test(void ** state) {
         "__rest__2"
     };
 
+    LOG("Before Parse a: %d", **a);
+    LOG("Before Parse b: %d", **b);
+    LOG("Before Parse e: %d", **e);
+    LOG("Before Parse c: %s", *c);
+    LOG("Before Parse d: %s", *d);
+    LOG("Before Parse force: %d", **force);
+
 
     int unused = ts_args_parse(&args, sizeof(chars) / sizeof(char *), chars);
 
+    LOG("After Parse a: %d", **a);
+    LOG("After Parse b: %d", **b);
+    LOG("After Parse e: %d", **e);
+    LOG("After Parse c: %s", *c);
+    LOG("After Parse d: %s", *d);
+    LOG("After Parse force: %d", **force);
+
     assert_true(**a);
     assert_true(**b);
-    assert_true(**c);
+    assert_true(**e);
     assert_false(**force);
 
     assert_string_equal(*c, "c_value");
