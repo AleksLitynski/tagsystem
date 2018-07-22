@@ -16,12 +16,12 @@ int ts_cli_list(ts_cli_ctx * ctx, int argc, char * argv[]) {
 
     ts_args args;
     ts_args_create(&args);
-    bool ** show_id = ts_args_add_bool(&args, "id");
-    bool ** show_tags = ts_args_add_bool(&args, "tags");
-    bool ** show_help = ts_args_add_bool(&args, "help");
+    bool * show_id = ts_args_add_bool(&args, "id");
+    bool * show_tags = ts_args_add_bool(&args, "tags");
+    bool * show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
-    if(**show_help) {
+    if(*show_help) {
         ts_cli_list_help(ctx);
         ts_args_close(&args);
         return TS_SUCCESS;
@@ -35,10 +35,10 @@ int ts_cli_list(ts_cli_ctx * ctx, int argc, char * argv[]) {
     // iterate through each found tag and print as specified
     ts_id id;
     while(ts_search_next(search, &id) != TS_SEARCH_DONE) {
-        if(**show_tags) {
+        if(*show_tags) {
             ts_cli_print_tags(ctx, &id);
         }
-        ts_cli_print_id(ctx, &id, **show_id);
+        ts_cli_print_id(ctx, &id, *show_id);
     }
 
     ts_searchset_close(ctx, search);
@@ -51,13 +51,13 @@ int ts_cli_list(ts_cli_ctx * ctx, int argc, char * argv[]) {
 int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args args;
     ts_args_create(&args);
-    bool ** show_id = ts_args_add_bool(&args, "id"); //(show created document's id or path)
-    bool ** dont_change_pws = ts_args_add_bool(&args, "preview"); // (change directory on creation, or just create)
-    bool ** dont_show_doc_name = ts_args_add_bool(&args, "silent"); // (don't display document name after create)
-    bool ** show_help = ts_args_add_bool(&args, "help");
+    bool * show_id = ts_args_add_bool(&args, "id"); //(show created document's id or path)
+    bool * dont_change_pws = ts_args_add_bool(&args, "preview"); // (change directory on creation, or just create)
+    bool * dont_show_doc_name = ts_args_add_bool(&args, "silent"); // (don't display document name after create)
+    bool * show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
-    if(**show_help) {
+    if(*show_help) {
         ts_cli_make_help(ctx);
         ts_args_close(&args);
         return TS_SUCCESS;
@@ -73,12 +73,12 @@ int ts_cli_make(ts_cli_ctx * ctx, int argc, char * argv[]) {
         ts_doc_tag(&doc, key);
     })
 
-    if(!**dont_show_doc_name) {
-        ts_cli_print_id(ctx, &doc.id, **show_id);
+    if(!*dont_show_doc_name) {
+        ts_cli_print_id(ctx, &doc.id, *show_id);
     }
 
     // don't update the pws if --preview was set
-    if(!**dont_change_pws) {
+    if(!*dont_change_pws) {
         ts_tagset_save(ctx, pws);
     }
 
@@ -93,13 +93,13 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
 
     ts_args args;
     ts_args_create(&args);
-    bool ** show_id = ts_args_add_bool(&args, "id"); // (show created document's id or path)
-    bool ** force = ts_args_add_bool(&args, "force");// if deleting more than 1, confirm. -force to not confirm
-    bool ** silent = ts_args_add_bool(&args, "silent"); // silent (don't display document names after deletion)
-    bool ** show_help = ts_args_add_bool(&args, "help");
+    bool * show_id = ts_args_add_bool(&args, "id"); // (show created document's id or path)
+    bool * force = ts_args_add_bool(&args, "force");// if deleting more than 1, confirm. -force to not confirm
+    bool * silent = ts_args_add_bool(&args, "silent"); // silent (don't display document names after deletion)
+    bool * show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
-    if(**show_help) {
+    if(*show_help) {
         ts_cli_remove_help(ctx);
         ts_args_close(&args);
         return TS_SUCCESS;
@@ -108,7 +108,7 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
     hash_t * pws = ts_tagset_load(ctx);
     ts_tagset_append(&pws, args.rest);
 
-    if(!ts_searchset_has_one(ctx, pws) && !**force) {
+    if(!ts_searchset_has_one(ctx, pws) && !*force) {
         // prompt before deleting multiple docs
         if(!ts_cli_confirm(ctx, "Multiple documents will be deleted. Continue?")) {
             ts_args_close(&args);
@@ -125,8 +125,8 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
         ts_doc_open(&doc, ctx->db, id);
         ts_doc_delete(&doc);
         ts_doc_close(&doc);
-        if(!**silent) {
-            ts_cli_print_id(ctx, &doc.id, **show_id);
+        if(!*silent) {
+            ts_cli_print_id(ctx, &doc.id, *show_id);
         }
     }
 
@@ -140,13 +140,13 @@ int ts_cli_remove(ts_cli_ctx * ctx, int argc, char * argv[]) {
 int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args args;
     ts_args_create(&args);
-    bool ** show_id = ts_args_add_bool(&args, "id"); // (show created document's id or path)
-    bool ** force = ts_args_add_bool(&args, "force"); // (if we should prompt before tagging multiple documents)
-    bool ** silent = ts_args_add_bool(&args, "silent");
-    bool ** show_help = ts_args_add_bool(&args, "help");
+    bool * show_id = ts_args_add_bool(&args, "id"); // (show created document's id or path)
+    bool * force = ts_args_add_bool(&args, "force"); // (if we should prompt before tagging multiple documents)
+    bool * silent = ts_args_add_bool(&args, "silent");
+    bool * show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
-    if(**show_help) {
+    if(*show_help) {
         ts_cli_tag_help(ctx);
         ts_args_close(&args);
         return TS_SUCCESS;
@@ -158,7 +158,7 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
     sds * paths = ts_cli_stdin_to_array(ctx, &count);
     int doc_count = count - 1;
 
-    if(doc_count > 1 && !**force) {
+    if(doc_count > 1 && !*force) {
         if(!ts_cli_confirm(ctx, "Multiple documents will be tagged. Continue?")) {
             sdsfreesplitres(paths, count);
             ts_args_close(&args);
@@ -201,8 +201,8 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
             current_tag = current_tag->next;
         }
         
-        if(!**silent) {
-            ts_cli_print_id(ctx, &doc.id, **show_id);
+        if(!*silent) {
+            ts_cli_print_id(ctx, &doc.id, *show_id);
         }
 
         ts_doc_close(&doc);
@@ -218,11 +218,11 @@ int ts_cli_tag(ts_cli_ctx * ctx, int argc, char * argv[]) {
 int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args args;
     ts_args_create(&args);
-    bool ** silent = ts_args_add_bool(&args, "silent"); // silent (don't display new set after cws)
-    bool ** show_help = ts_args_add_bool(&args, "help");
+    bool * silent = ts_args_add_bool(&args, "silent"); // silent (don't display new set after cws)
+    bool * show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
-    if(**show_help) {
+    if(*show_help) {
         ts_cli_changeset_help(ctx);
         ts_args_close(&args);
         return TS_SUCCESS;
@@ -234,7 +234,7 @@ int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_tagset_save(ctx, pws);
 
     // print the new pws if nessessary
-    if(!**silent) {
+    if(!*silent) {
         sds pws_str = ts_tagset_print(pws);
         fprintf(ctx->out, "%s\n", pws_str);
         sdsfree(pws_str);
@@ -248,10 +248,10 @@ int ts_cli_changeset(ts_cli_ctx * ctx, int argc, char * argv[]) {
 int ts_cli_presentset(ts_cli_ctx * ctx, int argc, char * argv[]) {
     ts_args args;
     ts_args_create(&args);
-    bool ** show_help = ts_args_add_bool(&args, "help");
+    bool * show_help = ts_args_add_bool(&args, "help");
     ts_args_parse(&args, argc, argv);
 
-    if(**show_help) {
+    if(*show_help) {
         ts_cli_presentset_help(ctx);
         ts_args_close(&args);
         return TS_SUCCESS;

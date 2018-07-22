@@ -65,9 +65,9 @@ void ** _ts_args_add(ts_args * self, char * name, ts_arg_type type) {
     return &self->latest_arg->value;
 }
 
-bool ** ts_args_add_bool(ts_args * self, char * name) {
-    bool ** out = (bool**)_ts_args_add(self, name, ARG_TYPE_BOOL);
-    *out = &_ts_args_false;
+bool * ts_args_add_bool(ts_args * self, char * name) {
+    bool * out = (bool*)_ts_args_add(self, name, ARG_TYPE_BOOL);
+    *out = _ts_args_false;
     return out;
 }
 
@@ -91,7 +91,7 @@ bool _ts_args_set_param(ts_args * self, char * arg_input_value) {
         if(ts_args_matches(arg->name, arg_input_value)) {
             if(arg->type == ARG_TYPE_BOOL) {
                 LOG1("Matched as bool");
-                arg->value = (void*)(&_ts_args_true);
+                arg->value = (void *)(_ts_args_true);
                 self->pending_value = false;
                 success = true;
                 break;

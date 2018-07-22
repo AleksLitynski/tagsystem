@@ -38,7 +38,7 @@ const bool _ts_args_false;
 bool ts_args_matches(char * arg_name, char * arg_input_value);
 
 int ts_args_create(ts_args * self);
-bool ** ts_args_add_bool(ts_args * self, char * name);
+bool * ts_args_add_bool(ts_args * self, char * name);
 char ** ts_args_add_str(ts_args * self, char * name);
 int ts_args_parse(ts_args * self, int argc, char * argv[]);
 int _ts_arg_close(ts_arg * arg);

@@ -45,12 +45,12 @@ void arg_parsing_test(void ** state) {
     ts_args args;
     ts_args_create(&args);
 
-    bool ** a = ts_args_add_bool(&args, "aaaa");
-    bool ** b = ts_args_add_bool(&args, "bbbb");
-    bool ** e = ts_args_add_bool(&args, "ee");
+    bool *  a = ts_args_add_bool(&args, "aaaa");
+    bool *  b = ts_args_add_bool(&args, "bbbb");
+    bool *  e = ts_args_add_bool(&args, "ee");
     char ** c = ts_args_add_str(&args, "cccc");
     char ** d = ts_args_add_str(&args, "dddd");
-    bool ** force = ts_args_add_bool(&args, "force");
+    bool *  force = ts_args_add_bool(&args, "force");
 
     char * chars[] = {
         "--aaaa",
@@ -61,13 +61,13 @@ void arg_parsing_test(void ** state) {
         "__rest__2"
     };
 
-    LOG("Before Parse a: %d", **a);
-    LOG("Before Parse b: %d", **b);
-    LOG("Before Parse e: %d", **e);
+
+    LOG("Before Parse a: %d", *a);
+    LOG("Before Parse b: %d", *b);
+    LOG("Before Parse e: %d", *e);
     LOG("Before Parse c: %s", *c);
     LOG("Before Parse d: %s", *d);
-    LOG("Before Parse force: %d", **force);
-
+    LOG("Before Parse force: %d", *force);
 
     int unused = ts_args_parse(&args, sizeof(chars) / sizeof(char *), chars);
 
@@ -84,17 +84,17 @@ void arg_parsing_test(void ** state) {
         current = current->next;
     }
 
-    LOG("After Parse a: %d", **a);
-    LOG("After Parse b: %d", **b);
-    LOG("After Parse e: %d", **e);
+    LOG("After Parse a: %d", *a);
+    LOG("After Parse b: %d", *b);
+    LOG("After Parse e: %d", *e);
     LOG("After Parse c: %s", *c);
     LOG("After Parse d: %s", *d);
-    LOG("After Parse force: %d", **force);
+    LOG("After Parse force: %d", *force);
 
-    assert_true(**a);
-    assert_true(**b);
-    assert_true(**e);
-    assert_false(**force);
+    assert_true(*a);
+    assert_true(*b);
+    assert_true(*e);
+    assert_false(*force);
 
     assert_string_equal(*c, "c_value");
     assert_string_equal(*d, "d_value");
