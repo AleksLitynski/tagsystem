@@ -71,6 +71,19 @@ void arg_parsing_test(void ** state) {
 
     int unused = ts_args_parse(&args, sizeof(chars) / sizeof(char *), chars);
 
+    ts_arg * current = args.args;
+    LOG1("Discovered Args (from test_parsing):");
+    while(current != 0) {
+        if(current->type == ARG_TYPE_BOOL) {
+            LOG("   %s -> %d", current->name, (bool)current->value);
+
+        } else if(current->type == ARG_TYPE_STR) {
+            LOG("   %s -> %s", current->name, (char *)current->value);
+        }
+        
+        current = current->next;
+    }
+
     LOG("After Parse a: %d", **a);
     LOG("After Parse b: %d", **b);
     LOG("After Parse e: %d", **e);
