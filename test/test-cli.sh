@@ -7,7 +7,7 @@ BASEDIR=$(dirname "$0")
 export TSDBPATH="$BASEDIR/test_db"
 echo "tsdbpath: $TSDBPATH"
 echo ""
-rm -r $TSDBPATH 2> /dev/null
+# rm -r $TSDBPATH 2> /dev/null
 
 # get reference to exe
 TSYS="$BASEDIR/../cli/tsys"

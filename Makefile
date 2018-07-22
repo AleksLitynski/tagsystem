@@ -27,3 +27,4 @@ cli:
 
 runtest:
 	$(MAKE) -C test run
+	$(MAKE) -C test runshared

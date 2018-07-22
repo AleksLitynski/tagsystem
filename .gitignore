@@ -16,3 +16,4 @@ test/test.exe
 test/test_db/*
 cli/tsys 
 cli/tsys.exe
+src/libts.h

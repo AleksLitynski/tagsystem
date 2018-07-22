@@ -12,18 +12,10 @@ SOURCE += $(shell echo ../lib/fs.c/*.c)
 SOURCE += $(shell echo ../lib/hash/*.c)
 SOURCE += $(LMDBDIR)/mdb.c
 SOURCE += $(LMDBDIR)/midl.c
-HEADER = $(shell echo *.h)
-HEADER += $(shell echo ../lib/lmdb/libraries/liblmdb/*.h)
-HEADER += $(shell echo ../lib/sds/*.h)
-HEADER += $(shell echo ../lib/fs.c/*.h)
-HEADER += $(shell echo ../lib/hash/*.h)
-HEADER += $(LMDBDIR)/mdb.h
-HEADER += $(LMDBDIR)/midl.h
 
 OBJECT = $(SOURCE:.c=.o)
 TARGET = libts.a
-
-LINKED  = $(LMDBDIR)/liblmdb.a
+SHAREDTARGET = libts.so
 
 CC = gcc
 
@@ -34,6 +26,7 @@ CFLAGS += -Werror
 CFLAGS += -Wfatal-errors
 CFLAGS += -Wno-error=discarded-qualifiers
 CFLAGS += -Wno-discarded-qualifiers
+CFLAGS += -fpic
 CFLAGS += -I $(LMDBDIR)
 CFLAGS += -I ../lib/fs.c
 CFLAGS += -I ../lib/sds
@@ -44,7 +37,7 @@ ifeq ($(detected_os),Windows)
 	SOLIBS = -lntdll
 endif
 
-all: $(TARGET)
+all: $(TARGET) $(SHAREDTARGET)
 
 clean:
 	rm -f $(OBJECT) $(TARGET)
@@ -52,3 +45,6 @@ clean:
 $(TARGET): $(OBJECT)
 	# check archive contents with `ar -t libts.a`
 	ar rcs $@ $^
+
+$(SHAREDTARGET): $(OBJECT)
+	gcc -shared -o $(SHAREDTARGET) $(OBJECT)

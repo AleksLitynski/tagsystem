@@ -6,15 +6,9 @@ else
 endif
 
 SOURCE = $(shell echo *.c) $(shell ls ../lib/cmocka/src/cmocka.c)
-HEADER = $(shell echo *.h)
-HEADER += $(shell ls ../lib/cmocka/include/cmocka.h)
-HEADER += $(shell echo ../lib/sds/*.h)
-HEADER += $(shell echo ../lib/hash/*.h)
-HEADER += $(shell echo ../lib/lmdb/libraries/liblmdb/*.h)
-HEADER += ../lib/fs.fs.h
-HEADER += $(shell echo ../src/*.h)
 OBJECT = $(SOURCE:.c=.o)
 TARGET = test
+SHAREDTARGET = testshared
 
 CC = gcc
 CFLAGS = $(CMOCKADEFS)
@@ -32,7 +26,8 @@ CFLAGS += -Werror
 CFLAGS += -Wno-error=discarded-qualifiers
 CFLAGS += -Wno-discarded-qualifiers
 
-LINKED = ../src/libts.a
+LINKED = 
+SHAREDLIBPATH = $(shell pwd)/../src
 ifeq ($(detected_os),Windows)
 	CFLAGS += -imacros ./cmocka.win.def.h
 	LINKED += -lntdll
@@ -46,16 +41,22 @@ endif
 
 pwd: $(pwd)
 
-all: $(TARGET)
+all: $(TARGET) $(SHAREDTARGET)
 
 clean:
 	rm -f $(OBJECT) $(TARGET)
 	rm -rf test_db
 
 $(TARGET): $(OBJECT)
-	$(CC) $(CFLAGS) -o $@ $(OBJECT) $(LINKED)
+	$(CC) $(CFLAGS) -o $@ $(OBJECT) ../src/libts.a $(LINKED)
 
+$(SHAREDTARGET): $(OBJECT)
+	gcc -L$(SHAREDLIBPATH) $(CFLAGS) -o $@ $(OBJECT) -lts $(LINKED)
 
 run: $(TARGET)
 	rm -rf test_db
 	./test
+
+runshared: $(SHAREDTARGET)
+	rm -rf test_db
+	LD_LIBRARY_PATH=$(SHAREDLIBPATH) ./testshared

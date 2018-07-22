@@ -7,7 +7,7 @@
 #include <ftw.h>
 
 // macros
-#define TS_VERSION "0.0.1"
+#define TS_VERSION "0.0.2"
 
 
 // types
