@@ -23,8 +23,10 @@ for:
       - image: Visual Studio 2017
   install:
   - ps: |
+      tree
       git submodule init
       git submodule update --recursive
+      tree
   build_script:
   - ps: |
       tree
