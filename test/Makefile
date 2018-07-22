@@ -25,6 +25,8 @@ CFLAGS += -D_GNU_SOURCE
 CFLAGS += -Werror
 CFLAGS += -Wno-error=discarded-qualifiers
 CFLAGS += -Wno-discarded-qualifiers
+CFLAGS += -Wno-format-extra-args
+ 
 
 LINKED = 
 SHAREDLIBPATH = $(shell pwd)/../src
