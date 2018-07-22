@@ -22,15 +22,15 @@ for:
     only: 
       - image: Visual Studio 2017
   install:
-  - powershell: |
-      choco install make
-      choco install gcc
+  - cmd: |
+      choco install -y make
+      choco install -y gcc
       git submodule init
       git submodule update --recursive
   build_script:
-  - powershell: make all
+  - cmd: make all
   test_script:
-  - powershell: make runtest
+  - cmd: make runtest
 
 artifacts:
 - path: src/libts.a
