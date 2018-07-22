@@ -38,7 +38,8 @@
         "tstagset.h": "c",
         "tsdoc.h": "c",
         "chrono": "c",
-        "tscli.h": "c"
+        "tscli.h": "c",
+        "bitset": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

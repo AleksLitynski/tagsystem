@@ -375,8 +375,8 @@ sds ts_tags_print(ts_tags * self, sds printed) {
     }
 
     // print size, occupied, and all 'next' values
-    printed = sdscatprintf(printed, "\nsize: %i\n", self->size);
-    printed = sdscatprintf(printed, "occupied: %i\n", self->occupied);
+    printed = sdscatprintf(printed, "\nsize: %zu\n", self->size);
+    printed = sdscatprintf(printed, "occupied: %zu\n", self->occupied);
 
     // print the chain of empty cells
     size_t next = self->next;
