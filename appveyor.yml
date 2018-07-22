@@ -24,13 +24,9 @@ for:
   install:
   - ps: |
       choco install -y make
-      try {
-        git submodule init
-        git submodule update --recursive
-      } catch {
+      git submodule --quiet init
+      git submodule --quiet update --recursive
 
-      }
-      
   build_script:
   - ps: |
       make all
