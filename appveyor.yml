@@ -26,6 +26,10 @@ for:
       choco install -y make
       git submodule --quiet init
       git submodule --quiet update --recursive
+      where.exe gcc
+      where.exe make
+      where.exe ar
+      write-host $env:PATH
 
   build_script:
   - ps: |
