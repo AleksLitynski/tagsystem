@@ -1,33 +1,32 @@
 version: 0.0.2-{build}-{branch}
-image: 
-  - Ubuntu
-  - Visual Studio 2017
+image:
+- Ubuntu
+- Visual Studio 2017
 
 for:
+-
+  image: Ubuntu
+  install:
+  - sh: |
+      git submodule init
+      git submodule update --recursive
+  build_script:
+  - sh: make all
+  test_script:
+  - sh: make runtest
 
-  -
-    image: Ubuntu
-    install:
-    - sh: |
-        git submodule init
-        git submodule update --recursive
-    build_script:
-    - sh: make all
-    test_script:
-    - sh: make runtest
-    
-  -
-    image: Visual Studio 2017
-    install:
-    - powershell: |
-        choco install make
-        choco install gcc
-        git submodule init
-        git submodule update --recursive
-    build_script:
-    - powershell: make all
-    test_script:
-    - powershell: make runtest
+-
+  image: Visual Studio 2017
+  install:
+  - powershell: |
+      choco install make
+      choco install gcc
+      git submodule init
+      git submodule update --recursive
+  build_script:
+  - powershell: make all
+  test_script:
+  - powershell: make runtest
 
 artifacts:
 - path: src/libts.a
