@@ -36,7 +36,7 @@
 #include "tsclihelp.h"
 
 // macros
-#define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", __VA_ARGS__)
+#define LOG(fmt, ...) printf ("[ INFO     ] " fmt "\n", ##__VA_ARGS__)
 #define LOG1(fmt) LOG(fmt, "")
 #define LOGID(id) {                         \
     sds str = ts_id_string(id, sdsempty()); \
