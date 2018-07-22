@@ -5,7 +5,9 @@ image:
 
 for:
 -
-  image: Ubuntu
+  matrix:
+    only: 
+      - image: Ubuntu
   install:
   - sh: |
       git submodule init
@@ -16,7 +18,9 @@ for:
   - sh: make runtest
 
 -
-  image: Visual Studio 2017
+  matrix:
+    only: 
+      - image: Ubuntu
   install:
   - powershell: |
       choco install make
