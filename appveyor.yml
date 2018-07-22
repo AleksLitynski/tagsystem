@@ -26,12 +26,15 @@ for:
       choco install -y make
       choco install -y mingw
       refreshenv
+      $env:PATH += ";C:\tools\mingw64\bin\"
       git submodule --quiet init
       git submodule --quiet update --recursive
       where.exe gcc
       where.exe make
       where.exe ar
       write-host $env:PATH
+      ls "C:\tools\mingw64\bin"
+      ls "C:\tools\mingw64"
 
   build_script:
   - ps: |
