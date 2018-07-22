@@ -24,7 +24,7 @@ for:
   install:
   - cmd: |
       choco install -y make
-      choco install -y gcc
+      choco install -y mingw
       git submodule init
       git submodule update --recursive
   build_script:
