@@ -177,7 +177,7 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
             LOG("   %s -> %d", current->name, (bool)current->value);
 
         } else if(current->type == ARG_TYPE_STR) {
-            LOG("   %s -> %s", current->name, current->value);
+            LOG("   %s -> %s", current->name, (char *)current->value);
         }
         
         current = current->next;
