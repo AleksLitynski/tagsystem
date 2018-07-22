@@ -23,15 +23,17 @@ for:
       - image: Visual Studio 2017
   install:
   - ps: |
-      tree
-      git submodule init
-      git submodule update --recursive
-      tree
+      choco install -y make
+      try {
+        git submodule init
+        git submodule update --recursive
+      } catch {
+
+      }
+      
   build_script:
   - ps: |
-      tree
       make all
-      tree
   test_script:
   - ps: make runtest
 
