@@ -54,11 +54,9 @@ void arg_parsing_test(void ** state) {
 
     char * chars[] = {
         "--aaaa",
-        "-c",
-        "c_value",
+        "-c", "c_value",
         "-eb",
-        "--ddd",
-        "d_value",
+        "--ddd", "d_value",
         "__rest__",
         "__rest__2"
     };

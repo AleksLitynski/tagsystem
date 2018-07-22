@@ -169,6 +169,21 @@ int ts_args_parse(ts_args * self, int argc, char * argv[]) {
     // concat remaining values into a single 'rest' string
     self->rest = ts_str_concat_string(sdsempty(), argc - i, &argv[i]);
 
+
+    ts_arg * current = self->args;
+    LOG1("Discovered Args:");
+    while(current != 0) {
+        if(current->type == ARG_TYPE_BOOL) {
+            LOG("   %s -> %d", current->name, (bool)current->value);
+
+        } else if(current->type == ARG_TYPE_STR) {
+            LOG("   %s -> %s", current->name, current->value);
+        }
+        
+        current = current->next;
+    }
+
+
     return TS_SUCCESS;
 }
 
