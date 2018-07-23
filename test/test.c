@@ -102,6 +102,8 @@ int main(void) {
 
     };
 
-    return cmocka_run_group_tests_name("all tests", tests, setup, teardown);
+    int failures = cmocka_run_group_tests_name("all tests", tests, setup, teardown);
+    LOG("failures: %i", failures);
+    return failures > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 
 }
