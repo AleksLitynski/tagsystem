@@ -29,7 +29,7 @@ CFLAGS += -Wno-format-extra-args
  
 
 LINKED = 
-SHAREDLIBPATH = $(shell pwd)/../src
+SHAREDLIBPATH = ../src
 ifeq ($(detected_os),Windows)
 	CFLAGS += -imacros ./cmocka.win.def.h
 	LINKED += -lntdll
