@@ -7,8 +7,8 @@ endif
 
 SOURCE = $(shell echo *.c) $(shell ls ../lib/cmocka/src/cmocka.c)
 OBJECT = $(SOURCE:.c=.o)
-TARGET = test
 SOTARGET = testshared
+TARGET = test
 
 CC = gcc
 CFLAGS = $(CMOCKADEFS)
