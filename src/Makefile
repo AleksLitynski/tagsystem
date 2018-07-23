@@ -15,7 +15,7 @@ SOURCE += $(LMDBDIR)/midl.c
 
 OBJECT = $(SOURCE:.c=.o)
 TARGET = libts.a
-SHAREDTARGET = libts.so
+SOTARGET = libts.so
 
 CC = gcc
 
@@ -33,19 +33,21 @@ CFLAGS += -I ../lib/fs.c
 CFLAGS += -I ../lib/sds
 CFLAGS += -I ../lib/hash
 
+LINKED =
 ifeq ($(detected_os),Windows)
+	LINKED += -lntdll
 	LDLIBS = -lntdll 
 	SOLIBS = -lntdll
 endif
 
-all: $(TARGET) $(SHAREDTARGET)
+all: $(TARGET) $(SOTARGET)
 
 clean:
-	rm -f $(OBJECT) $(TARGET) $(SHAREDTARGET)
+	rm -f $(OBJECT) $(TARGET) $(SOTARGET)
 
 $(TARGET): $(OBJECT)
 	# check archive contents with `ar -t libts.a`
 	ar rcs $@ $^
 
-$(SHAREDTARGET): $(OBJECT)
-	gcc -shared -o $(SHAREDTARGET) $(OBJECT)
+$(SOTARGET): $(OBJECT)
+	gcc -shared -o $(SOTARGET) $(OBJECT) $(LINKED)

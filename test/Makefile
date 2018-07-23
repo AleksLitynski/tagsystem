@@ -8,7 +8,7 @@ endif
 SOURCE = $(shell echo *.c) $(shell ls ../lib/cmocka/src/cmocka.c)
 OBJECT = $(SOURCE:.c=.o)
 TARGET = test
-SHAREDTARGET = testshared
+SOTARGET = testshared
 
 CC = gcc
 CFLAGS = $(CMOCKADEFS)
@@ -43,22 +43,22 @@ endif
 
 pwd: $(pwd)
 
-all: $(TARGET) $(SHAREDTARGET)
+all: $(TARGET) $(SOTARGET)
 
 clean:
-	rm -f $(OBJECT) $(TARGET) $(SHAREDTARGET)
+	rm -f $(OBJECT) $(TARGET) $(SOTARGET)
 	rm -rf test_db
 
 $(TARGET): $(OBJECT)
 	$(CC) $(CFLAGS) -o $@ $(OBJECT) ../src/libts.a $(LINKED)
 
-$(SHAREDTARGET): $(OBJECT)
+$(SOTARGET): $(OBJECT)
 	gcc -L$(SHAREDLIBPATH) $(CFLAGS) -o $@ $(OBJECT) -lts $(LINKED)
 
 run: $(TARGET)
 	rm -rf test_db
 	./test
 
-runshared: $(SHAREDTARGET)
+runshared: $(SOTARGET)
 	rm -rf test_db
 	LD_LIBRARY_PATH=$(SHAREDLIBPATH) ./testshared
