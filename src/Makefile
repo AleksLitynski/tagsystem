@@ -41,6 +41,7 @@ ifeq ($(detected_os),Windows)
 endif
 
 all: $(TARGET) $(SOTARGET)
+	ls -la
 
 clean:
 	rm -f $(OBJECT) $(TARGET) $(SOTARGET)
